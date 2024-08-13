@@ -25,6 +25,12 @@
 1. Read QC ([`FastQC`](https://www.bioinformatics.babraham.ac.uk/projects/fastqc/))
 2. Present QC for raw reads ([`MultiQC`](http://multiqc.info/))
 
+Official nextflow sample test data for directRNA is
+[here](https://github.com/nf-core/test-datasets/tree/nanoseq). Sequencing
+summary files, bams, fast5's even! Unfortunately there aren't enough dRNA data,
+so additional datasets will be included.
+
+
 ## Usage
 
 > [!NOTE]
@@ -68,10 +74,6 @@ medgen/directrna was originally written by Dean Bašić.
 We thank the following people for their extensive assistance in the development of this pipeline:
 
 <!-- TODO nf-core: If applicable, make list of people who have also contributed -->
-
-## Contributions and Support
-
-If you would like to contribute to this pipeline, please see the [contributing guidelines](.github/CONTRIBUTING.md).
 
 ## Citations
 

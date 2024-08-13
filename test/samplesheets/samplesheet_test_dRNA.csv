@@ -1,0 +1,2 @@
+sample,fastq
+MCF7_4,https://github.com/nf-core/test-datasets/blob/nanoseq/fastq/demultiplexed/quantification/bambu/MCF7_directRNA_replicate4.fastq.gz

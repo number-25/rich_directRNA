@@ -1,0 +1,7 @@
+sample,fastq
+MCF7_rep1,s3://sg-nex-data/data/sequencing_data_ont/fastq/SGNex_MCF7_directRNA_replicate1_run1/SGNex_MCF7_directRNA_replicate1_run1.fastq.gz
+MCF7_rep2,s3://sg-nex-data/data/sequencing_data_ont/fastq/SGNex_MCF7_directRNA_replicate2_run2/SGNex_MCF7_directRNA_replicate2_run2.fastq.gz
+Myeloma-N082_rep1,s3://sg-nex-data/data/sequencing_data_ont/fastq/SGNex_Myeloma-N082_directRNA_replicate1_run1/SGNex_Myeloma-N082_directRNA_replicate1_run1.fastq.gz
+Myeloma_N104_rep1,s3://sg-nex-data/data/sequencing_data_ont/fastq/SGNex_Myeloma-N104_directRNA_replicate1_run1/SGNex_Myeloma-N104_directRNA_replicate1_run1.fastq.gz
+Hek293T_rep1,s3://sg-nex-data/data/sequencing_data_ont/fastq/SGNex_Hek293T_directRNA_replicate1_run1/SGNex_Hek293T_directRNA_replicate1_run1.fastq.gz
+Hek293T_rep2,s3://sg-nex-data/data/sequencing_data_ont/fastq/SGNex_Hek293T_directRNA_replicate2_run1/SGNex_Hek293T_directRNA_replicate2_run1.fastq.gz
