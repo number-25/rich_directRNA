@@ -39,6 +39,12 @@ so additional datasets will be included.
 <!-- TODO nf-core: Describe the minimum required steps to execute the pipeline, e.g. how to prepare samplesheets.
      Explain what rows and columns represent. For instance (please edit as appropriate):
 
+Download the reference genome, transcriptome etc. to be used by the pipeline.
+We will use the hg38 analysis set and Ensemble 112, corresponding to GENCODE
+release 46.
+Navigate and enter into the `assets` directory and execute `bash download_references.sh`.
+Ensure that you have gunzip and rsync installed on your system.
+
 First, prepare a samplesheet with your input data that looks as follows:
 
 `samplesheet.csv`:
