@@ -14,7 +14,7 @@ process NANOQ {
     output:
     tuple val(meta), path("*.{stats,json}")                                           , emit: stats
     tuple val(meta), path("*_verbose.stats")                                          , emit: verbose_stats
-    tuple val(meta), path("*.json")                                                   ,emit: json_ stats
+    tuple val(meta), path("*.json")                                                   ,emit: json_stats
     //tuple val(meta), path("*_filtered.${output_format}")                              , emit: reads
     path "versions.yml"                                                               , emit: versions
 
