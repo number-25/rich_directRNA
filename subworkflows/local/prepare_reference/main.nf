@@ -1,15 +1,47 @@
-// TODO nf-core: If in doubt look at other nf-core/subworkflows to see how we are doing things! :)
 //               https://github.com/nf-core/modules/tree/master/subworkflows
-//               You can also ask for help via your pull request or on the #subworkflows channel on the nf-core Slack workspace:
-//               https://nf-co.re/join
-// TODO nf-core: A subworkflow SHOULD import at least two modules
+//
+// Uncompress and prepare reference genome files
+//
+
+include { GUNZIP as GUNZIP_FASTA        } from '../modules/nf-core/gunzip'
+include { GUNZIP as GUNZIP_GTF } from '../modules/nf-core/gunzip'
+include { GUNZIP as GUNZIP_BED } from '../modules/nf-core/gunzip'
+include { GUNZIP as GUNZIP_TRANSCRIPT_FASTA } from
+'../modules/nf-core/gunzip'
+include { GUNZIP as GUNZIP_POLYA } from '../modules/nf-core/gunzip'
+
+
+// prepare indices for reference
+
+include { MINIMAP2_INDEX as MINIMAP2_GENOME_INDEX } from '../modules/nf-core/minimap2/index'
+include { MINIMAP2_INDEX as MINIMAP2_TRANSCRIPTOME_INDEX } from '../modules/nf-core/minimap2/index'
+include { SAMTOOLS_FAIDX } from '../modules/nf-core/samtools/faidx'
+include { CUSTOM_GETCHROMSIZES } from
+'../modules/nf-core/custom/getchromsizes'
+include { SAMTOOLS_INDEX     } from
+'../../../modules/nf-core/samtools/index/main'
+
+
+// prepare additional files
+
+include { GTF_FLATTEN? }
+include {
+
 
 include { SAMTOOLS_SORT      } from '../../../modules/nf-core/samtools/sort/main'
-include { SAMTOOLS_INDEX     } from '../../../modules/nf-core/samtools/index/main'
 
 workflow PREPARE_REFERENCE {
 
     take:
+    genome_fasta
+    transcriptome_fasta
+    annotation_gtf
+    annotation_bed
+    splicesites
+    chromsizes?
+    appris_bed?
+    mane_select_bed?
+    mane_clinical_bed?
     // TODO nf-core: edit input (take) channels
     ch_bam // channel: [ val(meta), [ bam ] ]
 

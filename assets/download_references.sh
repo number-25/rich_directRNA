@@ -17,7 +17,7 @@ fi
 wget https://hgdownload.soe.ucsc.edu/goldenPath/hg38/bigZips/analysisSet/hg38.analysisSet.fa.gz
 
 # chrom sizes, aliase file and chromToUcsc
-: '
+
 #rsync -a -P rsync://hgdownload.cse.ucsc.edu/goldenpath/hg38/bigZips/hg38.chrom.sizes ./
 wget https://hgdownload.cse.ucsc.edu/goldenpath/hg38/bigZips/hg38.chrom.sizes ./
 
@@ -31,12 +31,25 @@ chmod +x chromToUcsc
 # ensemble annotation 112
 
 #rsync -a -P rsync://ftp.ensembl.org/pub/release-112/gtf/homo_sapiens/Homo_sapiens.GRCh38.112.gtf.gz | gunzip
-wget https://ftp.ensembl.org/pub/release-112/gtf/homo_sapiens/Homo_sapiens.GRCh38.112.gtf.gz | gunzip
+wget https://ftp.ensembl.org/pub/release-112/gtf/homo_sapiens/Homo_sapiens.GRCh38.112.gtf.gz
 
 # transcripts fasta sequence - gencode 46 matches ensemble 112
-wget https://ftp.ebi.ac.uk/pub/databases/gencode/Gencode_human/release_46/gencode.v46.transcripts.fa.gz | gunzip
+wget https://ftp.ebi.ac.uk/pub/databases/gencode/Gencode_human/release_46/gencode.v46.transcripts.fa.gz
 
 # Convert the chromosome naming in the ensemble annotation to match the genome
 # (from 1 to chr1)
-cat Homo_sapiens.GRCh38.112.gtf | chromtoUcsc -a hg38.chromAlias.txt > Homo_sapiens.GRCh38.112_aliased.gtf
-'
+zcat Homo_sapiens.GRCh38.112.gtf.gz | chromtoUcsc -a hg38.chromAlias.txt > Homo_sapiens.GRCh38.112_aliased.gtf
+
+# Get CAGE-refTSS data from RIKEN
+wget https://reftss.riken.jp/datafiles/current/human/refTSS_v4.1_human_coordinate.hg38.bed.txt.gz
+
+# Get Poly-A motifs
+wget https://raw.githubusercontent.com/ConesaLab/SQANTI3/master/data/polyA_motifs/mouse_and_human.polyA_motif.txt
+
+# Get Poly-A sites
+wget https://polyasite.unibas.ch/download/atlas/2.0/GRCh38.96/atlas.clusters.2.0.GRCh38.96.bed.gz
+# is going to need to be converted to have the correct chromosome naming
+
+
+
+
