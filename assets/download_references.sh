@@ -50,6 +50,8 @@ wget https://raw.githubusercontent.com/ConesaLab/SQANTI3/master/data/polyA_motif
 wget https://polyasite.unibas.ch/download/atlas/2.0/GRCh38.96/atlas.clusters.2.0.GRCh38.96.bed.gz
 # is going to need to be converted to have the correct chromosome naming
 
+# Get intropolis files - hg19 to hg38 liftover
+wget https://github.com/Magdoll/images_public/raw/master/SQANTI2_support_data/intropolis.v1.hg19_with_liftover_to_hg38.tsv.min_count_10.modified.gz
 
-
-
+# Get 30way PhyloP file - BigWig format
+wget https://hgdownload.soe.ucsc.edu/goldenPath/hg38/phyloP30way/hg38.phyloP30way.bw
