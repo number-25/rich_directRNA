@@ -1,5 +1,5 @@
 process CUSTOM_GETCHROMSIZES {
-    tag "$fasta"
+    tag "$genome_fasta"
     label 'process_single'
 
     conda "${moduleDir}/environment.yml"
@@ -8,7 +8,7 @@ process CUSTOM_GETCHROMSIZES {
         'biocontainers/samtools:1.20--h50ea8bc_0' }"
 
     input:
-    tuple val(meta), path(fasta)
+    tuple val(meta), path(genome_fasta)
 
     output:
     tuple val(meta), path ("*.sizes"), emit: sizes
@@ -22,8 +22,8 @@ process CUSTOM_GETCHROMSIZES {
     script:
     def args = task.ext.args ?: ''
     """
-    samtools faidx $fasta
-    cut -f 1,2 ${fasta}.fai > ${fasta}.sizes
+    samtools faidx $genome_fasta
+    cut -f 1,2 ${genome_fasta}.fai > ${genome_fasta}.sizes
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
@@ -33,10 +33,10 @@ process CUSTOM_GETCHROMSIZES {
 
     stub:
     """
-    touch ${fasta}.fai
-    touch ${fasta}.sizes
-    if [[ "${fasta.extension}" == "gz" ]]; then
-        touch ${fasta}.gzi
+    touch ${genome_fasta}.fai
+    touch ${genome_fasta}.sizes
+    if [[ "${genome_fasta.extension}" == "gz" ]]; then
+        touch ${genome_fasta}.gzi
     fi
 
     cat <<-END_VERSIONS > versions.yml

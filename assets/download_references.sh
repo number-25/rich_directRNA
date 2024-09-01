@@ -14,19 +14,21 @@ fi
 # hg38 genome - analysis set
 
 #rsync -a -P rsync://hgdownload.soe.ucsc.edu/goldenPath/hg38/bigZips/analysisSet/hg38.analysisSet.fa.gz ./
-wget https://hgdownload.soe.ucsc.edu/goldenPath/hg38/bigZips/analysisSet/hg38.analysisSet.fa.gz
+#wget https://hgdownload.soe.ucsc.edu/goldenPath/hg38/bigZips/analysisSet/hg38.analysisSet.fa.gz
 
 # chrom sizes, aliase file and chromToUcsc
 
 #rsync -a -P rsync://hgdownload.cse.ucsc.edu/goldenpath/hg38/bigZips/hg38.chrom.sizes ./
-wget https://hgdownload.cse.ucsc.edu/goldenpath/hg38/bigZips/hg38.chrom.sizes ./
+#wget https://hgdownload.cse.ucsc.edu/goldenpath/hg38/bigZips/hg38.chrom.sizes ./
 
 #rsync -a -P rsync://hgdownload.cse.ucsc.edu/goldenpath/hg38/bigZips/hg38.chromAlias.txt ./
+#wget https://hgdownload.cse.ucsc.edu/goldenpath/hg38/bigZips/hg38.chromAlias.txt ./
+
 wget https://hgdownload.cse.ucsc.edu/goldenpath/hg38/bigZips/hg38.chromAlias.txt ./
 
-wget http://hgdownload.cse.ucsc.edu/admin/exe/linux.x86_64/chromToUcsc
+wget https://hgdownload.soe.ucsc.edu/admin/exe/linux.x86_64/chromToUcsc
 
-chmod +x chromToUcsc
+chmod a+x chromToUcsc
 
 # ensemble annotation 112
 
@@ -54,4 +56,4 @@ wget https://polyasite.unibas.ch/download/atlas/2.0/GRCh38.96/atlas.clusters.2.0
 wget https://github.com/Magdoll/images_public/raw/master/SQANTI2_support_data/intropolis.v1.hg19_with_liftover_to_hg38.tsv.min_count_10.modified.gz
 
 # Get 30way PhyloP file - BigWig format
-wget https://hgdownload.soe.ucsc.edu/goldenPath/hg38/phyloP30way/hg38.phyloP30way.bw
+#wget https://hgdownload.soe.ucsc.edu/goldenPath/hg38/phyloP30way/hg38.phyloP30way.bw

@@ -8,7 +8,7 @@ process SAMTOOLS_FAIDX {
         'biocontainers/samtools:1.20--h50ea8bc_0' }"
 
     input:
-    tuple val(meta), path(fasta)
+    tuple val(meta), path(genome_fasta)
     tuple val(meta2), path(fai)
 
     output:
@@ -25,7 +25,7 @@ process SAMTOOLS_FAIDX {
     """
     samtools \\
         faidx \\
-        $fasta \\
+        $genome_fasta \\
         $args
 
     cat <<-END_VERSIONS > versions.yml
@@ -39,7 +39,7 @@ process SAMTOOLS_FAIDX {
     def fastacmd = match[0] ? "touch ${match[0][1]}" : ''
     """
     ${fastacmd}
-    touch ${fasta}.fai
+    touch ${genome_fasta}.fai
 
     cat <<-END_VERSIONS > versions.yml
 
