@@ -15,11 +15,11 @@ include { GUNZIP as GUNZIP_INTROPOLIS } from '../modules/nf-core/gunzip'
 // prepare indices for reference
 
 include { MINIMAP2_INDEX as MINIMAP2_GENOME_INDEX } from '../modules/nf-core/minimap2/index'
-include { MINIMAP2_INDEX as MINIMAP2_TRANSCRIPTOME_INDEX } from '../modules/nf-core/minimap2/index'
+//include { MINIMAP2_INDEX as MINIMAP2_TRANSCRIPTOME_INDEX } from '../modules/nf-core/minimap2/index'
 include { SAMTOOLS_FAIDX } from '../modules/nf-core/samtools/faidx'
 include { CUSTOM_GETCHROMSIZES } from
 '../modules/nf-core/custom/getchromsizes'
-include { SAMTOOLS_INDEX } from
+//include { SAMTOOLS_INDEX } from
 '../modules/nf-core/samtools/index'
 
 
@@ -47,14 +47,13 @@ workflow PREPARE_REFERENCE {
     phylop_bigwig
 
     minimap2_index
-    minimap2_transcriptome_index
-    samtools_genome_index
+    //minimap2_transcriptome_index
+    //samtools_genome_index
     custom_chrom_sizes
 
-    appris_bed?
-    mane_select_bed?
-    mane_clinical_bed?
-    // TODO nf-core: edit input (take) channels
+    //appris_bed?
+    //mane_select_bed?
+    //mane_clinical_bed?
 
     main:
 
@@ -83,7 +82,7 @@ workflow PREPARE_REFERENCE {
     // Uncompress GTF annotation file
     //
     if (annotation_gtf) {
-        if (gtf.endsWith('.gz')) {
+        if (annotation_gtf.endsWith('.gz')) {
             ch_annotation_gtf      = GUNZIP_GTF ( [ [:],
             annotation_gtf ] ).gunzip.map { it[1] }
             ch_versions = ch_versions.mix(GUNZIP_GTF.out.versions)
@@ -121,7 +120,7 @@ workflow PREPARE_REFERENCE {
     //
     if (intropolis_bed) {
         if (intropolis_bed.endsWith('.gz')) {
-            ch_intropolis_bed = GUNZIP_INTROPOLIS ( [ [:], polyA_bed ] ).gunzip.map { it[1] }
+            ch_intropolis_bed = GUNZIP_INTROPOLIS ( [ [:], intropolis_bed ] ).gunzip.map { it[1] }
             ch_versions = ch_versions.mix(GUNZIP_INTROPOLIS.out.versions)
         } else {
             ch_intropolis_bed = Channel.value(file(intropolis_bed))
@@ -129,15 +128,12 @@ workflow PREPARE_REFERENCE {
     }
 
     //
-    // Uncompress intropolis BED interval file
+    // Convert PhyloP bigWig to bed
     //
-    if (intropolis_bed) {
-        if (intropolis_bed.endsWith('.gz')) {
-            ch_intropolis_bed = GUNZIP_INTROPOLIS ( [ [:], polyA_bed ] ).gunzip.map { it[1] }
-            ch_versions = ch_versions.mix(GUNZIP_INTROPOLIS.out.versions)
-        } else {
-            ch_intropolis_bed = Channel.value(file(intropolis_bed))
-        }
+    if (phylop_bigwig) {
+        ch_phylop_wig = BIGWIG_TO_WIG( ch_phylop_bigwig ).out.phylop_wig
+        ch_phylop_bed = WIG_TO_BED( ch_phylop_wig ).out.phylop_bed
+        ch_versions = ch_versions.mix(WIG_TO_BED.out.versions)
     }
 
 //-------------------------------------------------------//
@@ -147,43 +143,48 @@ workflow PREPARE_REFERENCE {
     // Create genome index for minimap2
     //
 
-    ch_minimap2_index = MINIMAP2_GENOME_INDEX( ch_genome_fasta).index
-    ch_versions = MINIMAP2_GENOME_INDEX( ch_genome_fasta).versions
+    ch_minimap2_index = MINIMAP2_GENOME_INDEX(
+    ch_genome_fasta).out.index
+    ch_versions = ch_versions.mix(MINIMAP2_GENOME_INDEX).out.versions
 
     //
-    // Create transcriptome index for minimap2
-    //
+    // Create transcriptome index for minimap2? Does it even need one?
+    /*
     ch_minimap2_transcriptome_index = MINIMAP2_TRANSCRIPTOME_INDEX(
     ch_transcriptome_fasta.out.index)
     ch_versions = ch_versions.mix(MINIMAP2_TRANSCRIPTOME_INDEX.out.versions)
+    */
 
     //
     // Create samtools genome index and create custom chrom sizes
+    ch_samtools_genome_index =
+    CUSTOM_GETCHROMSIZES(ch_genome_fasta).out.fai
+    ch_custom_chrom_sizes =
+    CUSTOM_GETCHROMSIZES(ch_genome_fasta).out.sizes
+    ch_versions =
+    ch_versions.mix(CUSTOM_GETCHROMSIZES).out.versions    //
+
     //
-    ch_samtools_genome_index =  CUSTOM_GETCHROMSIZES(ch_genome_fasta).fai
-    ch_custom_chrom_sizes = CUSTOM_GETCHROMSIZES(ch_genome_fasta).sizes
-    ch_versions = CUSTOM_GETCHROMSIZES(ch_genome_fasta).versions    //
+    // Prepare a custom jaffal reference
+    //
 
 
-    SAMTOOLS_SORT ( ch_bam )
-    ch_versions = ch_versions.mix(SAMTOOLS_SORT.out.versions.first())
 
-    SAMTOOLS_INDEX ( SAMTOOLS_SORT.out.bam )
-    ch_versions = ch_versions.mix(SAMTOOLS_INDEX.out.versions.first())
 
     emit:
     genome_fasta = ch_genome_fasta
-    transcriptome_fasta = ch_transcriptome_fasta
+    //transcriptome_fasta = ch_transcriptome_fasta
     annotation_gtf = ch_annotation_gtf
-    annotation_bed =
+    //annotation_bed =
     cage_bed = ch_cage_bed
     polyA_bed = ch_polyA_bed
     intropolis_bed = ch_intropolis_bed
-
+    phylop_bed = ch_phylop_bed
+    // indices
     minimap2_index = ch_minimap2_index
-    minimap2_transcriptome_index = ch_minimap2_transcriptome_index
-    samtools_genome_index = ch_samtools_genome_index
+    //minimap2_transcriptome_index = ch_minimap2_transcriptome_index
     custom_chrom_sizes = ch_custom_chrom_sizes
+    samtools_genome_index = ch_samtools_genome_index
     jaffal_ref =
 
 

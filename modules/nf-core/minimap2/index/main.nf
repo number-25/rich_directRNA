@@ -1,5 +1,6 @@
 process MINIMAP2_INDEX {
-    label 'process_low'
+    tag "$fasta"
+    label 'process_high'
 
     // Note: the versions here need to match the versions used in minimap2/align
     conda "${moduleDir}/environment.yml"
@@ -8,7 +9,7 @@ process MINIMAP2_INDEX {
         'biocontainers/minimap2:2.28--he4a0461_0' }"
 
     input:
-    tuple val(meta), path(fasta)
+    tuple val(meta), path(genome_fasta)
 
     output:
     tuple val(meta), path("*.mmi"), emit: index
@@ -19,12 +20,12 @@ process MINIMAP2_INDEX {
 
     script:
     def args = task.ext.args ?: ''
+    // add $args to script?
     """
     minimap2 \\
         -t $task.cpus \\
-        -d ${fasta.baseName}.mmi \\
-        $args \\
-        $fasta
+        -d ${genome_fasta.baseName}.mmi \\
+        $genome_fasta \\
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
@@ -34,7 +35,7 @@ process MINIMAP2_INDEX {
 
     stub:
     """
-    touch ${fasta.baseName}.mmi
+    touch ${genome_fasta.baseName}.mmi
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":

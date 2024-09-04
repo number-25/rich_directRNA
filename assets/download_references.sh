@@ -14,17 +14,16 @@ fi
 # hg38 genome - analysis set
 
 #rsync -a -P rsync://hgdownload.soe.ucsc.edu/goldenPath/hg38/bigZips/analysisSet/hg38.analysisSet.fa.gz ./
-#wget https://hgdownload.soe.ucsc.edu/goldenPath/hg38/bigZips/analysisSet/hg38.analysisSet.fa.gz
+wget https://hgdownload.soe.ucsc.edu/goldenPath/hg38/bigZips/analysisSet/hg38.analysisSet.fa.gz
 
 # chrom sizes, aliase file and chromToUcsc
 
 #rsync -a -P rsync://hgdownload.cse.ucsc.edu/goldenpath/hg38/bigZips/hg38.chrom.sizes ./
-#wget https://hgdownload.cse.ucsc.edu/goldenpath/hg38/bigZips/hg38.chrom.sizes ./
+wget https://hgdownload.cse.ucsc.edu/goldenpath/hg38/bigZips/hg38.chrom.sizes ./
 
 #rsync -a -P rsync://hgdownload.cse.ucsc.edu/goldenpath/hg38/bigZips/hg38.chromAlias.txt ./
-#wget https://hgdownload.cse.ucsc.edu/goldenpath/hg38/bigZips/hg38.chromAlias.txt ./
 
-wget https://hgdownload.cse.ucsc.edu/goldenpath/hg38/bigZips/hg38.chromAlias.txt ./
+wget https://hgdownload.cse.ucsc.edu/goldenpath/hg38/bigZips/hg38.chromAlias.txt
 
 wget https://hgdownload.soe.ucsc.edu/admin/exe/linux.x86_64/chromToUcsc
 
@@ -40,7 +39,7 @@ wget https://ftp.ebi.ac.uk/pub/databases/gencode/Gencode_human/release_46/gencod
 
 # Convert the chromosome naming in the ensemble annotation to match the genome
 # (from 1 to chr1)
-zcat Homo_sapiens.GRCh38.112.gtf.gz | chromtoUcsc -a hg38.chromAlias.txt > Homo_sapiens.GRCh38.112_aliased.gtf
+zcat Homo_sapiens.GRCh38.112.gtf.gz | chromToUcsc -a hg38.chromAlias.txt > Homo_sapiens.GRCh38.112_aliased.gtf
 
 # Get CAGE-refTSS data from RIKEN
 wget https://reftss.riken.jp/datafiles/current/human/refTSS_v4.1_human_coordinate.hg38.bed.txt.gz
@@ -56,4 +55,4 @@ wget https://polyasite.unibas.ch/download/atlas/2.0/GRCh38.96/atlas.clusters.2.0
 wget https://github.com/Magdoll/images_public/raw/master/SQANTI2_support_data/intropolis.v1.hg19_with_liftover_to_hg38.tsv.min_count_10.modified.gz
 
 # Get 30way PhyloP file - BigWig format
-#wget https://hgdownload.soe.ucsc.edu/goldenPath/hg38/phyloP30way/hg38.phyloP30way.bw
+wget https://hgdownload.soe.ucsc.edu/goldenPath/hg38/phyloP30way/hg38.phyloP30way.bw

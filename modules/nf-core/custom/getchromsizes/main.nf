@@ -23,7 +23,7 @@ process CUSTOM_GETCHROMSIZES {
     def args = task.ext.args ?: ''
     """
     samtools faidx $genome_fasta
-    cut -f 1,2 ${genome_fasta}.fai > ${genome_fasta}.sizes
+    cut -f 1,2 ${genome_fasta}.fai > ${genome_fasta.baseName}.sizes
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
@@ -34,7 +34,7 @@ process CUSTOM_GETCHROMSIZES {
     stub:
     """
     touch ${genome_fasta}.fai
-    touch ${genome_fasta}.sizes
+    touch ${genome_fasta.baseName}.sizes
     if [[ "${genome_fasta.extension}" == "gz" ]]; then
         touch ${genome_fasta}.gzi
     fi
