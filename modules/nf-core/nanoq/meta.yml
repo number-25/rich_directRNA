@@ -4,6 +4,8 @@ name: "nanoq"
 description: Nanoq implements ultra-fast read filters and summary reports for high-throughput nanopore reads.
 keywords:
   - nanoq
+  - json_stats
+  - verbose_stats
   - Read filters
   - Read trimming
   - Read report

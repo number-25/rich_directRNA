@@ -2,7 +2,7 @@ name: minimap2_index
 description: Provides fasta index required by minimap2 alignment.
 keywords:
   - index
-  - fasta
+  - genome_fasta
   - reference
 tools:
   - minimap2:

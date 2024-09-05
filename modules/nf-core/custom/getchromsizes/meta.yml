@@ -1,7 +1,7 @@
 name: custom_getchromsizes
 description: Generates a FASTA file of chromosome sizes and a fasta index file
 keywords:
-  - fasta
+  - genome_fasta
   - chromosome
   - indexing
 tools:
