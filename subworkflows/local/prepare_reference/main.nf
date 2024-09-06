@@ -45,12 +45,11 @@ workflow PREPARE_REFERENCE {
     polyA_bed
     intropolis_bed
     phylop_bigwig
-
+    // indices
     minimap2_index
+    custom_chrom_sizes
     //minimap2_transcriptome_index
     //samtools_genome_index
-    custom_chrom_sizes
-
     //appris_bed?
     //mane_select_bed?
     //mane_clinical_bed?
@@ -166,14 +165,13 @@ workflow PREPARE_REFERENCE {
 
     //
     // Prepare a custom jaffal reference
+    // https://github.com/Oshlack/JAFFA/wiki/FAQandTroubleshooting#how-can-i-generate-the-reference-files-for-a-non-supported-genome
+
     //
-
-
-
 
     emit:
     genome_fasta = ch_genome_fasta
-    //transcriptome_fasta = ch_transcriptome_fasta
+    transcriptome_fasta = ch_transcriptome_fasta
     annotation_gtf = ch_annotation_gtf
     //annotation_bed =
     cage_bed = ch_cage_bed
@@ -187,13 +185,5 @@ workflow PREPARE_REFERENCE {
     samtools_genome_index = ch_samtools_genome_index
     jaffal_ref =
 
-
-    // TODO nf-core: edit emitted channels
-    bam      = SAMTOOLS_SORT.out.bam           // channel: [ val(meta), [ bam ] ]
-    bai      = SAMTOOLS_INDEX.out.bai          // channel: [ val(meta), [ bai ] ]
-    csi      = SAMTOOLS_INDEX.out.csi          // channel: [ val(meta), [ csi ] ]
-
     versions = ch_versions                     // channel: [ versions.yml ]
 }
-
-https://raw.githubusercontent.com/nf-core/rnaseq/master/subworkflows/local/prepare_genome/main.nf

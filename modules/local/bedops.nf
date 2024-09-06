@@ -11,7 +11,7 @@ process BEDOPS {
     //               MUST be provided as an input via a Groovy Map called "meta".
     //               This information may not be required in some instances e.g. indexing reference genome files:
     //               https://github.com/nf-core/modules/blob/master/modules/nf-core/bwa/index/main.nf
-    path(phylop_wig)
+    path phylop_wig
 
     output:
     //  nf-core: Named file extensions MUST be emitted for ALL output channels

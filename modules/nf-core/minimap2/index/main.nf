@@ -9,10 +9,10 @@ process MINIMAP2_INDEX {
         'biocontainers/minimap2:2.28--he4a0461_0' }"
 
     input:
-    tuple val(meta), path(genome_fasta)
+    tuple path(genome_fasta)
 
     output:
-    tuple val(meta), path("*.mmi"), emit: index
+    tuple path("*.mmi"), emit: index
     path "versions.yml"           , emit: versions
 
     when:

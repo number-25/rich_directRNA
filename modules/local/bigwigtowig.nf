@@ -15,7 +15,7 @@ process BIGWIGTOWIG {
         'biocontainers/ucsc-bigwigtowig' }"
 
     input:
-    path(phylop_bigwig)
+    path phylop_bigwig
 
     output:
     path("*.wig"), emit: phylop_wig
