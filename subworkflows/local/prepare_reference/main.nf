@@ -166,8 +166,9 @@ workflow PREPARE_REFERENCE {
     //
     // Prepare a custom jaffal reference
     // https://github.com/Oshlack/JAFFA/wiki/FAQandTroubleshooting#how-can-i-generate-the-reference-files-for-a-non-supported-genome
-
     //
+    //
+
 
     emit:
     genome_fasta = ch_genome_fasta
@@ -183,7 +184,7 @@ workflow PREPARE_REFERENCE {
     //minimap2_transcriptome_index = ch_minimap2_transcriptome_index
     custom_chrom_sizes = ch_custom_chrom_sizes
     samtools_genome_index = ch_samtools_genome_index
-    jaffal_ref =
+    //jaffal_ref =
 
     versions = ch_versions                     // channel: [ versions.yml ]
 }

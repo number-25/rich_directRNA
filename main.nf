@@ -16,10 +16,10 @@ nextflow.enable.dsl = 2
 */
 
 include { DIRECTRNA  } from './workflows/directrna'
+include { PREPARE_REFERENCE } from './subworkflows/local/prepare_reference'
 include { PIPELINE_INITIALISATION } from './subworkflows/local/utils_nfcore_directrna_pipeline'
 include { PIPELINE_COMPLETION     } from './subworkflows/local/utils_nfcore_directrna_pipeline'
-
-include { getGenomeAttribute      } from './subworkflows/local/utils_nfcore_directrna_pipeline'
+//include { getGenomeAttribute      } from './subworkflows/local/utils_nfcore_directrna_pipeline'
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -27,10 +27,16 @@ include { getGenomeAttribute      } from './subworkflows/local/utils_nfcore_dire
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
-// TODO nf-core: Remove this line if you don't need a FASTA file
+//nf-core: Remove this line if you don't need a FASTA file
 //   This is an example of how to use getGenomeAttribute() to fetch parameters
 //   from igenomes.config using `--genome`
-params.fasta = getGenomeAttribute('fasta')
+//params.genome_fasta = getGenomeAttribute('fasta')
+
+    //
+    // SUBWORKFLOW: Prepare reference genome files
+    //
+    PREPARE_REFERENCE
+
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
