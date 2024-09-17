@@ -21,9 +21,9 @@
 using Pkg
 
 # Check if necessary package exists, else install it
-haskey(Pkg.project().dependencies, "CSV")) == true || Pkg.add("CSV")
+haskey(Pkg.project().dependencies, "CSV") == true || Pkg.add("CSV")
 
-haskey(Pkg.project().dependencies, "Glob")) == true || Pkg.add("Glob")
+haskey(Pkg.project().dependencies, "Glob") == true || Pkg.add("Glob")
 
 input_samplesheet = load(ARGS[1])
 #nextflow_base_path = ("../")
