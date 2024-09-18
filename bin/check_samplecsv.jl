@@ -1,3 +1,5 @@
+#!/usr/bin/env -S julia
+#
 #########################################
 #   ,,               ,,    ,,           #
 #   db             `7MM    db           #
@@ -18,14 +20,16 @@
 
 # checksamplecsv.jl
 
-using Pkg
+using Pkg, FileIO
 
 # Check if necessary package exists, else install it
-haskey(Pkg.project().dependencies, "CSV")) == true || Pkg.add("CSV")
 
-haskey(Pkg.project().dependencies, "Glob")) == true || Pkg.add("Glob")
+haskey(Pkg.project().dependencies, "Glob") == true || Pkg.add("Glob")
 
-input_samplesheet = load(ARGS[1])
+using Glob
+
+input_samplesheet = readlines(open(ARGS[1]))
+#input_samplesheet = load(ARGS[1])
 #nextflow_base_path = ("../")
 
 # Check header
@@ -47,13 +51,18 @@ println("the header names are spelled correctly")
 samplesheet_body = input_samplesheet[2:end]
 for row in samplesheet_body
     rownumber = 1
-    length(split(row, ',')) == 4 || throw ("row number $(rownumber) has the incorrect number of columns, please check formatting")
+    split_row = split(row, ',')
+    length(split(row, ',')) == 4 || throw("row number $(rownumber) has the incorrect number of columns, please check formatting")
 # check to see if sample name is a single string and not spaced
-    first_column, second_column, third_column, fourth_column = row[1:end]
+    first_column, second_column, third_column, fourth_column = split_row[1:end]
     !occursin(' ', first_column) || throw("sample name is separated by a space, please format it so that it is one continuous string")
-# check to see if the replicate is an interger (if provided)
+# check to see if the replicate is an interger (if provided))
     if !isempty(second_column)
-        isa(parse(second_column, Int64), Int64) || throw("The replicate is not an interger, please change it to one e.g 1, 2")
+        try
+            parse(Int64, second_column)
+        catch e
+            throw("The replicate is not an integer, please change it to one e.g 1, 2")
+        end
     end
 # check to see if sequencing summary exists and isn't empty
     ispath(third_column) || throw("sequencing summary file doesn't exist, or the path pointing to it is incorrect")
@@ -61,13 +70,13 @@ for row in samplesheet_body
 # check to see if the reads path points to a valid path or a valid file
     ispath(fourth_column) || isfile(fourth_column) || throw("the path to the reads either doesn't exist, or the path pointing to a specific fastq file doesn't exist, please check paths")
     if ispath(fourth_column) && !isfile(fourth_column)
-        !isempty(readdir(glob"$(fourth_column)*.fq")) || \
-        !isempty(readdir(glob"$(fourth_column)*.fq.gz")) || \
-        !isempty(readdir(glob"$(fourth_column)*.fastq")) || \
-        !isempty(readdir(glob"$(fourth_column)*.fastq.gz")) || \
-        throw("The path you provided doesn't contain any fq, fastq file or their gzipped analogues, please provide valid file formats")
+        !isempty(readdir(glob"*.fq", fourth_column)) ||
+        !isempty(readdir(glob"*.fq.gz", fourth_column)) ||
+        !isempty(readdir(glob"*.fastq", fourth_column)) ||
+        !isempty(readdir(glob"*.fastq.gz", fourth_column)) ||
+        throw("The path you provided doesn't contain any fq, fastq files or their gzipped analogues, please provide valid file formats")
     rownumber += 1
+    end
 end
 
 println("The samplesheet checks out! Good work")
-

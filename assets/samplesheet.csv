@@ -1,3 +1,3 @@
 sample,replicate,sequencing_summary_path,read_path
-COLO1112_RNA,,/data/sequencing_summary_COLO1112.gz,/data/sample.fastq
-COLO1113_RNA,,/data/sequencing_summary.gz,/data/test_dir/
+COLO1112_RNA,,/mnt/hdd1/MedGen_directRNA/nextflow/medgen-directrna/data/sequencing_summary_COLO1112.gz,/mnt/hdd1/MedGen_directRNA/nextflow/medgen-directrna/data/sample.fastq
+COLO1113_RNA,,/mnt/hdd1/MedGen_directRNA/nextflow/medgen-directrna/data/sequencing_summary.gz,/mnt/hdd1/MedGen_directRNA/nextflow/medgen-directrna/data/test_dir/

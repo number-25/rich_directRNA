@@ -14,9 +14,9 @@
     IMPORT LOCAL MODULES / SUBWORKFLOWS / FUNCTIONS
 ----------------------------------------------------------------------------------------
 */
-include { CRAMINO               } from '../modules/local/cramino/main'
-include { ALFRED               } from '../modules/local/alfred/main'
-include {
+include { CRAMINO               } from '../modules/local/cramino'
+include { ALFRED               } from '../modules/local/alfred'
+include { INPUT_CHECK          } from '../subworkflows/local/input_check'
 
 
 
