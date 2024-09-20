@@ -4,9 +4,22 @@
 ----------------------------------------------------------------------------------------
 */
 
-// Check
+// Check mandatory parameters (missing protocol or profile will exit the run.)
+if (params.input) {
+    ch_input = file(params.input) // defined in nextflow.config
+} else {
+    exit 1, 'Input samplesheet not specified!'
+}
 
-
+// Function to check if running offline
+def isOffline() {
+    try {
+        return NXF_OFFLINE as Boolean
+    }
+    catch( Exception e ) {
+        return false
+    }
+}
 
 
 /*
@@ -28,9 +41,9 @@ include { INPUT_CHECK          } from '../subworkflows/local/input_check'
 
 //include { FASTQC                 } from '../modules/nf-core/fastqc/main'
 include { NANOQ                } from '../modules/nf-core/nanoq/main'
-include { MULTIQC                } from '../modules/nf-core/multiqc/main'
+//include { MULTIQC                } from '../modules/nf-core/multiqc/main'
 include { paramsSummaryMap       } from 'plugin/nf-validation'
-include { paramsSummaryMultiqc   } from '../subworkflows/nf-core/utils_nfcore_pipeline'
+//include { paramsSummaryMultiqc   } from '../subworkflows/nf-core/utils_nfcore_pipeline'
 include { softwareVersionsToYAML } from '../subworkflows/nf-core/utils_nfcore_pipeline'
 include { methodsDescriptionText } from '../subworkflows/local/utils_nfcore_directrna_pipeline'
 
@@ -42,31 +55,47 @@ include { methodsDescriptionText } from '../subworkflows/local/utils_nfcore_dire
 
 workflow DIRECTRNA {
 
-    take:
-    ch_samplesheet // channel: samplesheet read in from --input
+    //take:
+    //ch_samplesheet // channel: samplesheet read in from --input
 
-    main:
+    //main:
 
     ch_versions = Channel.empty()
     ch_multiqc_files = Channel.empty()
 
-    //
-    // MODULE: Run FastQC
-    //
-    FASTQC (
-        ch_samplesheet
-    )
-    ch_multiqc_files = ch_multiqc_files.mix(FASTQC.out.zip.collect{it[1]})
-    ch_versions = ch_versions.mix(FASTQC.out.versions.first())
+    // INPUT_CHECK
+    INPUT_CHECK ( ch_input )
+        .set { ch_sample }
 
+    ch_samplesheet
+        .map { it -> [ it[0], it[1], it[3] } // take sample, replicate, reads
+        .set { ch_fastq }
+
+    ch_fastq.view() //testing out basic functions
     //
     // MODULE: Run nanoq
     //
-    NANOQ (
-        ch_samplesheet
+
+    if (!params.skip_qc) {
+
+
+    NANOQ ( ch_fastq )
+
     )
+
+    }
     ch_multiqc_files = ch_multiqc_files.mix(FASTQC.out.zip.collect{it[1]})
     ch_versions = ch_versions.mix(NANOQ.out.versions.first())
+
+
+    //
+    // MODULE: Run FastQC
+    //
+    //FASTQC (
+    //    ch_samplesheet
+    //)
+    //ch_multiqc_files = ch_multiqc_files.mix(FASTQC.out.zip.collect{it[1]})
+    //ch_versions = ch_versions.mix(FASTQC.out.versions.first())
 
 
     //
