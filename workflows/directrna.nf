@@ -61,31 +61,32 @@ workflow DIRECTRNA {
     //main:
 
     ch_versions = Channel.empty()
-    ch_multiqc_files = Channel.empty()
+    //ch_multiqc_files = Channel.empty()
 
     // INPUT_CHECK
     INPUT_CHECK ( ch_input )
         .set { ch_sample }
 
-    ch_samplesheet
-        .map { it -> [ it[0], it[1], it[3] } // take sample, replicate, reads
-        .set { ch_fastq }
+    ch_sample.view()
 
-    ch_fastq.view() //testing out basic functions
+    //ch_sample
+    //    .map { it -> [ it[0], it[1], it[3] } // take sample, replicate, reads
+    //    .set { ch_fastq }
+
+
     //
     // MODULE: Run nanoq
     //
 
-    if (!params.skip_qc) {
+    //if (!params.skip_qc) {
 
 
-    NANOQ ( ch_fastq )
+    //NANOQ ( ch_fastq )
 
-    )
+    //)
 
-    }
-    ch_multiqc_files = ch_multiqc_files.mix(FASTQC.out.zip.collect{it[1]})
-    ch_versions = ch_versions.mix(NANOQ.out.versions.first())
+    //}
+    //ch_versions = ch_versions.mix(NANOQ.out.versions.first())
 
 
     //
@@ -112,6 +113,7 @@ workflow DIRECTRNA {
     //
     // MODULE: MultiQC
     //
+    /*
     ch_multiqc_config        = Channel.fromPath(
         "$projectDir/assets/multiqc_config.yml", checkIfExists: true)
     ch_multiqc_custom_config = params.multiqc_config ?
@@ -152,6 +154,7 @@ workflow DIRECTRNA {
     multiqc_report = MULTIQC.out.report.toList() // channel: /path/to/multiqc_report.html
     versions       = ch_versions                 // channel: [ path(versions.yml) ]
 }
+    */
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

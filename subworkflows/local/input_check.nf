@@ -18,14 +18,10 @@ workflow INPUT_CHECK {
         .map { it -> [ it[0], it[1], it[2], it[3] ] }
         .map { create_fastq_channel(it) }
         .set { ch_sample }
-    ch_versions = Channel.empty()
-
-
-    ch_versions = ch_versions.mix(SAMTOOLS_INDEX.out.versions.first())
 
     emit:
     ch_sample // [ sample, replicate, sequencing_summary_file, path_to_reads ]
-
+    //ch_versions = ch_versions.mix(CHECK_SAMPLESHEET.out.versions.first())
 }
 
 // Create a meta map from the samplesheet
@@ -34,8 +30,10 @@ def create_fastq_channel(LinkedHashMap row) {
     def meta = [:]
     meta.id           = row.sample
     meta.replicate   = row.replicate
-    meta
+    meta.sequencing_summary = row.sequencing_summary
+    meta.fastq = row.read_path
 
+    /*
     // add path(s) of the fastq file(s) to the meta map
     def fastq_meta = []
     if (!file(row.read_path).exists()) {
@@ -50,4 +48,6 @@ def create_fastq_channel(LinkedHashMap row) {
         fastq_meta = [ meta, [ file(row.fastq_1), file(row.fastq_2) ] ]
     }
     return fastq_meta
+    */
+    return meta
 }
