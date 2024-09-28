@@ -27,8 +27,8 @@ def isOffline() {
     IMPORT LOCAL MODULES / SUBWORKFLOWS / FUNCTIONS
 ----------------------------------------------------------------------------------------
 */
-include { CRAMINO               } from '../modules/local/cramino'
-include { ALFRED               } from '../modules/local/alfred'
+//include { CRAMINO               } from '../modules/local/cramino'
+//include { ALFRED               } from '../modules/local/alfred'
 include { INPUT_CHECK          } from '../subworkflows/local/input_check'
 
 
