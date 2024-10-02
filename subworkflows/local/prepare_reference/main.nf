@@ -47,9 +47,9 @@ workflow PREPARE_REFERENCE {
     phylop_bigwig
     // indices
     minimap2_index
+    //samtools_genome_index
     custom_chrom_sizes
     //minimap2_transcriptome_index
-    //samtools_genome_index
     //appris_bed?
     //mane_select_bed?
     //mane_clinical_bed?

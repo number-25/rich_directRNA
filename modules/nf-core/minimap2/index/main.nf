@@ -24,7 +24,8 @@ process MINIMAP2_INDEX {
     """
     minimap2 \\
         -t $task.cpus \\
-        -d ${genome_fasta.baseName}.mmi \\
+        -k14 \\
+        -d ${genome_fasta.baseName}_k14.mmi \\
         $genome_fasta \\
 
     cat <<-END_VERSIONS > versions.yml

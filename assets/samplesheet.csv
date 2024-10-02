@@ -1,3 +1,2 @@
 sample,replicate,sequencing_summary_path,read_path
-COLO1112_RNA,,/mnt/hdd1/MedGen_directRNA/nextflow/medgen-directrna/data/sequencing_summary_COLO1112.gz,/mnt/hdd1/MedGen_directRNA/nextflow/medgen-directrna/data/sample.fastq
-COLO1113_RNA,,/mnt/hdd1/MedGen_directRNA/nextflow/medgen-directrna/data/sequencing_summary.gz,/mnt/hdd1/MedGen_directRNA/nextflow/medgen-directrna/data/test_dir/
+COLOBL_RNA_600,,/mnt/hdd1/MedGen_RNA_datasets/COLOBL_RNA_600/fastq_pass/sequencing_summary_PAW55908_25243b4b_de7ed5dd.txt,/mnt/hdd1/MedGen_RNA_datasets/COLOBL_RNA_600/fastq_pass/COLOBL_RNA_660.fastq.gz
