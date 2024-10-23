@@ -1,6 +1,6 @@
 /* Checks the input channel and creates channel map */
 
-include { CHECK_SAMPLESHEET } from '../modules/local/check_samplesheet'
+include { CHECK_SAMPLESHEET } from '../../modules/local/check_samplesheet.nf'
 
 workflow INPUT_CHECK {
 

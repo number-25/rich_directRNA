@@ -3,37 +3,33 @@
 // Uncompress and prepare reference genome files
 //
 
-include { GUNZIP as GUNZIP_FASTA } from '../modules/nf-core/gunzip'
-include { GUNZIP as GUNZIP_GTF } from '../modules/nf-core/gunzip'
+include { GUNZIP as GUNZIP_FASTA } from '../../../modules/nf-core/gunzip'
+include { GUNZIP as GUNZIP_GTF } from '../../../modules/nf-core/gunzip'
 //include { GUNZIP as GUNZIP_BED } from '../modules/nf-core/gunzip'
-include { GUNZIP as GUNZIP_TRANSCRIPT_FASTA } from
-include { GUNZIP as GUNZIP_CAGE } from '../modules/nf-core/gunzip'
+include { GUNZIP as GUNZIP_TRANSCRIPT_FASTA } from '../../../modules/nf-core/gunzip'
+include { GUNZIP as GUNZIP_CAGE } from '../../../modules/nf-core/gunzip'
 '../modules/nf-core/gunzip'
-include { GUNZIP as GUNZIP_POLYA } from '../modules/nf-core/gunzip'
-include { GUNZIP as GUNZIP_INTROPOLIS } from '../modules/nf-core/gunzip'
+include { GUNZIP as GUNZIP_POLYA } from '../../../modules/nf-core/gunzip'
+include { GUNZIP as GUNZIP_INTROPOLIS } from '../../../modules/nf-core/gunzip'
 
 // prepare indices for reference
 
-include { MINIMAP2_INDEX as MINIMAP2_GENOME_INDEX } from '../modules/nf-core/minimap2/index'
+include { MINIMAP2_INDEX as MINIMAP2_GENOME_INDEX } from '../../../modules/nf-core/minimap2/index'
 //include { MINIMAP2_INDEX as MINIMAP2_TRANSCRIPTOME_INDEX } from '../modules/nf-core/minimap2/index'
-include { SAMTOOLS_FAIDX } from '../modules/nf-core/samtools/faidx'
-include { CUSTOM_GETCHROMSIZES } from
-'../modules/nf-core/custom/getchromsizes'
-//include { SAMTOOLS_INDEX } from
-'../modules/nf-core/samtools/index'
+include { SAMTOOLS_FAIDX } from '../../../modules/nf-core/samtools/faidx'
+include { CUSTOM_GETCHROMSIZES } from '../../../modules/nf-core/custom/getchromsizes'
+//include { SAMTOOLS_INDEX } from '../../../modules/nf-core/samtools/index'
 
 
 // prepare additional files
 
 //TO-DO make these modules
-include { GTF_TO_BED } from '../modules/local/gfx2bed' // gxf2bed module
-include { BIGWIG_TO_WIG } from '../modules/local/bigwigtowig'
-include { WIG_TO_BED } from '../modules/local/bedops'
-include { JAFFAL_PREPARE_REF } from
-'../modules/local/jaffal_prepare_ref'
+include { GXF2BED as GTF_TO_BED } from '../../../modules/local/gxf2bed' // gxf2bed module
+include { BIGWIG_TO_WIG } from '../../../modules/local/bigwigtowig'
+include { BEDOPS as WIG_TO_BED } from '../../../modules/local/bedops'
+include { JAFFAL_PREPARE_REFERENCE } from '../../../modules/local/jaffalpreparereference'
 
-
-include { SAMTOOLS_SORT      } from '../../../modules/nf-core/samtools/sort/main'
+include { SAMTOOLS_SORT } from '../../../modules/nf-core/samtools/sort/main'
 
 workflow PREPARE_REFERENCE {
 

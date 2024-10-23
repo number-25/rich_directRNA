@@ -1,6 +1,6 @@
 /* Checks the input channel and creates channel map */
 
-include { NANOQ } from '../modules/local/check_samplesheet'
+include { NANOQ } from '../modules/nf-core/nanoq'
 
 workflow INPUT_CHECK {
 

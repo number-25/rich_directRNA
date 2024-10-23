@@ -35,7 +35,7 @@ include { PIPELINE_COMPLETION     } from './subworkflows/local/utils_nfcore_dire
     //
     // SUBWORKFLOW: Prepare reference genome files
     //
-    PREPARE_REFERENCE
+    //PREPARE_REFERENCE
 
 
 /*
@@ -105,7 +105,7 @@ workflow {
         params.outdir,
         params.monochrome_logs,
         params.hook_url,
-        MEDGEN_DIRECTRNA.out.multiqc_report
+        //MEDGEN_DIRECTRNA.out.multiqc_report
     )
 }
 
