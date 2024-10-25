@@ -41,10 +41,10 @@ include { INPUT_CHECK          } from '../subworkflows/local/input_check'
 //include { FASTQC                 } from '../modules/nf-core/fastqc/main'
 include { NANOQ                } from '../modules/nf-core/nanoq/main'
 //include { MULTIQC                } from '../modules/nf-core/multiqc/main'
-include { paramsSummaryMap       } from 'plugin/nf-validation'
+//include { paramsSummaryMap       } from 'plugin/nf-validation'
 //include { paramsSummaryMultiqc   } from '../subworkflows/nf-core/utils_nfcore_pipeline'
 include { softwareVersionsToYAML } from '../subworkflows/nf-core/utils_nfcore_pipeline'
-include { methodsDescriptionText } from '../subworkflows/local/utils_nfcore_directrna_pipeline'
+//include { methodsDescriptionText } from '../subworkflows/local/utils_nfcore_directrna_pipeline'
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

@@ -10,15 +10,23 @@
 nextflow.enable.dsl = 2
 
 /*
+========================================================================================
+    VALIDATE & PRINT PARAMETER SUMMARY
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+*/
+
+//WorkflowMain.initialise(workflow, params, log)
+
+/*
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     IMPORT FUNCTIONS / MODULES / SUBWORKFLOWS / WORKFLOWS
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
 include { DIRECTRNA  } from './workflows/directrna'
-include { PREPARE_REFERENCE } from './subworkflows/local/prepare_reference'
-include { PIPELINE_INITIALISATION } from './subworkflows/local/utils_nfcore_directrna_pipeline'
-include { PIPELINE_COMPLETION     } from './subworkflows/local/utils_nfcore_directrna_pipeline'
+//include { PREPARE_REFERENCE } from './subworkflows/local/prepare_reference'
+//include { PIPELINE_INITIALISATION } from 'subworkflows/local/utils_nfcore_directrna_pipeline'
+//include { PIPELINE_COMPLETION     } from 'subworkflows/local/utils_nfcore_directrna_pipeline'
 //include { getGenomeAttribute      } from './subworkflows/local/utils_nfcore_directrna_pipeline'
 
 /*
@@ -48,21 +56,22 @@ include { PIPELINE_COMPLETION     } from './subworkflows/local/utils_nfcore_dire
 // WORKFLOW: Run main analysis pipeline depending on type of input
 //
 workflow MEDGEN_DIRECTRNA {
+    DIRECTRNA (
+        //samplesheet
+    )
 
-    take:
-    samplesheet // channel: samplesheet read in from --input
+    //take:
+    //samplesheet // channel: samplesheet read in from --input
 
-    main:
+    //main:
 
     //
     // WORKFLOW: Run pipeline
     //
-    DIRECTRNA (
-        samplesheet
-    )
 
-    emit:
-    multiqc_report = DIRECTRNA.out.multiqc_report // channel: /path/to/multiqc_report.html
+
+    //emit:
+    //multiqc_report = DIRECTRNA.out.multiqc_report // channel: /path/to/multiqc_report.html
 
 }
 /*
@@ -70,14 +79,14 @@ workflow MEDGEN_DIRECTRNA {
     RUN MAIN WORKFLOW
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
-
+/*
 workflow {
 
     main:
 
     //
     // SUBWORKFLOW: Run initialisation tasks
-    //
+    /*
     PIPELINE_INITIALISATION (
         params.version,
         params.help,
@@ -91,13 +100,14 @@ workflow {
     //
     // WORKFLOW: Run main workflow
     //
-    MEDGEN_DIRECTRNA (
-        PIPELINE_INITIALISATION.out.samplesheet
+    //MEDGEN_DIRECTRNA (
+    //    PIPELINE_INITIALISATION.out.samplesheet
     )
 
     //
     // SUBWORKFLOW: Run completion tasks
     //
+
     PIPELINE_COMPLETION (
         params.email,
         params.email_on_fail,
@@ -107,7 +117,9 @@ workflow {
         params.hook_url,
         //MEDGEN_DIRECTRNA.out.multiqc_report
     )
+
 }
+*/
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
