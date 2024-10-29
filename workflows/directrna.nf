@@ -4,6 +4,12 @@
 ----------------------------------------------------------------------------------------
 */
 
+// nextflow magik
+
+//def summary_params = NfcoreSchema.paramsSummaryMap(workflow, params)
+
+//
+
 // Check mandatory parameters (missing protocol or profile will exit the run.)
 if (params.input) {
     ch_input = file(params.input) // defined in nextflow.config
@@ -20,7 +26,6 @@ def isOffline() {
         return false
     }
 }
-
 
 /*
 ----------------------------------------------------------------------------------------
@@ -39,7 +44,7 @@ include { INPUT_CHECK          } from '../subworkflows/local/input_check'
 */
 
 //include { FASTQC                 } from '../modules/nf-core/fastqc/main'
-include { NANOQ                } from '../modules/nf-core/nanoq/main'
+//include { NANOQ                } from '../modules/nf-core/nanoq/main'
 //include { MULTIQC                } from '../modules/nf-core/multiqc/main'
 //include { paramsSummaryMap       } from 'plugin/nf-validation'
 //include { paramsSummaryMultiqc   } from '../subworkflows/nf-core/utils_nfcore_pipeline'
@@ -52,7 +57,7 @@ include { softwareVersionsToYAML } from '../subworkflows/nf-core/utils_nfcore_pi
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
-workflow DIRECTRNA {
+workflow DIRECTRNA{
 
     //take:
     //ch_samplesheet // channel: samplesheet read in from --input
@@ -66,7 +71,9 @@ workflow DIRECTRNA {
     INPUT_CHECK ( ch_input )
         .set { ch_sample }
 
-    ch_sample.view()
+
+    ch_sample
+        .view()
 
     //ch_sample
     //    .map { it -> [ it[0], it[1], it[3] } // take sample, replicate, reads

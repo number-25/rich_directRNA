@@ -3,14 +3,12 @@
 include { CHECK_SAMPLESHEET } from '../../modules/local/check_samplesheet.nf'
 
 workflow INPUT_CHECK {
-
     take:
     samplesheet // file: /path/to/samplesheet
 
     main:
-
     CHECK_SAMPLESHEET( samplesheet )
-        .samplesheet
+        .csv
         .splitCsv ( header:true, sep:',' )
         // .map { get_sample_info(it, params.genomes) }
         //nanoseq option .map { it -> [ it[0], it[1], it[2], it[3] ] }

@@ -1,9 +1,10 @@
 #!/usr/bin/env nextflow
+
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     medgen/directrna
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    Github : https://github.com/medgen/directrna
+    Github : https://github.com/number25/medgen/directrna
 ----------------------------------------------------------------------------------------
 */
 
@@ -23,7 +24,7 @@ nextflow.enable.dsl = 2
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
-include { DIRECTRNA  } from './workflows/directrna'
+//include { DIRECTRNA } from './workflows/directrna'
 //include { PREPARE_REFERENCE } from './subworkflows/local/prepare_reference'
 //include { PIPELINE_INITIALISATION } from 'subworkflows/local/utils_nfcore_directrna_pipeline'
 //include { PIPELINE_COMPLETION     } from 'subworkflows/local/utils_nfcore_directrna_pipeline'
@@ -52,14 +53,15 @@ include { DIRECTRNA  } from './workflows/directrna'
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
+include { DIRECTRNA } from './workflows/directrna'
+
 //
 // WORKFLOW: Run main analysis pipeline depending on type of input
 //
-workflow MEDGEN_DIRECTRNA {
-    DIRECTRNA (
+workflow{
+    DIRECTRNA ()
         //samplesheet
-    )
-
+    }
     //take:
     //samplesheet // channel: samplesheet read in from --input
 
@@ -73,7 +75,7 @@ workflow MEDGEN_DIRECTRNA {
     //emit:
     //multiqc_report = DIRECTRNA.out.multiqc_report // channel: /path/to/multiqc_report.html
 
-}
+//}
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     RUN MAIN WORKFLOW

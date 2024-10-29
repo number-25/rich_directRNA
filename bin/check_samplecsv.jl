@@ -20,13 +20,17 @@
 
 # checksamplecsv.jl
 
-using Pkg, FileIO
+using Pkg
 
+import Pkg
 # Check if necessary package exists, else install it
 
 haskey(Pkg.project().dependencies, "Glob") == true || Pkg.add("Glob")
+haskey(Pkg.project().dependencies, "FileIO") == true || Pkg.add("FileIO")
 
-using Glob
+using Glob, FileIO
+
+nextflow_path = chop(@__DIR__, tail=4)
 
 input_samplesheet = readlines(open(ARGS[1]))
 #input_samplesheet = load(ARGS[1])
@@ -65,15 +69,17 @@ for row in samplesheet_body
         end
     end
 # check to see if sequencing summary exists and isn't empty
-    ispath(third_column) || throw("sequencing summary file doesn't exist, or the path pointing to it is incorrect")
+    @show path_to_summary = nextflow_path * third_column
+    ispath(path_to_summary) || throw("sequencing summary file doesn't exist, or the path pointing to it is incorrect")
     # is it empty?
 # check to see if the reads path points to a valid path or a valid file
-    ispath(fourth_column) || isfile(fourth_column) || throw("the path to the reads either doesn't exist, or the path pointing to a specific fastq file doesn't exist, please check paths")
-    if ispath(fourth_column) && !isfile(fourth_column)
-        !isempty(readdir(glob"*.fq", fourth_column)) ||
-        !isempty(readdir(glob"*.fq.gz", fourth_column)) ||
-        !isempty(readdir(glob"*.fastq", fourth_column)) ||
-        !isempty(readdir(glob"*.fastq.gz", fourth_column)) ||
+    @show path_to_reads = nextflow_path * fourth_column
+    ispath(path_to_reads) || isfile(path_to_reads) || throw("the path to the reads either doesn't exist, or the path pointing to a specific fastq file doesn't exist, please check paths")
+    if ispath(path_to_reads) && !isfile(path_to_reads)
+        !isempty(readdir(glob"*.fq", path_to_reads)) ||
+        !isempty(readdir(glob"*.fq.gz", path_to_reads)) ||
+        !isempty(readdir(glob"*.fastq", path_to_reads)) ||
+        !isempty(readdir(glob"*.fastq.gz", path_to_reads)) ||
         throw("The path you provided doesn't contain any fq, fastq files or their gzipped analogues, please provide valid file formats")
     rownumber += 1
     end
