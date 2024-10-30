@@ -23,7 +23,7 @@ process NANOQ {
 
     script:
     def args = task.ext.args ?: ''
-    def prefix = task.ext.prefix ?: "${meta.id}_nanoq"
+    def prefix = task.ext.prefix ?: "${meta.id}_nanoq" // get the sample ID from the meta mapping
     """
     nanoq -i ${ontreads} \\
         -s -H \\ 

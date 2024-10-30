@@ -1,2 +1,2 @@
 sample,replicate,sequencing_summary_path,read_path
-MCF7_4,,/assets/dummy_sequencing_summary.txt,/data/MCF7_directRNA_replicate4.fastq.gz
+KCMF1,,/assets/dummy_sequencing_summary.txt,/assets/sample_nobc_dx.fastq.gz

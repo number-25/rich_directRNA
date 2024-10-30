@@ -44,7 +44,7 @@ include { INPUT_CHECK          } from '../subworkflows/local/input_check'
 */
 
 //include { FASTQC                 } from '../modules/nf-core/fastqc/main'
-//include { NANOQ                } from '../modules/nf-core/nanoq/main'
+include { NANOQ                } from '../modules/nf-core/nanoq/main'
 //include { MULTIQC                } from '../modules/nf-core/multiqc/main'
 //include { paramsSummaryMap       } from 'plugin/nf-validation'
 //include { paramsSummaryMultiqc   } from '../subworkflows/nf-core/utils_nfcore_pipeline'
@@ -71,23 +71,16 @@ workflow DIRECTRNA{
     INPUT_CHECK ( ch_input )
         .set { ch_sample }
 
-
-    ch_sample
-        .view()
+    //
+    // QC
+    //
+    if (!params.skip_qc) {
+        NANOQ ( ch_sample )
 
     //ch_sample
     //    .map { it -> [ it[0], it[1], it[3] } // take sample, replicate, reads
     //    .set { ch_fastq }
 
-
-    //
-    // MODULE: Run nanoq
-    //
-
-    //if (!params.skip_qc) {
-
-
-    //NANOQ ( ch_fastq )
 
     //)
 

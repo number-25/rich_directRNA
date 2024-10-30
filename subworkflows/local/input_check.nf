@@ -10,11 +10,13 @@ workflow INPUT_CHECK {
     CHECK_SAMPLESHEET( samplesheet )
         .csv
         .splitCsv ( header:true, sep:',' )
+        //.view()
         // .map { get_sample_info(it, params.genomes) }
         //nanoseq option .map { it -> [ it[0], it[1], it[2], it[3] ] }
         //rnaseq option
-        .map { it -> [ it[0], it[1], it[2], it[3] ] }
         .map { create_fastq_channel(it) }
+        //.map { it -> [ it[0], it[1], it[2], it[3] ] }
+        //.view()
         .set { ch_sample }
 
     emit:
@@ -28,7 +30,7 @@ def create_fastq_channel(LinkedHashMap row) {
     def meta = [:]
     meta.id           = row.sample
     meta.replicate   = row.replicate
-    meta.sequencing_summary = row.sequencing_summary
+    meta.sequencing_summary = row.sequencing_summary_path
     meta.fastq = row.read_path
 
     /*
