@@ -76,7 +76,7 @@ workflow DIRECTRNA{
     //
     if (!params.skip_qc) {
         NANOQ ( ch_sample )
-
+    }
     //ch_sample
     //    .map { it -> [ it[0], it[1], it[3] } // take sample, replicate, reads
     //    .set { ch_fastq }

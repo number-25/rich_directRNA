@@ -8,7 +8,7 @@ process NANOQ {
         'biocontainers/nanoq:0.10.0--h031d066_2'}"
 
     input:
-    tuple val(meta), path(ontreads)
+    tuple val(meta), path(fastq)
     //val(output_format) //One of the following: fastq, fastq.gz, fastq.bz2, fastq.lzma, fasta, fasta.gz, fasta.bz2, fasta.lzma.
 
     output:
@@ -23,19 +23,22 @@ process NANOQ {
 
     script:
     def args = task.ext.args ?: ''
-    def prefix = task.ext.prefix ?: "${meta.id}_nanoq" // get the sample ID from the meta mapping
+    //if ( "${meta.replicate}" ?: '' )
+    //    def prefix = task.ext.prefix ?: "${meta.id}_nanoq" // get the sample ID from the meta mapping
+    //else
+    def prefix = task.ext.prefix ?: "${meta.id}_${meta.replicate}_nanoq" // get the sample ID from the meta mapping
     """
-    nanoq -i ${ontreads} \\
+    nanoq -i ${fastq} \\
         -s -H \\ 
-        > ${prefix}.stats \\
+        > ${prefix}.stats 
     
-    nanoq -i ${ontreads} \\
+    nanoq -i ${fastq} \\
         -s -vvv \\ 
-        > ${prefix}_verbose.stats \\
+        > ${prefix}_verbose.stats 
 
-    nanoq -i ${ontreads} \\
+    nanoq -i ${fastq} 
         -s -j \\ 
-        > ${prefix}.json \\
+        > ${prefix}.json 
     
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
@@ -45,7 +48,7 @@ process NANOQ {
 
     stub:
     def args = task.ext.args ?: ''
-    def prefix = task.ext.prefix ?: "${meta.id}_nanoq"
+    def prefix = task.ext.prefix ?: "${meta.id}_${meta.replicate}_nanoq"
     """
     touch ${prefix}.stats
     touch ${prefix}_verbose.stats

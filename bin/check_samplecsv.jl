@@ -69,11 +69,11 @@ for row in samplesheet_body
         end
     end
 # check to see if sequencing summary exists and isn't empty
-    @show path_to_summary = nextflow_path * third_column
+    path_to_summary = nextflow_path * '/' * third_column
     ispath(path_to_summary) || throw("sequencing summary file doesn't exist, or the path pointing to it is incorrect")
     # is it empty?
 # check to see if the reads path points to a valid path or a valid file
-    @show path_to_reads = nextflow_path * fourth_column
+    path_to_reads = nextflow_path * '/' * fourth_column
     ispath(path_to_reads) || isfile(path_to_reads) || throw("the path to the reads either doesn't exist, or the path pointing to a specific fastq file doesn't exist, please check paths")
     if ispath(path_to_reads) && !isfile(path_to_reads)
         !isempty(readdir(glob"*.fq", path_to_reads)) ||

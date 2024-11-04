@@ -1,2 +1,2 @@
 sample,replicate,sequencing_summary_path,read_path
-KCMF1,,/assets/dummy_sequencing_summary.txt,/assets/sample_nobc_dx.fastq.gz
+KCMF1,1,assets/dummy_sequencing_summary.txt,assets/sample_nobc_dx.fastq.gz
