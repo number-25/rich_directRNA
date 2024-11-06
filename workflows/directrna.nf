@@ -32,10 +32,15 @@ def isOffline() {
     IMPORT LOCAL MODULES / SUBWORKFLOWS / FUNCTIONS
 ----------------------------------------------------------------------------------------
 */
+// Check samplesheet
+include { INPUT_CHECK          } from '../subworkflows/local/input_check'
+// fastq QC
+include { NANOQ     } from '../modules/local/nanoq.nf'
+// bam QC
 //include { CRAMINO               } from '../modules/local/cramino'
 //include { ALFRED               } from '../modules/local/alfred'
-include { INPUT_CHECK          } from '../subworkflows/local/input_check'
-
+// fastq mapping
+include { MINIMAP2_ALIGN } from '../modules/local/minimap2_align'
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -44,7 +49,6 @@ include { INPUT_CHECK          } from '../subworkflows/local/input_check'
 */
 
 //include { FASTQC                 } from '../modules/nf-core/fastqc/main'
-include { NANOQ                } from '../modules/nf-core/nanoq/main'
 //include { MULTIQC                } from '../modules/nf-core/multiqc/main'
 //include { paramsSummaryMap       } from 'plugin/nf-validation'
 //include { paramsSummaryMultiqc   } from '../subworkflows/nf-core/utils_nfcore_pipeline'
@@ -71,22 +75,21 @@ workflow DIRECTRNA{
     INPUT_CHECK ( ch_input )
         .set { ch_sample }
 
+    // playing around with channel transformations
+    //ch_sample
+        //.map { it -> [ it[0], it[1] ] } // take sample, replicate, reads
+        //.set { ch_fastq }
+
+    //ch_sample.view()
+    //ch_fastq.view()
+
     //
-    // QC
-    //
+    // FASTQ QC
+    // NANOQ
     if (!params.skip_qc) {
         NANOQ ( ch_sample )
+        ch_versions = ch_versions.mix(NANOQ.out.versions.first())
     }
-    //ch_sample
-    //    .map { it -> [ it[0], it[1], it[3] } // take sample, replicate, reads
-    //    .set { ch_fastq }
-
-
-    //)
-
-    //}
-    //ch_versions = ch_versions.mix(NANOQ.out.versions.first())
-
 
     //
     // MODULE: Run FastQC
@@ -97,6 +100,37 @@ workflow DIRECTRNA{
     //ch_multiqc_files = ch_multiqc_files.mix(FASTQC.out.zip.collect{it[1]})
     //ch_versions = ch_versions.mix(FASTQC.out.versions.first())
 
+    //
+    // PREPARE_REFERENCE
+    //
+    if (!params.skip_prepare_reference) {
+        PREPARE_REFERENCE ()
+        ch_minimap2_genome_index = PREPARE_REFERENCE.minimap2_index
+        ch_transcriptome_fasta = PREPARE_REFERENCE.transcriptome_fasta
+        ch_cage_bed = PREPARE_REFERENCE.cage_bed
+        ch_polyA_bed = PREPARE_REFERENCE.polyA_bed
+        ch_intropolis_bed = PREPARE_REFERENCE.intropolis_bed
+        ch_custom_chrom_sizes = PREPARE_REFERENCE.custom_chrom_sizes
+        ch_samtools_genome_index = PREPARE_REFERENCE.samtools_genome_index
+        //ch_jaffal_ref = PREPARE_REFERENCE.jaffal_ref
+    }
+    // Mapping
+    // MINIMAP2
+    if (!params.skip_mapping) {
+        if (params.skip_prepare_reference) {
+            if ( params.genome_fasta ) {
+                ch_genome_fasta = file(params.genome_fasta)
+                MINIMAP2_ALIGN( ch_sample, ch_genome_fasta )
+            } else {
+                exit 1, 'Asking to skip reference preparation but genome file is not specified! please use --genome_fasta parameter'
+                    }
+        } else {
+            minimap2_genome_idx = PREPARE_REFERENCE().minimap2_index
+            MINIMAP2_ALIGN( ch_sample, minimap2_genome_idx )
+        }
+    // if the reference preparation is skipped, minimap2 will generate an index
+    // for the provided reference file
+    }
 
     //
     // Collate and save software versions

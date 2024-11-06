@@ -152,12 +152,9 @@ workflow PREPARE_REFERENCE {
 
     //
     // Create samtools genome index and create custom chrom sizes
-    ch_samtools_genome_index =
-    CUSTOM_GETCHROMSIZES(ch_genome_fasta).out.fai
-    ch_custom_chrom_sizes =
-    CUSTOM_GETCHROMSIZES(ch_genome_fasta).out.sizes
-    ch_versions =
-    ch_versions.mix(CUSTOM_GETCHROMSIZES).out.versions    //
+    ch_samtools_genome_index = CUSTOM_GETCHROMSIZES(ch_genome_fasta).out.fai
+    ch_custom_chrom_sizes = CUSTOM_GETCHROMSIZES(ch_genome_fasta).out.sizes
+    ch_versions = ch_versions.mix(CUSTOM_GETCHROMSIZES).out.versions    //
 
     //
     // Prepare a custom jaffal reference

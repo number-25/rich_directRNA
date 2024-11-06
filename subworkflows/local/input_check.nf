@@ -29,7 +29,7 @@ def get_sample_info(LinkedHashMap row) {
     // create meta map
     def meta = [:]
     meta.id           = row.sample
-    meta.replicate   = (row.replicate)
+    meta.replicate   = row.replicate
     meta.sequencing_summary = row.sequencing_summary_path
     //meta.fastq = row.read_path
 

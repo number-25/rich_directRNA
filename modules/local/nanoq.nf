@@ -14,7 +14,7 @@ process NANOQ {
     output:
     tuple val(meta), path("*.{stats,json}")                                           , emit: stats
     tuple val(meta), path("*_verbose.stats")                                          , emit: verbose_stats
-    tuple val(meta), path("*.json")                                                   ,emit: json_stats
+    tuple val(meta), path("*.json")                                                   , emit: json_stats
     //tuple val(meta), path("*_filtered.${output_format}")                              , emit: reads
     path "versions.yml"                                                               , emit: versions
 
@@ -28,18 +28,24 @@ process NANOQ {
     //else
     def prefix = task.ext.prefix ?: "${meta.id}_${meta.replicate}_nanoq" // get the sample ID from the meta mapping
     """
-    nanoq -i ${fastq} \\
-        -s -H \\ 
-        > ${prefix}.stats 
-    
-    nanoq -i ${fastq} \\
-        -s -vvv \\ 
-        > ${prefix}_verbose.stats 
+    nanoq \\
+        -H \\
+        -s \\
+        -i ${fastq} \\
+        > ${prefix}.stats
 
-    nanoq -i ${fastq} 
-        -s -j \\ 
-        > ${prefix}.json 
-    
+    nanoq \\
+        -s \\
+        -vvv \\
+        -i ${fastq} \\
+        > ${prefix}_verbose.stats
+
+    nanoq \\
+        -s \\
+        -j \\
+        -i ${fastq} \\
+        > ${prefix}.json
+
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
         nanoq: \$(nanoq --version | sed -e 's/nanoq //g')
