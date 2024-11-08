@@ -14,7 +14,7 @@ include { GUNZIP as GUNZIP_INTROPOLIS } from '../../../modules/nf-core/gunzip'
 
 // prepare indices for reference
 
-include { MINIMAP2_INDEX as MINIMAP2_GENOME_INDEX } from '../../../modules/nf-core/minimap2/index'
+//include { MINIMAP2_INDEX as MINIMAP2_GENOME_INDEX } from '../../../modules/nf-core/minimap2/index'
 //include { MINIMAP2_INDEX as MINIMAP2_TRANSCRIPTOME_INDEX } from '../modules/nf-core/minimap2/index'
 include { SAMTOOLS_FAIDX } from '../../../modules/nf-core/samtools/faidx'
 include { CUSTOM_GETCHROMSIZES } from '../../../modules/nf-core/custom/getchromsizes'
@@ -42,7 +42,7 @@ workflow PREPARE_REFERENCE {
     intropolis_bed
     phylop_bigwig
     // indices
-    minimap2_index
+    //minimap2_index
     //samtools_genome_index
     custom_chrom_sizes
     //minimap2_transcriptome_index
@@ -138,9 +138,9 @@ workflow PREPARE_REFERENCE {
     // Create genome index for minimap2
     //
 
-    ch_minimap2_index = MINIMAP2_GENOME_INDEX(
-    ch_genome_fasta).out.index
-    ch_versions = ch_versions.mix(MINIMAP2_GENOME_INDEX).out.versions
+    //ch_minimap2_index = MINIMAP2_GENOME_INDEX(
+    //ch_genome_fasta).out.index
+    //ch_versions = ch_versions.mix(MINIMAP2_GENOME_INDEX).out.versions
 
     //
     // Create transcriptome index for minimap2? Does it even need one?
@@ -164,8 +164,8 @@ workflow PREPARE_REFERENCE {
 
 
     emit:
-    genome_fasta = ch_genome_fasta
-    transcriptome_fasta = ch_transcriptome_fasta
+    //genome_fasta = ch_genome_fasta
+    //transcriptome_fasta = ch_transcriptome_fasta
     annotation_gtf = ch_annotation_gtf
     //annotation_bed =
     cage_bed = ch_cage_bed
@@ -173,7 +173,7 @@ workflow PREPARE_REFERENCE {
     intropolis_bed = ch_intropolis_bed
     phylop_bed = ch_phylop_bed
     // indices
-    minimap2_index = ch_minimap2_index
+    //minimap2_index = ch_minimap2_index
     //minimap2_transcriptome_index = ch_minimap2_transcriptome_index
     custom_chrom_sizes = ch_custom_chrom_sizes
     samtools_genome_index = ch_samtools_genome_index

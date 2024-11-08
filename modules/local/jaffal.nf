@@ -21,11 +21,15 @@ process JAFFAL {
 
     script:
     """
-    bpipe run -p refBase=$jaffal_ref_dir $jaffal_ref_dir/JAFFAL.groovy $fastq
+    bpipe \\
+        run -p \\
+        refBase=$jaffal_ref_dir \\
+        $jaffal_ref_dir/JAFFAL.groovy \\
+        $fastq
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
-        jaffa: \$( echo 'jaffa 2.0' )
+        jaffa: \$( echo '2.0' )
     END_VERSIONS
     """
 }

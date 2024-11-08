@@ -9,10 +9,11 @@ process MINIMAP2_INDEX {
         'biocontainers/minimap2:2.28--he4a0461_0' }"
 
     input:
-    tuple path(genome_fasta)
+    path(genome_fasta)
 
     output:
-    tuple path("*.mmi"), emit: index
+    //tuple path?
+    path ("*.mmi"), emit: index
     path "versions.yml"           , emit: versions
 
     when:
@@ -20,11 +21,13 @@ process MINIMAP2_INDEX {
 
     script:
     def args = task.ext.args ?: ''
-    // add $args to script?
+    def dRNA_preset = task.ext.dRNA_preset ?: "-ax splice -uf"
+    def kmer = task.ext.kmer ?: "-k 14"
     """
     minimap2 \\
+        ${dRNA_preset} \\
+        ${kmer} \\
         -t $task.cpus \\
-        -k14 \\
         -d ${genome_fasta.baseName}_k14.mmi \\
         $genome_fasta \\
 

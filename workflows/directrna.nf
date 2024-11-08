@@ -35,12 +35,14 @@ def isOffline() {
 // Check samplesheet
 include { INPUT_CHECK          } from '../subworkflows/local/input_check'
 // fastq QC
-include { NANOQ     } from '../modules/local/nanoq.nf'
+include { NANOQ                } from '../modules/local/nanoq.nf'
+// fastq mapping
+include { MAPPING              } from '../subworkflows/local/mapping'
+//include { MINIMAP2_ALIGN       } from '../modules/local/minimap2_align'
 // bam QC
+include { BAM_QC               } from '../subworkflows/local/bam_qc'
 //include { CRAMINO               } from '../modules/local/cramino'
 //include { ALFRED               } from '../modules/local/alfred'
-// fastq mapping
-include { MINIMAP2_ALIGN } from '../modules/local/minimap2_align'
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -84,8 +86,8 @@ workflow DIRECTRNA{
     //ch_fastq.view()
 
     //
-    // FASTQ QC
-    // NANOQ
+    // QC of fastq files
+    // MODULE: NANOQ
     if (!params.skip_qc) {
         NANOQ ( ch_sample )
         ch_versions = ch_versions.mix(NANOQ.out.versions.first())
@@ -101,11 +103,12 @@ workflow DIRECTRNA{
     //ch_versions = ch_versions.mix(FASTQC.out.versions.first())
 
     //
-    // PREPARE_REFERENCE
+    // Prepare the reference files
+    // SUBWORKFLOW: PREPARE_REFERENCE
     //
     if (!params.skip_prepare_reference) {
         PREPARE_REFERENCE ()
-        ch_minimap2_genome_index = PREPARE_REFERENCE.minimap2_index
+        //ch_minimap2_genome_index = PREPARE_REFERENCE.minimap2_index
         ch_transcriptome_fasta = PREPARE_REFERENCE.transcriptome_fasta
         ch_cage_bed = PREPARE_REFERENCE.cage_bed
         ch_polyA_bed = PREPARE_REFERENCE.polyA_bed
@@ -114,23 +117,57 @@ workflow DIRECTRNA{
         ch_samtools_genome_index = PREPARE_REFERENCE.samtools_genome_index
         //ch_jaffal_ref = PREPARE_REFERENCE.jaffal_ref
     }
-    // Mapping
-    // MINIMAP2
+
+    // Mapping and soring
+    // SUBWORKFLOW: MAPPING
+    // if the reference preparation is skipped, minimap2 will generate an index
+    // for the provided reference file
+    //
     if (!params.skip_mapping) {
         if (params.skip_prepare_reference) {
             if ( params.genome_fasta ) {
                 ch_genome_fasta = file(params.genome_fasta)
-                MINIMAP2_ALIGN( ch_sample, ch_genome_fasta )
+                MAPPING( ch_sample, ch_genome_fasta )
+                ch_bam = MAPPING.out.bam
+                //MINIMAP2_ALIGN( ch_sample, ch_genome_fasta )
             } else {
                 exit 1, 'Asking to skip reference preparation but genome file is not specified! please use --genome_fasta parameter'
                     }
         } else {
-            minimap2_genome_idx = PREPARE_REFERENCE().minimap2_index
-            MINIMAP2_ALIGN( ch_sample, minimap2_genome_idx )
+            MAPPING( ch_sample, ch_genome_fasta)
+            ch_bam = MAPPING.out.bam
+            //minimap2_genome_idx = PREPARE_REFERENCE().minimap2_index
+            //MINIMAP2_ALIGN( ch_sample, minimap2_genome_idx )
         }
-    // if the reference preparation is skipped, minimap2 will generate an index
-    // for the provided reference file
     }
+
+    //
+    // BAM QC
+    // SUBWORKFLOW: BAM_QC
+    // Execute cramino, alfred and samtools flagstat on bam output from mapping
+    if (!params.skip_mapping) {
+        BAM_QC( ch_bam, ch_genome_fasta )
+    }
+    // If a raw BAM is provided and mapping is not needed
+    else {
+        ch_bam = Channel.fromPath(params.bam_input, checkIfExists: true)
+        BAM_QC( ch_bam, ch_genome_fasta )
+
+
+
+
+
+
+
+    //
+    // Fusion gene detection
+    // MODULE: JAFFAL
+    /* Still experimental
+    if (!params.skip_jaffal) {
+        JAFFAL( ch_sample, ch_jaffal_ref )
+        }
+    */
+
 
     //
     // Collate and save software versions

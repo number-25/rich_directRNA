@@ -10,7 +10,7 @@ process MINIMAP2_ALIGN {
 
     input:
     tuple val(meta), path(fastq)
-    path(genome_fasta)
+    path(genome_index)
     // tuple val(meta2), path(reference)
     // val bam_format
     // val bam_index_extension
@@ -55,7 +55,7 @@ process MINIMAP2_ALIGN {
         ${dRNA_preset} \\
         ${kmer} \\
         -t ${task.cpus} \\
-        ${genome_fasta} \\
+        ${genome_index} \\
         $fastq \\
         > ${prefix}.sam
 
