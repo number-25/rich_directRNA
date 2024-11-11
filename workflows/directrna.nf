@@ -38,11 +38,8 @@ include { INPUT_CHECK          } from '../subworkflows/local/input_check'
 include { NANOQ                } from '../modules/local/nanoq.nf'
 // fastq mapping
 include { MAPPING              } from '../subworkflows/local/mapping'
-//include { MINIMAP2_ALIGN       } from '../modules/local/minimap2_align'
 // bam QC
 include { BAM_QC               } from '../subworkflows/local/bam_qc'
-//include { CRAMINO               } from '../modules/local/cramino'
-//include { ALFRED               } from '../modules/local/alfred'
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -87,6 +84,7 @@ workflow DIRECTRNA{
 
     //
     // QC of fastq files
+    // Toulligqc?
     // MODULE: NANOQ
     if (!params.skip_qc) {
         NANOQ ( ch_sample )
@@ -152,8 +150,47 @@ workflow DIRECTRNA{
     else {
         ch_bam = Channel.fromPath(params.bam_input, checkIfExists: true)
         BAM_QC( ch_bam, ch_genome_fasta )
+        }
 
+    //
+    // Transcript Reconstruction
+    if (!params.skip_flair_correct && !params.skip_flair_collapse) {
+        BAM_TO_BED12( ch_bam )
+        ch_mapped_bed = BAM_TO_BED12.out.bed
+        FLAIR_CORRECT( ch_mapped_bed )
+        ch_corrected_bed = FLAIR_CORRECT.out.corrected_bed
+        FLAIR_COLLAPSE( ch_corrected_bed )
+        ch_collapsed_bed = FLAIR_COLLAPSE.out.collapsed_bed
+        ch_collapsed_fa = FLAIR_COLLAPSE.out.collapsed_fasta
+        ch_collapsed_gtf = FLAIR_COLLAPSE.out.collapsed_gtf
+        BED_TO_BAM( ch_collapsed_bed )
+        ch_collapsed_bam = BED_TO_BAM.out.collapsed_bam
+    } else {
+        if (!params.skip_flair_correct && params.skip_flair_collapse) {
+            BAM_TO_BED12( ch_bam )
+            ch_mapped_bed = BAM_TO_BED12.out.bed
+            FLAIR_CORRECT( ch_mapped_bed )
+            ch_corrected_bed = FLAIR_CORRECT.out.corrected_bed
+    } else {
+            BAM_TO_BED12( ch_bam )
+            ch_mapped_bed = BAM_TO_BED12.out.bed
+            FLAIR_COLLAPSE( ch_corrected_bed )
+            ch_collapsed_bed = FLAIR_COLLAPSE.out.collapsed_bed
+            ch_collapsed_fa = FLAIR_COLLAPSE.out.collapsed_fasta
+            ch_collapsed_gtf = FLAIR_COLLAPSE.out.collapsed_gtf
+            BED_TO_BAM( ch_collapsed_bed )
+            ch_collapsed_bam = BED_TO_BAM.out.collapsed_bam
+    }
 
+    // Read correction tools? Which ones....
+    // TC-CLEAN?
+    // IsoQUANT?
+    // FLAIR
+
+    // BAMBU
+    // ISOQUANT
+
+    //  SQANTI?
 
 
 
@@ -168,6 +205,19 @@ workflow DIRECTRNA{
         }
     */
 
+    //
+    // Transcriptome assessment
+    // SQANTI, gffcompare
+    //
+
+    //
+    // Transcript quantification
+    // TransSigner
+    //
+
+    //
+    // Collate statistics
+    //
 
     //
     // Collate and save software versions
