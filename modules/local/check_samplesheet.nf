@@ -4,8 +4,8 @@ process CHECK_SAMPLESHEET {
 
     conda "${moduleDir}/environment.yml"
     container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
-        'https://depot.galaxyproject.org/singularity/julia:1.10':
-        'biocontainers/julia:1.10' }"
+        'quay.io/number_25/julia:1.11':
+        'number25/julia:1.11' }"
 
     input:
     path samplesheet

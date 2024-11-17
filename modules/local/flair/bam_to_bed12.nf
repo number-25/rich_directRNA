@@ -3,11 +3,12 @@ process BAM_TO_BED12 {
     label 'process_low'
     conda "${moduleDir}/environment.yml"
     container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
-        'https://depot.galaxyproject.org/singularity/flair:2.0.0--pyhdfd78af_1':
+        'docker://brookslab/flair:2.0.0' :
         'biocontainers/flair:2.0.0--pyhdfd78af_1' }"
-
+        ///'quay.io/biocontainers/flair:2.0.0--pyhdfd78af_1' }"
     input:
     tuple val(meta), path(mapped_bam)
+    tuple val(meta), path(mapped_bam_index)
 
     output:
     tuple val(meta), path("*.bed"), emit: bed
@@ -23,23 +24,24 @@ process BAM_TO_BED12 {
     bam2Bed12 \\
         -i ${mapped_bam} \\
         --keep_supplementary \\
-        > ${prefix}.bed \\
+        | sort -k 1,1 -k2,2n \\
+        > ${prefix}.bed
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
-        flair_bam_to_bed12: \$(flair --version |& sed 's/flair //')
+        bam_to_bed12: \$(flair --version |& sed 's/flair //')
     END_VERSIONS
     """
 
     stub:
     def args = task.ext.args ?: ''
-    def prefix = task.ext.prefix ?: "${meta.id}"
+    def prefix = task.ext.prefix ?: "${meta.id}_${meta.replicate}"
     """
     touch ${prefix}.bed
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
-        flair_bam_to_bed12: \$(flair --version |& sed 's/flair //')
+        bam_to_bed12: \$(flair --version |& sed 's/flair //')
     END_VERSIONS
     """
 }

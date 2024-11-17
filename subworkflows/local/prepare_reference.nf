@@ -16,7 +16,7 @@ include { GUNZIP as GUNZIP_INTROPOLIS } from '../../../modules/nf-core/gunzip'
 
 //include { MINIMAP2_INDEX as MINIMAP2_GENOME_INDEX } from '../../../modules/nf-core/minimap2/index'
 //include { MINIMAP2_INDEX as MINIMAP2_TRANSCRIPTOME_INDEX } from '../modules/nf-core/minimap2/index'
-include { SAMTOOLS_FAIDX } from '../../../modules/nf-core/samtools/faidx'
+//include { SAMTOOLS_FAIDX } from '../../../modules/nf-core/samtools/faidx'
 include { CUSTOM_GETCHROMSIZES } from '../../../modules/nf-core/custom/getchromsizes'
 //include { SAMTOOLS_INDEX } from '../../../modules/nf-core/samtools/index'
 
@@ -24,27 +24,26 @@ include { CUSTOM_GETCHROMSIZES } from '../../../modules/nf-core/custom/getchroms
 // prepare additional files
 
 //TO-DO make these modules
-include { GXF2BED as GTF_TO_BED } from '../../../modules/local/gxf2bed' // gxf2bed module
-include { BIGWIG_TO_WIG } from '../../../modules/local/bigwigtowig'
-include { BEDOPS as WIG_TO_BED } from '../../../modules/local/bedops'
-include { JAFFAL_PREPARE_REFERENCE } from '../../../modules/local/jaffalpreparereference'
+//include { GXF2BED as GTF_TO_BED } from '../../../modules/local/gxf2bed' // gxf2bed module
+//include { BIGWIG_TO_WIG } from '../../../modules/local/bigwigtowig'
+//include { BEDOPS as WIG_TO_BED } from '../../../modules/local/bedops'
 
-include { SAMTOOLS_SORT } from '../../../modules/nf-core/samtools/sort/main'
+//include { SAMTOOLS_SORT } from '../../../modules/nf-core/samtools/sort/main'
 
 workflow PREPARE_REFERENCE {
 
     take:
     genome_fasta
-    transcriptome_fasta
-    annotation_gtf
-    cage_bed
-    polyA_bed
-    intropolis_bed
-    phylop_bigwig
+    //transcriptome_fasta
+    //annotation_gtf
+    //cage_bed
+    //polyA_bed
+    //intropolis_bed
+    //phylop_bigwig
     // indices
     //minimap2_index
     //samtools_genome_index
-    custom_chrom_sizes
+    //custom_chrom_sizes
     //minimap2_transcriptome_index
     //appris_bed?
     //mane_select_bed?
@@ -53,7 +52,7 @@ workflow PREPARE_REFERENCE {
     main:
 
     ch_versions = Channel.empty()
-
+/*
     // Uncompress genome fasta file if required
     //
     if (genome_fasta.endsWith('.gz')) {
@@ -130,7 +129,7 @@ workflow PREPARE_REFERENCE {
         ch_phylop_bed = WIG_TO_BED( ch_phylop_wig ).out.phylop_bed
         ch_versions = ch_versions.mix(WIG_TO_BED.out.versions)
     }
-
+*/
 //-------------------------------------------------------//
 //              Prepare indices                         //
 
@@ -166,12 +165,12 @@ workflow PREPARE_REFERENCE {
     emit:
     //genome_fasta = ch_genome_fasta
     //transcriptome_fasta = ch_transcriptome_fasta
-    annotation_gtf = ch_annotation_gtf
+    //annotation_gtf = ch_annotation_gtf
     //annotation_bed =
-    cage_bed = ch_cage_bed
-    polyA_bed = ch_polyA_bed
-    intropolis_bed = ch_intropolis_bed
-    phylop_bed = ch_phylop_bed
+    //cage_bed = ch_cage_bed
+    //polyA_bed = ch_polyA_bed
+    //intropolis_bed = ch_intropolis_bed
+    //phylop_bed = ch_phylop_bed
     // indices
     //minimap2_index = ch_minimap2_index
     //minimap2_transcriptome_index = ch_minimap2_transcriptome_index

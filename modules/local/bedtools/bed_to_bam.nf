@@ -5,9 +5,11 @@ process BED_TO_BAM {
     container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
         'https://depot.galaxyproject.org/singularity/bedtools:2.31.1--hf5e1c6e_2':
         'biocontainers/bedtools:2.31.1--hf5e1c6e_2' }"
+    //publishDir "
 
     input:
     tuple val(meta), path(collapsed_bed)
+    path(genome_sizes)
 
     output:
     tuple val(meta), path("*.bam"), emit: collapsed_bam
@@ -20,10 +22,12 @@ process BED_TO_BAM {
     def args = task.ext.args ?: ''
     def prefix = task.ext.prefix ?: "${meta.id}_${meta.replicate}_collapsed"
     """
-    bedToBam \\
-        -i ${collapsed_bam} \\
+    sort -k 1,1 -k2,2n ${collapsed_bed} \\
+    | bedToBam \\
+        -i - \\
         -bed12 \\
-        > ${prefix}.bam \\
+        -g ${genome_sizes} \\
+        > ${prefix}.bam
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
@@ -33,7 +37,7 @@ process BED_TO_BAM {
 
     stub:
     def args = task.ext.args ?: ''
-    def prefix = task.ext.prefix ?: "${meta.id}"
+    def prefix = task.ext.prefix ?: "${meta.id}_${meta.replicate}_collapsed"
     """
     touch ${prefix}.bed
 

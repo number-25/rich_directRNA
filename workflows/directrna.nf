@@ -40,6 +40,12 @@ include { NANOQ                } from '../modules/local/nanoq.nf'
 include { MAPPING              } from '../subworkflows/local/mapping'
 // bam QC
 include { BAM_QC               } from '../subworkflows/local/bam_qc'
+// transcript reconstruction
+include { BAM_TO_BED12         } from '../modules/local/flair/bam_to_bed12'
+include { FLAIR_CORRECT        } from '../modules/local/flair/flair_correct'
+include { FLAIR_COLLAPSE       } from '../modules/local/flair/flair_collapse'
+include { BED_TO_BAM           } from '../modules/local/bedtools/bed_to_bam'
+include { BAMBU                } from '../modules/local/bambu'
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -69,6 +75,7 @@ workflow DIRECTRNA{
 
     ch_versions = Channel.empty()
     //ch_multiqc_files = Channel.empty()
+
 
     // INPUT_CHECK
     INPUT_CHECK ( ch_input )
@@ -125,8 +132,12 @@ workflow DIRECTRNA{
         if (params.skip_prepare_reference) {
             if ( params.genome_fasta ) {
                 ch_genome_fasta = file(params.genome_fasta)
+                ch_genome_fasta_idx = file(params.genome_fasta_index)
+                ch_genome_fasta_sizes = file(params.genome_fasta_sizes)
                 MAPPING( ch_sample, ch_genome_fasta )
                 ch_bam = MAPPING.out.bam
+                ch_bam_index = MAPPING.out.bai
+                //ch_mixed_bam = ch_bam.mix(ch_bam_indx)
                 //MINIMAP2_ALIGN( ch_sample, ch_genome_fasta )
             } else {
                 exit 1, 'Asking to skip reference preparation but genome file is not specified! please use --genome_fasta parameter'
@@ -134,6 +145,8 @@ workflow DIRECTRNA{
         } else {
             MAPPING( ch_sample, ch_genome_fasta)
             ch_bam = MAPPING.out.bam
+            ch_bam_index = MAPPING.out.bai
+            //ch_mixed_bam = ch_bam.mix(ch_bam_indx)
             //minimap2_genome_idx = PREPARE_REFERENCE().minimap2_index
             //MINIMAP2_ALIGN( ch_sample, minimap2_genome_idx )
         }
@@ -147,6 +160,7 @@ workflow DIRECTRNA{
         BAM_QC( ch_bam, ch_genome_fasta )
     }
     // If a raw BAM is provided and mapping is not needed
+    // Will need to index it
     else {
         ch_bam = Channel.fromPath(params.bam_input, checkIfExists: true)
         BAM_QC( ch_bam, ch_genome_fasta )
@@ -154,40 +168,63 @@ workflow DIRECTRNA{
 
     //
     // Transcript Reconstruction
+    //
+    // Source transcriptome annotation.gtf
+
+    ch_annotation_gtf = file(params.annotation_gtf) // check if exists
+
     if (!params.skip_flair_correct && !params.skip_flair_collapse) {
-        BAM_TO_BED12( ch_bam )
+        BAM_TO_BED12( ch_bam, ch_bam_nindex )
+        // seeing if a mixed channel with bam and bam.bai works
+        //BAM_TO_BED12( ch_mixed_bam )
         ch_mapped_bed = BAM_TO_BED12.out.bed
-        FLAIR_CORRECT( ch_mapped_bed )
-        ch_corrected_bed = FLAIR_CORRECT.out.corrected_bed
-        FLAIR_COLLAPSE( ch_corrected_bed )
-        ch_collapsed_bed = FLAIR_COLLAPSE.out.collapsed_bed
-        ch_collapsed_fa = FLAIR_COLLAPSE.out.collapsed_fasta
-        ch_collapsed_gtf = FLAIR_COLLAPSE.out.collapsed_gtf
-        BED_TO_BAM( ch_collapsed_bed )
-        ch_collapsed_bam = BED_TO_BAM.out.collapsed_bam
+        FLAIR_CORRECT( ch_mapped_bed, ch_genome_fasta, ch_annotation_gtf )
+        ch_corrected_bed = FLAIR_CORRECT.out.flair_corrected_bed
+        FLAIR_COLLAPSE( ch_corrected_bed, ch_sample, ch_annotation_gtf, ch_genome_fasta )
+        ch_collapsed_bed = FLAIR_COLLAPSE.out.collapsed_isoforms_bed
+
+        //ch_collapsed_bed
+         //   .map { it -> [ it[0], it[1] ] }
+         //   .set { ch_test_bed }
+
+        //ch_collapse_bed = ch_collapsed_flair.first()
+        BED_TO_BAM( ch_collapsed_bed, ch_genome_fasta_sizes )
+        ch_collapsed_bam = BED_TO_BAM.out.collapsed_bed
     } else {
         if (!params.skip_flair_correct && params.skip_flair_collapse) {
-            BAM_TO_BED12( ch_bam )
+            BAM_TO_BED12( ch_bam, ch_bam_index )
+            //BAM_TO_BED12( ch__mixed_bam )
             ch_mapped_bed = BAM_TO_BED12.out.bed
-            FLAIR_CORRECT( ch_mapped_bed )
-            ch_corrected_bed = FLAIR_CORRECT.out.corrected_bed
-    } else {
-            BAM_TO_BED12( ch_bam )
+            FLAIR_CORRECT( ch_mapped_bed, ch_genome_fasta, ch_annotation_gtf )
+            ch_corrected_bed = FLAIR_CORRECT.out.flair_corrected_bed
+        } else {
+            BAM_TO_BED12( ch_bam, ch_bam_index )
+            //BAM_TO_BED12( ch_mixed_bam )
             ch_mapped_bed = BAM_TO_BED12.out.bed
-            FLAIR_COLLAPSE( ch_corrected_bed )
-            ch_collapsed_bed = FLAIR_COLLAPSE.out.collapsed_bed
-            ch_collapsed_fa = FLAIR_COLLAPSE.out.collapsed_fasta
-            ch_collapsed_gtf = FLAIR_COLLAPSE.out.collapsed_gtf
-            BED_TO_BAM( ch_collapsed_bed )
+            FLAIR_COLLAPSE( ch_mapped_bed, ch_sample, ch_annotation_gtf, ch_genome_fasta )
+            ch_collapsed_bed = FLAIR_COLLAPSE.out.collapsed_isoforms_bed
+            //ch_collapsed_bed
+            //.map { it -> [ it[0], it[1] ] }
+            //.set { ch_test_bed }
+
+            //ch_test_bed.view()
+
+            //ch_collapsed_bed = ch_collapsed_flair.first()
+
+            BED_TO_BAM( ch_collapsed_bed, ch_genome_fasta_sizes )
             ch_collapsed_bam = BED_TO_BAM.out.collapsed_bam
     }
-
+    }
     // Read correction tools? Which ones....
     // TC-CLEAN?
     // IsoQUANT?
     // FLAIR
 
     // BAMBU
+    if (!params.skip_bambu) {
+        BAMBU( ch_genome_fasta, ch_annotation_gtf, ch_collapsed_bam )
+        ch_bambu_gtf = BAMBU.out.bambu_extended_gtf
+        }
     // ISOQUANT
 
     //  SQANTI?

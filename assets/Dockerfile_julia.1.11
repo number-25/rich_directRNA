@@ -1,0 +1,25 @@
+# syntax=docker/dockerfile:1
+# Julia base with packages Glob and FileIO included
+
+
+FROM julia:1.11
+
+# Image metadata
+LABEL maintainer="deancompbio@pm.me"
+
+# Define version as build variable
+ARG CIRC_VER="1.11.1"
+
+# Begin install
+RUN apt-get update && apt-get install -y procps
+
+# Set Julia Depot path as recommended by nextflow
+RUN JULIA_DEPOT_PATH=/usr/local/share/julia \
+    julia -e 'using Pkg; Pkg.update(); Pkg.add(["Glob", "FileIO"]); Pkg.precompile(); using Glob, FileIO;'
+
+# Clean up tmps, filesystem
+ RUN apt-get clean all && \
+     apt-get purge && \
+     rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
+
+#END

@@ -1,9 +1,9 @@
-process FLAIRCORRECT {
+process FLAIR_CORRECT {
     tag "$meta.id"
     label 'process_medium'
     conda "${moduleDir}/environment.yml"
     container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
-        'https://depot.galaxyproject.org/singularity/flair:2.0.0--pyhdfd78af_1':
+        'docker://brookslab/flair:2.0.0' :
         'biocontainers/flair:2.0.0--pyhdfd78af_1' }"
 
     input:
@@ -25,7 +25,7 @@ process FLAIRCORRECT {
 
     script:
     def args = task.ext.args ?: ''
-    def prefix = task.ext.prefix ?: "${meta.id}_${meta.replicate}_flair"
+    def prefix = task.ext.prefix ?: "${meta.id}_${meta.replicate}_flair_correct"
     """
     flair \\
         correct \\
@@ -51,7 +51,7 @@ process FLAIRCORRECT {
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
-        flaircorrect: \$(samtools --version |& sed '1!d ; s/samtools //')
+        flaircorrect: \$(flair --version |& sed '1!d ; s/samtools //')
     END_VERSIONS
     """
 }

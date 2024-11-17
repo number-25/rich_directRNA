@@ -1,4 +1,5 @@
 #!/usr/bin/env -S julia
+# I'll remove the hashbang to see if it fixes the script....
 #
 #########################################
 #   ,,               ,,    ,,           #
@@ -22,11 +23,11 @@
 
 using Pkg
 
-import Pkg
+#import Pkg
 # Check if necessary package exists, else install it
 
-haskey(Pkg.project().dependencies, "Glob") == true || Pkg.add("Glob")
-haskey(Pkg.project().dependencies, "FileIO") == true || Pkg.add("FileIO")
+#haskey(Pkg.project().dependencies, "Glob") == true || Pkg.add("Glob")
+#haskey(Pkg.project().dependencies, "FileIO") == true || Pkg.add("FileIO")
 
 using Glob, FileIO
 
