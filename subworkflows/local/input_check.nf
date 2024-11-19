@@ -42,8 +42,8 @@ def get_sample_info(LinkedHashMap row) {
     fastq_meta = [ meta, [ file(row.read_path) ] ]
     //} else {
     //    if (!file(row.fastq_2).exists()) {
-   //         exit 1, "ERROR: Please check input samplesheet -> Read 2 FastQ file does not exist!\n${row.fastq_2}"
-   //     }
+    //         exit 1, "ERROR: Please check input samplesheet -> Read 2 FastQ file does not exist!\n${row.fastq_2}"
+    //     }
     return fastq_meta
     //return meta
 }

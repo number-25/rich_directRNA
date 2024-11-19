@@ -23,7 +23,7 @@ process ALFRED {
     def args = task.ext.args ?: ''
     def prefix = task.ext.prefix ?: "${meta.id}_${meta.replicate}_alfred"
 
-   """
+    """
     alfred qc \\
         -r ${genome_fasta} \\
         -s \\

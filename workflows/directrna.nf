@@ -184,8 +184,8 @@ workflow DIRECTRNA{
         ch_collapsed_bed = FLAIR_COLLAPSE.out.collapsed_isoforms_bed
 
         //ch_collapsed_bed
-         //   .map { it -> [ it[0], it[1] ] }
-         //   .set { ch_test_bed }
+        //   .map { it -> [ it[0], it[1] ] }
+        //   .set { ch_test_bed }
 
         //ch_collapse_bed = ch_collapsed_flair.first()
         BED_TO_BAM( ch_collapsed_bed, ch_genome_fasta_sizes )

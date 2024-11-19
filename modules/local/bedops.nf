@@ -31,7 +31,7 @@ process BEDOPS {
         < $phylop_wig \\
         > ${phylop_bed}.bed
 
-       cat <<-END_VERSIONS > versions.yml
+    cat <<-END_VERSIONS > versions.yml
     "${task.process}":
         bedops: \$(convert2bed -w | tail -n 2 | head -n 1 | cut -d: -f2)
     END_VERSIONS

@@ -18,8 +18,8 @@ RUN JULIA_DEPOT_PATH=/usr/local/share/julia \
     julia -e 'using Pkg; Pkg.update(); Pkg.add(["Glob", "FileIO"]); Pkg.precompile(); using Glob, FileIO;'
 
 # Clean up tmps, filesystem
- RUN apt-get clean all && \
-     apt-get purge && \
-     rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
+RUN apt-get clean all && \
+    apt-get purge && \
+    rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
 #END
