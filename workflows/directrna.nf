@@ -46,6 +46,16 @@ include { FLAIR_CORRECT        } from '../modules/local/flair/flair_correct'
 include { FLAIR_COLLAPSE       } from '../modules/local/flair/flair_collapse'
 include { BED_TO_BAM           } from '../modules/local/bedtools/bed_to_bam'
 include { BAMBU                } from '../modules/local/bambu'
+//include { ISOQUANT             } from '../modules/local/isoquant'
+// fusion gene detection
+//include {
+// transcriptome assessment
+//include { SQANTI               } from '../subworkflows/local/sqanti'
+//include { SQANTI_QC            } from '../modules/local/sqanti/sqanti_qc'
+//include { SQANTI_FILTER        } from '../modules/local/sqanti/sqanti_filter'
+//include { SQANTI_RESCUE        } from '../modules/local/sqanti/sqanti_rescue'
+
+
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

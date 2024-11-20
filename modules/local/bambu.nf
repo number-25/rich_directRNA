@@ -3,8 +3,10 @@ process BAMBU {
     label 'process_medium'
     conda "conda-forge::r-base=4.0.3 bioconda::bioconductor-bambu=3.4.0 bioconda::bioconductor-bsgenome=1.74.0"
     container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
-        'https://depot.galaxyproject.org/singularity/bioconductor-bambu:3.4.0--r43hf17093f_1' :
-        'quay.io/biocontainers/bioconductor-bambu:3.4.0--r43hf17093f_1' }"
+        'docker://number25/bambu:3.8.0':
+        'quay.io/number_25/bambu:latest' }"
+       // 'https://depot.galaxyproject.org/singularity/bioconductor-bambu:3.4.0--r43hf17093f_1' :
+        //'quay.io/biocontainers/bioconductor-bambu:3.4.0--r43hf17093f_1' }"
 
     input:
     path(genome_fasta)
@@ -39,4 +41,3 @@ process BAMBU {
     END_VERSIONS
     """
 }
-
