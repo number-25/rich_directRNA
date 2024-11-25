@@ -192,14 +192,13 @@ workflow DIRECTRNA{
         ch_corrected_bed = FLAIR_CORRECT.out.flair_corrected_bed
         FLAIR_COLLAPSE( ch_corrected_bed, ch_sample, ch_annotation_gtf, ch_genome_fasta )
         ch_collapsed_bed = FLAIR_COLLAPSE.out.collapsed_isoforms_bed
-
+        ch_collapsed_gtf = FLAIR_COLLAPSE.out_collapsed_isoforms.gtf
         //ch_collapsed_bed
         //   .map { it -> [ it[0], it[1] ] }
         //   .set { ch_test_bed }
 
-        //ch_collapse_bed = ch_collapsed_flair.first()
-        BED_TO_BAM( ch_collapsed_bed, ch_genome_fasta_sizes )
-        ch_collapsed_bam = BED_TO_BAM.out.collapsed_bed
+        //BED_TO_BAM( ch_collapsed_bed, ch_genome_fasta_sizes )
+        //ch_collapsed_bam = BED_TO_BAM.out.collapsed_bed
     } else {
         if (!params.skip_flair_correct && params.skip_flair_collapse) {
             BAM_TO_BED12( ch_bam, ch_bam_index )
@@ -213,16 +212,12 @@ workflow DIRECTRNA{
             ch_mapped_bed = BAM_TO_BED12.out.bed
             FLAIR_COLLAPSE( ch_mapped_bed, ch_sample, ch_annotation_gtf, ch_genome_fasta )
             ch_collapsed_bed = FLAIR_COLLAPSE.out.collapsed_isoforms_bed
+            ch_collapsed_gtf = FLAIR_COLLAPSE.out.collapsed_isoforms_gtf
             //ch_collapsed_bed
             //.map { it -> [ it[0], it[1] ] }
             //.set { ch_test_bed }
-
-            //ch_test_bed.view()
-
-            //ch_collapsed_bed = ch_collapsed_flair.first()
-
-            BED_TO_BAM( ch_collapsed_bed, ch_genome_fasta_sizes )
-            ch_collapsed_bam = BED_TO_BAM.out.collapsed_bam
+            //BED_TO_BAM( ch_collapsed_bed, ch_genome_fasta_sizes )
+            //ch_collapsed_bam = BED_TO_BAM.out.collapsed_bam
     }
     }
     // Read correction tools? Which ones....
@@ -232,7 +227,7 @@ workflow DIRECTRNA{
 
     // BAMBU
     if (!params.skip_bambu) {
-        BAMBU( ch_genome_fasta, ch_annotation_gtf, ch_collapsed_bam )
+        BAMBU( ch_genome_fasta, ch_annotation_gtf, ch_bam )
         ch_bambu_gtf = BAMBU.out.bambu_extended_gtf
         }
     // ISOQUANT

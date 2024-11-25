@@ -17,9 +17,9 @@ RUN apt-get update -y
 # Install Bioconductor Manager
 RUN R_PROFILE_USER=/.Rprofile && \
     R_ENVIRON_USER=/.Renviron && \
-    Rscript -e "install.packages(c('BiocManager', 'dplyr', 'tidyr', 'xgboost', 'data.table', 'Rccp'), dependencies=TRUE, repos='http://cran.rstudio.com/')" && \
-    Rscript -e "BiocManager::install(c('SummarizedExperiment', 'S4Vectors', 'BSgenome', 'IRanges', 'BiocGenerics', 'BiocParallel', 'GenomeInfoDb', 'GenomicAlignments', 'GenomicFeatures', 'GenomicRanges', 'Rsamtools', 'bambu'))"
-
+    Rscript -e "install.packages('BiocManager')" && \
+    Rscript -e "BiocManager::install('bambu')" && \
+    Rscript -e "library(bambu)"
 RUN apt-get clean all && \
     apt-get purge && \
     rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
