@@ -124,27 +124,36 @@ workflow DIRECTRNA{
     if (!params.skip_prepare_reference) {
         PREPARE_REFERENCE ()
         //ch_minimap2_genome_index = PREPARE_REFERENCE.minimap2_index
-        ch_transcriptome_fasta = PREPARE_REFERENCE.transcriptome_fasta
-        ch_cage_bed = PREPARE_REFERENCE.cage_bed
-        ch_polyA_bed = PREPARE_REFERENCE.polyA_bed
-        ch_intropolis_bed = PREPARE_REFERENCE.intropolis_bed
-        ch_custom_chrom_sizes = PREPARE_REFERENCE.custom_chrom_sizes
-        ch_samtools_genome_index = PREPARE_REFERENCE.samtools_genome_index
+        ch_transcriptome_fasta = PREPARE_REFERENCE.out.transcriptome_fasta
+        ch_cage_bed = PREPARE_REFERENCE.out.cage_bed
+        ch_polyA_bed = PREPARE_REFERENCE.out.polyA_bed
+        ch_intropolis_bed = PREPARE_REFERENCE.out.intropolis_bed
+        ch_custom_chrom_sizes = PREPARE_REFERENCE.out.custom_chrom_sizes
+        ch_samtools_genome_index = PREPARE_REFERENCE.out.samtools_genome_index
         //ch_jaffal_ref = PREPARE_REFERENCE.jaffal_ref
     }
 
-    // Mapping and soring
+    // Mapping and sorting
     // SUBWORKFLOW: MAPPING
     // if the reference preparation is skipped, minimap2 will generate an index
     // for the provided reference file
     //
     if (!params.skip_mapping) {
         if (params.skip_prepare_reference) {
-            if ( params.genome_fasta ) {
-                ch_genome_fasta = file(params.genome_fasta)
-                ch_genome_fasta_idx = file(params.genome_fasta_index)
-                ch_genome_fasta_sizes = file(params.genome_fasta_sizes)
-                MAPPING( ch_sample, ch_genome_fasta )
+            if (params.genome_fasta) {
+                ch_genome_fasta = Channel.fromPath(params.genome_fasta, checkIfExists: true)
+                if (params.custom_genome) {
+                    SAMTOOLS_FAIDX(ch_genome_fasta)
+                    ch_genome_samtools_idx = SAMTOOLS_FAIDX.out.index
+                    MINIMAP2_INDEX(ch_genome_fasta)
+                    ch_genome_minimap2_idx = MINIMAP2_INDEX.out.index
+                    SAMTOOLS_SIZES?
+                    ch_genome_fasta_sizes = SAMTOOLS_SIZES.out.sizes
+                } else {
+                ch_genome_samtools_idx = Channel.fromPath(params.genome_fasta_samtools_index, checkIfExists: true)
+                ch_genome_minimap2_index = Channel.fromPath(params.genome_fasta_minimap2_index,
+                checkIfExists: true)
+                MAPPING( ch_sample, ch_genome_minimap2_idx )
                 ch_bam = MAPPING.out.bam
                 ch_bam_index = MAPPING.out.bai
                 //ch_mixed_bam = ch_bam.mix(ch_bam_indx)
@@ -181,7 +190,9 @@ workflow DIRECTRNA{
     //
     // Source transcriptome annotation.gtf
 
-    ch_annotation_gtf = file(params.annotation_gtf) // check if exists
+    //ch_annotation_gtf = file(params.annotation_gtf) // check if exists
+    ch_annotation_gtf = Channel.fromPath(params.annotation_gtf, checkIfExists:
+    true) // check if exists
 
     if (!params.skip_flair_correct && !params.skip_flair_collapse) {
         BAM_TO_BED12( ch_bam, ch_bam_nindex )
@@ -229,6 +240,7 @@ workflow DIRECTRNA{
     if (!params.skip_bambu) {
         BAMBU( ch_genome_fasta, ch_annotation_gtf, ch_bam )
         ch_bambu_gtf = BAMBU.out.bambu_extended_gtf
+        GFFREAD_GETFASTA( ch_bambu_gtf, ch_genome_fasta )
         }
     // ISOQUANT
 
@@ -242,7 +254,7 @@ workflow DIRECTRNA{
     // Fusion gene detection
     // MODULE: JAFFAL
     /* Still experimental
-    if (!params.skip_jaffal) {
+    if (!params.skip_jaffal && !params.custom_genome)  {
         JAFFAL( ch_sample, ch_jaffal_ref )
         }
     */

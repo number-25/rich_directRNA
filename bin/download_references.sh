@@ -74,7 +74,13 @@ if [ ! -f intropolis.v1.hg19_with_liftover_to_hg38.tsv.min_count_10.modified.gz 
     wget https://github.com/Magdoll/images_public/raw/master/SQANTI2_support_data/intropolis.v1.hg19_with_liftover_to_hg38.tsv.min_count_10.modified.gz
 fi
 
-### Get 30way PhyloP file - BigWig format
+### Get 7way PhyloP file - BigWig format
+https://hgdownload.cse.ucsc.edu/goldenpath/hg38/phyloP7way/
 if [ ! -f hg38.phyloP30way.bw ] ; then
-    wget https://hgdownload.soe.ucsc.edu/goldenPath/hg38/phyloP30way/hg38.phyloP30way.bw
+    wget https://hgdownload.cse.ucsc.edu/goldenpath/hg38/phyloP7way/hg38.phyloP7way.wigFix.gz
 fi
+
+gunzip hg38.phyloP7way.wigFix.gz
+rm hg38.phyloP7way.wigFix.gz
+
+
