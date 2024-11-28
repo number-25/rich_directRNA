@@ -8,18 +8,12 @@ include { GUNZIP as GUNZIP_GTF } from '../../../modules/nf-core/gunzip'
 //include { GUNZIP as GUNZIP_BED } from '../modules/nf-core/gunzip'
 include { GUNZIP as GUNZIP_TRANSCRIPT_FASTA } from '../../../modules/nf-core/gunzip'
 include { GUNZIP as GUNZIP_CAGE } from '../../../modules/nf-core/gunzip'
-'../modules/nf-core/gunzip'
+//'../modules/nf-core/gunzip'
 include { GUNZIP as GUNZIP_POLYA } from '../../../modules/nf-core/gunzip'
 include { GUNZIP as GUNZIP_INTROPOLIS } from '../../../modules/nf-core/gunzip'
 
 // prepare indices for reference
-
-//include { MINIMAP2_INDEX as MINIMAP2_GENOME_INDEX } from '../../../modules/nf-core/minimap2/index'
-//include { MINIMAP2_INDEX as MINIMAP2_TRANSCRIPTOME_INDEX } from '../modules/nf-core/minimap2/index'
-//include { SAMTOOLS_FAIDX } from '../../../modules/nf-core/samtools/faidx'
 include { CUSTOM_GETCHROMSIZES } from '../../../modules/nf-core/custom/getchromsizes'
-//include { SAMTOOLS_INDEX } from '../../../modules/nf-core/samtools/index'
-
 
 // prepare additional files
 
@@ -33,21 +27,17 @@ include { CUSTOM_GETCHROMSIZES } from '../../../modules/nf-core/custom/getchroms
 workflow PREPARE_REFERENCE {
 
     take:
-    genome_fasta
+    //genome_fasta
     //transcriptome_fasta
-    //annotation_gtf
-    //cage_bed
-    //polyA_bed
-    //intropolis_bed
-    //phylop_bigwig
-    // indices
-    //minimap2_index
-    //samtools_genome_index
-    //custom_chrom_sizes
-    //minimap2_transcriptome_index
+    annotation_gtf
+    cage_bed
+    polyA_bed
+    intropolis_bed
     //appris_bed?
     //mane_select_bed?
     //mane_clinical_bed?
+    // indices
+    //minimap2_index
 
     main:
 
@@ -151,9 +141,9 @@ workflow PREPARE_REFERENCE {
 
     //
     // Create samtools genome index and create custom chrom sizes
-    ch_samtools_genome_index = CUSTOM_GETCHROMSIZES(ch_genome_fasta).out.fai
-    ch_custom_chrom_sizes = CUSTOM_GETCHROMSIZES(ch_genome_fasta).out.sizes
-    ch_versions = ch_versions.mix(CUSTOM_GETCHROMSIZES).out.versions    //
+    //ch_samtools_genome_index = CUSTOM_GETCHROMSIZES(ch_genome_fasta).out.fai
+    //ch_custom_chrom_sizes = CUSTOM_GETCHROMSIZES(ch_genome_fasta).out.sizes
+    //ch_versions = ch_versions.mix(CUSTOM_GETCHROMSIZES).out.versions    //
 
     //
     // Prepare a custom jaffal reference
@@ -174,8 +164,8 @@ workflow PREPARE_REFERENCE {
     // indices
     //minimap2_index = ch_minimap2_index
     //minimap2_transcriptome_index = ch_minimap2_transcriptome_index
-    custom_chrom_sizes = ch_custom_chrom_sizes
-    samtools_genome_index = ch_samtools_genome_index
+    //custom_chrom_sizes = ch_custom_chrom_sizes
+    //samtools_genome_index = ch_samtools_genome_index
     //jaffal_ref =
 
     versions = ch_versions                     // channel: [ versions.yml ]

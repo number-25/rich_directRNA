@@ -13,7 +13,7 @@ process CUSTOM_GETCHROMSIZES {
     output:
     tuple val(meta), path ("*.sizes"), emit: sizes
     tuple val(meta), path ("*.fai")  , emit: fai
-    tuple val(meta), path ("*.gzi")  , emit: gzi, optional: true
+    //tuple val(meta), path ("*.gzi")  , emit: gzi, optional: true
     path  "versions.yml"             , emit: versions
 
     when:
@@ -30,15 +30,14 @@ process CUSTOM_GETCHROMSIZES {
         getchromsizes: \$(echo \$(samtools --version 2>&1) | sed 's/^.*samtools //; s/Using.*\$//')
     END_VERSIONS
     """
-
+    //if [[ "${genome_fasta.extension}" == "gz" ]]; then
+    //    touch ${genome_fasta}.gzi
+    //fi
     stub:
     """
     touch ${genome_fasta}.fai
     touch ${genome_fasta.baseName}.sizes
-    if [[ "${genome_fasta.extension}" == "gz" ]]; then
-        touch ${genome_fasta}.gzi
-    fi
-
+    
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
         getchromsizes: \$(echo \$(samtools --version 2>&1) | sed 's/^.*samtools //; s/Using.*\$//')

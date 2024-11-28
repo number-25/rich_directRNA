@@ -12,7 +12,7 @@ process JAFFAL {
     path jaffal_ref_dir
 
     output:
-    tuple val(meta), path("*.fasta"), emit: jaffal_fastq
+    tuple val(meta), path("*.fasta"), emit: jaffal_fasta
     path "*.csv"                    , emit: jaffal_results
     path "versions.yml"             , emit: versions
 

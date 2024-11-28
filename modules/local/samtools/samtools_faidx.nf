@@ -2,19 +2,19 @@ process SAMTOOLS_FAIDX {
     tag "$fasta"
     label 'process_single'
 
-    conda "${moduleDir}/environment.yml"
+    conda "bioconda::samtools=1.20-0"
     container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
         'https://depot.galaxyproject.org/singularity/samtools:1.20--h50ea8bc_0' :
         'biocontainers/samtools:1.20--h50ea8bc_0' }"
 
     input:
     tuple val(meta), path(genome_fasta)
-    tuple val(meta2), path(fai)
+    //tuple val(meta2), path(fai)
 
     output:
-    tuple val(meta), path ("*.{fa,fasta}") , emit: fa , optional: true
-    tuple val(meta), path ("*.fai")        , emit: fai, optional: true
-    tuple val(meta), path ("*.gzi")        , emit: gzi, optional: true
+    tuple val(meta), path ("*.fa") , emit: fa , optional: true
+    tuple val(meta), path ("*.fai")        , emit: index, optional: true
+    //tuple val(meta), path ("*.gzi")        , emit: gzi, optional: true
     path "versions.yml"                    , emit: versions
 
     when:
@@ -25,8 +25,7 @@ process SAMTOOLS_FAIDX {
     """
     samtools \\
         faidx \\
-        $genome_fasta \\
-        $args
+        $genome_fasta
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":

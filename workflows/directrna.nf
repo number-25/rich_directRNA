@@ -33,22 +33,26 @@ def isOffline() {
 ----------------------------------------------------------------------------------------
 */
 // Check samplesheet
-include { INPUT_CHECK          } from '../subworkflows/local/input_check'
+include { INPUT_CHECK               } from '../subworkflows/local/input_check'
+// Load Unix Utils
+include { GUNZIP as GUNZIP_FASTA    } from '../modules/nfcore/gunzip'
 // fastq QC
-include { NANOQ                } from '../modules/local/nanoq.nf'
+include { NANOQ                     } from '../modules/local/nanoq'
 // fastq mapping
-include { MAPPING              } from '../subworkflows/local/mapping'
+include { MAPPING                   } from '../subworkflows/local/mapping'
+include { SAMTOOLS_FAIDX            } from '../modules/local/samtools/samtools_faidx'
 // bam QC
-include { BAM_QC               } from '../subworkflows/local/bam_qc'
+include { BAM_QC                    } from '../subworkflows/local/bam_qc'
 // transcript reconstruction
-include { BAM_TO_BED12         } from '../modules/local/flair/bam_to_bed12'
-include { FLAIR_CORRECT        } from '../modules/local/flair/flair_correct'
-include { FLAIR_COLLAPSE       } from '../modules/local/flair/flair_collapse'
-include { BED_TO_BAM           } from '../modules/local/bedtools/bed_to_bam'
-include { BAMBU                } from '../modules/local/bambu'
-//include { ISOQUANT             } from '../modules/local/isoquant'
+include { BAM_TO_BED12              } from '../modules/local/flair/bam_to_bed12'
+include { FLAIR_CORRECT             } from '../modules/local/flair/flair_correct'
+include { FLAIR_COLLAPSE            } from '../modules/local/flair/flair_collapse'
+include { BED_TO_BAM                } from '../modules/local/bedtools/bed_to_bam'
+include { BAMBU                     } from '../modules/local/bambu'
+//include { ISOQUANT                } from '../modules/local/isoquant'
+//include { ISOQUANT_CORRECTION     } from '../modules/local/isoquant_correct'
 // fusion gene detection
-//include {
+//include { JAFFAL             } from '../modules/local/jaffal'
 // transcriptome assessment
 //include { SQANTI               } from '../subworkflows/local/sqanti'
 //include { SQANTI_QC            } from '../modules/local/sqanti/sqanti_qc'
@@ -80,12 +84,10 @@ workflow DIRECTRNA{
 
     //take:
     //ch_samplesheet // channel: samplesheet read in from --input
-
     //main:
 
     ch_versions = Channel.empty()
     //ch_multiqc_files = Channel.empty()
-
 
     // INPUT_CHECK
     INPUT_CHECK ( ch_input )
@@ -95,9 +97,6 @@ workflow DIRECTRNA{
     //ch_sample
         //.map { it -> [ it[0], it[1] ] } // take sample, replicate, reads
         //.set { ch_fastq }
-
-    //ch_sample.view()
-    //ch_fastq.view()
 
     //
     // QC of fastq files
@@ -129,8 +128,7 @@ workflow DIRECTRNA{
         ch_polyA_bed = PREPARE_REFERENCE.out.polyA_bed
         ch_intropolis_bed = PREPARE_REFERENCE.out.intropolis_bed
         ch_custom_chrom_sizes = PREPARE_REFERENCE.out.custom_chrom_sizes
-        ch_samtools_genome_index = PREPARE_REFERENCE.out.samtools_genome_index
-        //ch_jaffal_ref = PREPARE_REFERENCE.jaffal_ref
+        //ch_jaffal_ref = Channel.fromPath(jaffal_ref, checkIfExists = true)
     }
 
     // Mapping and sorting
@@ -139,37 +137,41 @@ workflow DIRECTRNA{
     // for the provided reference file
     //
     if (!params.skip_mapping) {
-        if (params.skip_prepare_reference) {
-            if (params.genome_fasta) {
-                ch_genome_fasta = Channel.fromPath(params.genome_fasta, checkIfExists: true)
-                if (params.custom_genome) {
-                    SAMTOOLS_FAIDX(ch_genome_fasta)
-                    ch_genome_samtools_idx = SAMTOOLS_FAIDX.out.index
-                    MINIMAP2_INDEX(ch_genome_fasta)
-                    ch_genome_minimap2_idx = MINIMAP2_INDEX.out.index
-                    SAMTOOLS_SIZES?
-                    ch_genome_fasta_sizes = SAMTOOLS_SIZES.out.sizes
-                } else {
-                ch_genome_samtools_idx = Channel.fromPath(params.genome_fasta_samtools_index, checkIfExists: true)
-                ch_genome_minimap2_index = Channel.fromPath(params.genome_fasta_minimap2_index,
-                checkIfExists: true)
-                MAPPING( ch_sample, ch_genome_minimap2_idx )
-                ch_bam = MAPPING.out.bam
-                ch_bam_index = MAPPING.out.bai
-                //ch_mixed_bam = ch_bam.mix(ch_bam_indx)
-                //MINIMAP2_ALIGN( ch_sample, ch_genome_fasta )
+    // the genome indexes are not created in prepare reference anymore
+        if (params.genome_fasta) {
+            ch_genome_fasta = Channel.fromPath(params.genome_fasta, checkIfExists: true)
+            if (ch_genome_fasta.endWith('.gz')) {
+                GUNZIP_FASTA( ch_genome_fasta )
+                ch_genome_fasta = GUNZIP_FASTA.out.gunzip
+            }
+            if (params.custom_genome) {
+                // If custom genome is provided
+                CUSTOM_GETCHROMSIZES( ch_genome_fasta )
+                ch_genome_samtools_idx = CUSTOM_GETCHROMSIZES.out.fai
+                ch_genome_sizes = CUSTOM_GETCHROMSIZES.out.sizes
+                //SAMTOOLS_FAIDX(ch_genome_fasta)
+                //ch_genome_samtools_idx = SAMTOOLS_FAIDX.out.index
+                MINIMAP2_INDEX( ch_genome_fasta )
+                ch_genome_minimap2_idx = MINIMAP2_INDEX.out.index
             } else {
-                exit 1, 'Asking to skip reference preparation but genome file is not specified! please use --genome_fasta parameter'
-                    }
-        } else {
-            MAPPING( ch_sample, ch_genome_fasta)
+                ch_genome_samtools_idx = Channel.fromPath(params.genome_fasta_samtools_index, checkIfExists: true)
+                ch_genome_minimap2_idx = Channel.fromPath(params.genome_fasta_minimap2_index checkIfExists: true)
+                ch_genome_sizes = Channel.fromPath(params.genome_fasta_sizes checkIfExists: true)
+            }
+            MAPPING( ch_sample, ch_genome_minimap2_idx )
             ch_bam = MAPPING.out.bam
             ch_bam_index = MAPPING.out.bai
             //ch_mixed_bam = ch_bam.mix(ch_bam_indx)
-            //minimap2_genome_idx = PREPARE_REFERENCE().minimap2_index
-            //MINIMAP2_ALIGN( ch_sample, minimap2_genome_idx )
+            //MINIMAP2_ALIGN( ch_sample, ch_genome_fasta )
+            } else {
+                exit 1, 'Reference genome fasta file is not specified! please modify nextflow.config or use --genome_fasta parameter'
+                    }
+        } else {
+            MAPPING( ch_sample, ch_genome_minimap2_idx)
+            ch_bam = MAPPING.out.bam
+            ch_bam_index = MAPPING.out.bai
+            //ch_mixed_bam = ch_bam.mix(ch_bam_indx)
         }
-    }
 
     //
     // BAM QC
@@ -191,11 +193,10 @@ workflow DIRECTRNA{
     // Source transcriptome annotation.gtf
 
     //ch_annotation_gtf = file(params.annotation_gtf) // check if exists
-    ch_annotation_gtf = Channel.fromPath(params.annotation_gtf, checkIfExists:
-    true) // check if exists
+    ch_annotation_gtf = Channel.fromPath(params.annotation_gtf, checkIfExists: true) // check if exists
 
     if (!params.skip_flair_correct && !params.skip_flair_collapse) {
-        BAM_TO_BED12( ch_bam, ch_bam_nindex )
+        BAM_TO_BED12( ch_bam, ch_bam_index )
         // seeing if a mixed channel with bam and bam.bai works
         //BAM_TO_BED12( ch_mixed_bam )
         ch_mapped_bed = BAM_TO_BED12.out.bed
@@ -207,10 +208,10 @@ workflow DIRECTRNA{
         //ch_collapsed_bed
         //   .map { it -> [ it[0], it[1] ] }
         //   .set { ch_test_bed }
-
         //BED_TO_BAM( ch_collapsed_bed, ch_genome_fasta_sizes )
         //ch_collapsed_bam = BED_TO_BAM.out.collapsed_bed
     } else {
+        // No collapsing just correction
         if (!params.skip_flair_correct && params.skip_flair_collapse) {
             BAM_TO_BED12( ch_bam, ch_bam_index )
             //BAM_TO_BED12( ch__mixed_bam )
@@ -229,8 +230,10 @@ workflow DIRECTRNA{
             //.set { ch_test_bed }
             //BED_TO_BAM( ch_collapsed_bed, ch_genome_fasta_sizes )
             //ch_collapsed_bam = BED_TO_BAM.out.collapsed_bam
+        }
     }
-    }
+
+
     // Read correction tools? Which ones....
     // TC-CLEAN?
     // IsoQUANT?
@@ -240,24 +243,34 @@ workflow DIRECTRNA{
     if (!params.skip_bambu) {
         BAMBU( ch_genome_fasta, ch_annotation_gtf, ch_bam )
         ch_bambu_gtf = BAMBU.out.bambu_extended_gtf
+        // MIX genome fasta with fasta index as this will improve GFFREADs speed
         GFFREAD_GETFASTA( ch_bambu_gtf, ch_genome_fasta )
+        ch_bambu_transcripts = GFFREAD_GETFASTA.out.transcripts_fa
         }
+
     // ISOQUANT
+    if (params.isoquant_reconstruction && params.skip_isoquant_correction) {
+        ISOQUANT( ch_bam, ch_genome_fasta, ch_annotation_gtf )
+        ch_isoquant_gtf = ISOQUANT.out.isoquant_transcript_gtf
+        GFFREAD_GETFASTA( ch_isoquant_gtf, ch_genome_fasta )
+        ch_isoquant_transcripts = GFFREAD_GETFASTA.out.transcripts_fa
+    } else {
+        ISOQUANT_CORRECTION ( ch_bam, ch_genome_fasta, ch_annotation_gtf )
+        ch_isoquant_gtf = ISOQUANT.out.isoquant_transcript_gtf
+        GFFREAD_GETFASTA( ch_isoquant_gtf, ch_genome_fasta )
+        ch_isoquant_transcripts = GFFREAD_GETFASTA.out.transcripts_fa
+    }
 
-    //  SQANTI?
-
-
-
-
+    // SQANTI?
 
     //
     // Fusion gene detection
     // MODULE: JAFFAL
-    /* Still experimental
-    if (!params.skip_jaffal && !params.custom_genome)  {
+    if (!params.skip_jaffal && !params.custom_genome) {
         JAFFAL( ch_sample, ch_jaffal_ref )
+        ch_jaffal_fasta = JAFFAL.out.jaffal_fasta
+        ch_jaffal_csv = JAFFAL.out.jaffal_csv
         }
-    */
 
     //
     // Transcriptome assessment

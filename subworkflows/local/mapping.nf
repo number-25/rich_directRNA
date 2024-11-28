@@ -14,16 +14,20 @@ workflow MAPPING {
     take:
     ch_sample // channel: [ val(meta), [ fastqpath ] ]
     ch_genome_fasta // channel: [ genome reference path ]
+    ch_genome_minimap2_idx  // channel: [minimap2 genome index ]
 
     main:
 
     ch_versions = Channel.empty()
 
-    MINIMAP2_INDEX ( ch_genome_fasta )
-        ch_genome_index = MINIMAP2_INDEX.out.index
-        ch_versions = ch_versions.mix(MINIMAP2_INDEX.out.versions.first())
-
-    MINIMAP2_ALIGN ( ch_sample, ch_genome_index )
+/*
+    if (!params.minimap2_genome_idx) {
+        MINIMAP2_INDEX ( ch_genome_fasta )
+            ch_genome_minimap2_idx = MINIMAP2_INDEX.out.index
+            ch_versions = ch_versions.mix(MINIMAP2_INDEX.out.versions.first())
+    }
+*/
+    MINIMAP2_ALIGN ( ch_sample, ch_genome_minimap2_idx )
         ch_sample_sam = MINIMAP2_ALIGN.out.sam
 
     SAMTOOLS_SORT ( ch_sample_sam )
@@ -34,6 +38,7 @@ workflow MAPPING {
         ch_sample_bam_idx = SAMTOOLS_INDEX.out.bai
 
     emit:
+    // do I need the index for anything else?
     //bam      = SAMTOOLS_SORT.out.bam           // channel: [ val(meta), [ bam ] ]
     bam      = ch_sample_bam           // channel: [ val(meta), [ bam ] ]
     //bai      = SAMTOOLS_INDEX.out.bam           // channel: [ val(meta), [ bam ] ]
