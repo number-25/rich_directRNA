@@ -7,7 +7,7 @@ process BAMBU {
         'quay.io/biocontainers/bioconductor-bambu:3.0.8--r42hc247a5b_0' }"
         //'docker://number25/bambu:3.8.0':
         //'quay.io/number_25/bambu:latest' }"
-       // 'https://depot.galaxyproject.org/singularity/bioconductor-bambu:3.4.0--r43hf17093f_1' :
+        // 'https://depot.galaxyproject.org/singularity/bioconductor-bambu:3.4.0--r43hf17093f_1' :
         //'quay.io/biocontainers/bioconductor-bambu:3.4.0--r43hf17093f_1' }"
 
     input:
