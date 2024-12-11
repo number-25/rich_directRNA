@@ -26,7 +26,7 @@ workflow BAM_QC {
     ch_versions = ch_versions.mix(ALFRED.out.versions.first())
 
     SAMTOOLS_FLAGSTAT ( ch_bam )
-    ch_versions = ch_versions.mix(SAMTOOLS_FLAGSTAT.out.versions.first())
+    //ch_versions = ch_versions.mix(SAMTOOLS_FLAGSTAT.out.versions.first())
 
     emit:
     cramino_stats      = CRAMINO.out.cramino_stats // channel: [ val(meta), [ bam ] ]

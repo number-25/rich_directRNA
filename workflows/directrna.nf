@@ -124,6 +124,7 @@ workflow DIRECTRNA{
         PREPARE_REFERENCE ()
         //ch_minimap2_genome_index = PREPARE_REFERENCE.minimap2_index
         ch_transcriptome_fasta = PREPARE_REFERENCE.out.transcriptome_fasta
+        ch_versions = ch_versions.mix(PREPARE_REFERENCE.out.versions.first())
         ch_cage_bed = PREPARE_REFERENCE.out.cage_bed
         ch_polyA_bed = PREPARE_REFERENCE.out.polyA_bed
         ch_intropolis_bed = PREPARE_REFERENCE.out.intropolis_bed
@@ -143,12 +144,14 @@ workflow DIRECTRNA{
             if (ch_genome_fasta.endWith('.gz')) {
                 GUNZIP_FASTA( ch_genome_fasta )
                 ch_genome_fasta = GUNZIP_FASTA.out.gunzip
+                ch_versions = ch_versions.mix(GUNZIP.out.versions.first())
             }
             if (params.custom_genome) {
                 // If custom genome is provided
                 CUSTOM_GETCHROMSIZES( ch_genome_fasta )
                 ch_genome_samtools_idx = CUSTOM_GETCHROMSIZES.out.fai
                 ch_genome_sizes = CUSTOM_GETCHROMSIZES.out.sizes
+                ch_versions = ch_versions.mix(CUSTOM_GETCHROMSIZES.out.versions.first())
                 //SAMTOOLS_FAIDX(ch_genome_fasta)
                 //ch_genome_samtools_idx = SAMTOOLS_FAIDX.out.index
                 MINIMAP2_INDEX( ch_genome_fasta )
@@ -161,6 +164,7 @@ workflow DIRECTRNA{
             MAPPING( ch_sample, ch_genome_minimap2_idx )
             ch_bam = MAPPING.out.bam
             ch_bam_index = MAPPING.out.bai
+            ch_versions = ch_versions.mix(MAPPING.out.versions.first())
             //ch_mixed_bam = ch_bam.mix(ch_bam_indx)
             //MINIMAP2_ALIGN( ch_sample, ch_genome_fasta )
             } else {
@@ -170,6 +174,7 @@ workflow DIRECTRNA{
             MAPPING( ch_sample, ch_genome_minimap2_idx)
             ch_bam = MAPPING.out.bam
             ch_bam_index = MAPPING.out.bai
+            ch_versions = ch_versions.mix(MAPPING.out.versions.first())
             //ch_mixed_bam = ch_bam.mix(ch_bam_indx)
         }
 
@@ -179,12 +184,14 @@ workflow DIRECTRNA{
     // Execute cramino, alfred and samtools flagstat on bam output from mapping
     if (!params.skip_mapping) {
         BAM_QC( ch_bam, ch_genome_fasta )
+        ch_versions = ch_versions.mix(BAM_QC.out.versions.first())
     }
     // If a raw BAM is provided and mapping is not needed
     // Will need to index it
     else {
         ch_bam = Channel.fromPath(params.bam_input, checkIfExists: true)
         BAM_QC( ch_bam, ch_genome_fasta )
+        ch_versions = ch_versions.mix(BAM_QC.out.versions.first())
         }
 
     //
@@ -205,6 +212,7 @@ workflow DIRECTRNA{
         FLAIR_COLLAPSE( ch_corrected_bed, ch_sample, ch_annotation_gtf, ch_genome_fasta )
         ch_collapsed_bed = FLAIR_COLLAPSE.out.collapsed_isoforms_bed
         ch_collapsed_gtf = FLAIR_COLLAPSE.out_collapsed_isoforms.gtf
+        ch_versions = ch_versions.mix(FLAIR_collapse.out.versions.first())
         //ch_collapsed_bed
         //   .map { it -> [ it[0], it[1] ] }
         //   .set { ch_test_bed }
@@ -218,6 +226,7 @@ workflow DIRECTRNA{
             ch_mapped_bed = BAM_TO_BED12.out.bed
             FLAIR_CORRECT( ch_mapped_bed, ch_genome_fasta, ch_annotation_gtf )
             ch_corrected_bed = FLAIR_CORRECT.out.flair_corrected_bed
+            ch_versions = ch_versions.mix(FLAIR_CORRECT.out.versions.first())
         } else {
             BAM_TO_BED12( ch_bam, ch_bam_index )
             //BAM_TO_BED12( ch_mixed_bam )
@@ -225,6 +234,7 @@ workflow DIRECTRNA{
             FLAIR_COLLAPSE( ch_mapped_bed, ch_sample, ch_annotation_gtf, ch_genome_fasta )
             ch_collapsed_bed = FLAIR_COLLAPSE.out.collapsed_isoforms_bed
             ch_collapsed_gtf = FLAIR_COLLAPSE.out.collapsed_isoforms_gtf
+            ch_versions = ch_versions.mix(FLAIR_COLLAPSE.out.versions.first())
             //ch_collapsed_bed
             //.map { it -> [ it[0], it[1] ] }
             //.set { ch_test_bed }
@@ -243,22 +253,28 @@ workflow DIRECTRNA{
     if (!params.skip_bambu) {
         BAMBU( ch_genome_fasta, ch_annotation_gtf, ch_bam )
         ch_bambu_gtf = BAMBU.out.bambu_extended_gtf
+        ch_versions = ch_versions.mix(BAMBU.out.versions.first())
         // MIX genome fasta with fasta index as this will improve GFFREADs speed
         GFFREAD_GETFASTA( ch_bambu_gtf, ch_genome_fasta )
         ch_bambu_transcripts = GFFREAD_GETFASTA.out.transcripts_fa
+        ch_versions = ch_versions.mix(GFFREAD_GETFASTA.out.versions.first())
         }
 
     // ISOQUANT
     if (params.isoquant_reconstruction && params.skip_isoquant_correction) {
         ISOQUANT( ch_bam, ch_genome_fasta, ch_annotation_gtf )
         ch_isoquant_gtf = ISOQUANT.out.isoquant_transcript_gtf
+        ch_versions = ch_versions.mix(ISOQUANT.out.versions.first())
         GFFREAD_GETFASTA( ch_isoquant_gtf, ch_genome_fasta )
         ch_isoquant_transcripts = GFFREAD_GETFASTA.out.transcripts_fa
+        ch_versions = ch_versions.mix(GFFREAD_GETFASTA.out.versions.first())
     } else {
         ISOQUANT_CORRECTION ( ch_bam, ch_genome_fasta, ch_annotation_gtf )
         ch_isoquant_gtf = ISOQUANT.out.isoquant_transcript_gtf
+        ch_versions = ch_versions.mix(ISOQUANT_CORRECTION.out.versions.first())
         GFFREAD_GETFASTA( ch_isoquant_gtf, ch_genome_fasta )
         ch_isoquant_transcripts = GFFREAD_GETFASTA.out.transcripts_fa
+        ch_versions = ch_versions.mix(GFFREAD_GETFASTA.out.versions.first())
     }
 
     // SQANTI?
@@ -270,6 +286,7 @@ workflow DIRECTRNA{
         JAFFAL( ch_sample, ch_jaffal_ref )
         ch_jaffal_fasta = JAFFAL.out.jaffal_fasta
         ch_jaffal_csv = JAFFAL.out.jaffal_csv
+        ch_versions = ch_versions.mix(JAFFAL.out.versions.first())
         }
 
     //
@@ -280,7 +297,10 @@ workflow DIRECTRNA{
     //
     // Transcript quantification
     // TransSigner
-    //
+    if (!params.skip_quantification && !params.skip_mapping)
+        TRANSIGNER_MAP
+        TRANSIGNER_
+        TRANSIGNER_QUANT
 
     //
     // Collate statistics
@@ -290,6 +310,7 @@ workflow DIRECTRNA{
     // Collate and save software versions
     //
     softwareVersionsToYAML(ch_versions)
+        .unique()
         .collectFile(
             storeDir: "${params.outdir}/pipeline_info",
             name: 'nf_core_pipeline_software_mqc_versions.yml',
