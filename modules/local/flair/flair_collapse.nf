@@ -7,7 +7,7 @@ process FLAIR_COLLAPSE {
         'biocontainers/flair:2.0.0--pyhdfd78af_1' }"
         //'https://depot.galaxyproject.org/singularity/flair:2.0.0--pyhdfd78af_1':
     input:
-    tuple val(meta), path(mapped_bed)
+    path(mapped_bed)
     tuple val(meta), path(fastq)
     path(annotation_gtf)
     path(genome_fasta)

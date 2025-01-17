@@ -11,15 +11,19 @@ ARG R_VER="4.4.2"
 ARG BAMBU_VER="3.8.0"
 ARG BIOCONDUCTOR_VER="3.2.0"
 
+# Set some R environment variables
+ENV R_PROFILE_USER=/.Rprofile
+ENV R_ENVIRON_USER=/.Renviron
+
 # Update base packages
-RUN apt-get update -y
+RUN apt-get update
 
 # Install Bioconductor Manager
-RUN R_PROFILE_USER=/.Rprofile && \
-    R_ENVIRON_USER=/.Renviron && \
-    Rscript -e "install.packages('BiocManager')" && \
-    Rscript -e "BiocManager::install('bambu')" && \
-    Rscript -e "library(bambu)"
+RUN R -e "install.packages('BiocManager', dependencies=TRUE, repos='http://cran.rstudio.com/')" && \
+    R -e "BiocManager::install('bambu')" && \
+    R -e "library(bambu)"
+
+# Clean shit up
 RUN apt-get clean all && \
     apt-get purge && \
     rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*

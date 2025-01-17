@@ -11,10 +11,31 @@
 //
 
 // Check mandatory parameters (missing protocol or profile will exit the run.)
+// inputs samplesheet.csv
 if (params.input) {
     ch_input = file(params.input) // defined in nextflow.config
 } else {
     exit 1, 'Input samplesheet not specified!'
+}
+
+// genome fasta
+if (params.genome_fasta) {
+    ch_genome_fasta = Channel.fromPath(params.genome_fasta, checkIfExists: true)
+} else {
+    exit 1, 'Reference genome fasta file is not specified! please modify nextflow.config or use --genome_fasta parameter'
+}
+
+// transcriptome
+if (params.annotation_gtf) {
+    ch_annotation_gtf = Channel.fromPath(params.annotation_gtf, checkIfExists: true) // check if exists
+} else {
+    exit 1, 'Reference transcriptome annotation file is not specified! please modify nextflow.config or use --annotation_gtf parameter'
+}
+
+if (params.transcriptome_fasta) {
+    ch_transcriptome_fasta = Channel.fromPath(params.transcriptome_fasta, checkIfExists: true) // check if exists
+} else {
+    exit 1, 'Reference transcriptome fasta file is not specified! please modify nextflow.config or use --transcriptome_fasta parameter'
 }
 
 // Function to check if running offline
@@ -35,7 +56,7 @@ def isOffline() {
 // Check samplesheet
 include { INPUT_CHECK               } from '../subworkflows/local/input_check'
 // Load Unix Utils
-include { GUNZIP as GUNZIP_FASTA    } from '../modules/nfcore/gunzip'
+include { GUNZIP as GUNZIP_FASTA    } from '../modules/nf-core/gunzip'
 // fastq QC
 include { NANOQ                     } from '../modules/local/nanoq'
 // fastq mapping
@@ -58,8 +79,6 @@ include { BAMBU                     } from '../modules/local/bambu'
 //include { SQANTI_QC            } from '../modules/local/sqanti/sqanti_qc'
 //include { SQANTI_FILTER        } from '../modules/local/sqanti/sqanti_filter'
 //include { SQANTI_RESCUE        } from '../modules/local/sqanti/sqanti_rescue'
-
-
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -119,63 +138,50 @@ workflow DIRECTRNA{
     //
     // Prepare the reference files
     // SUBWORKFLOW: PREPARE_REFERENCE
-    //
+    // Only used when a completely custom workflow is being run
     if (!params.skip_prepare_reference) {
         PREPARE_REFERENCE ()
         //ch_minimap2_genome_index = PREPARE_REFERENCE.minimap2_index
-        ch_transcriptome_fasta = PREPARE_REFERENCE.out.transcriptome_fasta
-        ch_versions = ch_versions.mix(PREPARE_REFERENCE.out.versions.first())
+        //ch_transcriptome_fasta = PREPARE_REFERENCE.out.transcriptome_fasta
         ch_cage_bed = PREPARE_REFERENCE.out.cage_bed
         ch_polyA_bed = PREPARE_REFERENCE.out.polyA_bed
+        ch_polyA_sites = Channel.fromPath(polyA_sites, checkIfExists = true)
         ch_intropolis_bed = PREPARE_REFERENCE.out.intropolis_bed
-        ch_custom_chrom_sizes = PREPARE_REFERENCE.out.custom_chrom_sizes
-        //ch_jaffal_ref = Channel.fromPath(jaffal_ref, checkIfExists = true)
+        ch_versions = ch_versions.mix(PREPARE_REFERENCE.out.versions)
+        ch_jaffal_ref = Channel.fromPath(jaffal_ref, checkIfExists = true)
     }
 
     // Mapping and sorting
     // SUBWORKFLOW: MAPPING
-    // if the reference preparation is skipped, minimap2 will generate an index
+    // if the reference preparation is skipped and a reference file isn't provided, minimap2 will generate an index
     // for the provided reference file
     //
     if (!params.skip_mapping) {
-    // the genome indexes are not created in prepare reference anymore
-        if (params.genome_fasta) {
-            ch_genome_fasta = Channel.fromPath(params.genome_fasta, checkIfExists: true)
-            if (ch_genome_fasta.endWith('.gz')) {
-                GUNZIP_FASTA( ch_genome_fasta )
-                ch_genome_fasta = GUNZIP_FASTA.out.gunzip
-                ch_versions = ch_versions.mix(GUNZIP.out.versions.first())
-            }
-            if (params.custom_genome) {
-                // If custom genome is provided
-                CUSTOM_GETCHROMSIZES( ch_genome_fasta )
-                ch_genome_samtools_idx = CUSTOM_GETCHROMSIZES.out.fai
-                ch_genome_sizes = CUSTOM_GETCHROMSIZES.out.sizes
-                ch_versions = ch_versions.mix(CUSTOM_GETCHROMSIZES.out.versions.first())
-                //SAMTOOLS_FAIDX(ch_genome_fasta)
-                //ch_genome_samtools_idx = SAMTOOLS_FAIDX.out.index
-                MINIMAP2_INDEX( ch_genome_fasta )
-                ch_genome_minimap2_idx = MINIMAP2_INDEX.out.index
-            } else {
-                ch_genome_samtools_idx = Channel.fromPath(params.genome_fasta_samtools_index, checkIfExists: true)
-                ch_genome_minimap2_idx = Channel.fromPath(params.genome_fasta_minimap2_index checkIfExists: true)
-                ch_genome_sizes = Channel.fromPath(params.genome_fasta_sizes checkIfExists: true)
-            }
-            MAPPING( ch_sample, ch_genome_minimap2_idx )
-            ch_bam = MAPPING.out.bam
-            ch_bam_index = MAPPING.out.bai
-            ch_versions = ch_versions.mix(MAPPING.out.versions.first())
-            //ch_mixed_bam = ch_bam.mix(ch_bam_indx)
-            //MINIMAP2_ALIGN( ch_sample, ch_genome_fasta )
-            } else {
-                exit 1, 'Reference genome fasta file is not specified! please modify nextflow.config or use --genome_fasta parameter'
-                    }
+        if (params.genome_fasta.endsWith('.gz')) {
+            GUNZIP_FASTA( ch_genome_fasta )
+            ch_genome_fasta = GUNZIP_FASTA.out.gunzip
+            ch_versions = ch_versions.mix(GUNZIP.out.versions.first())
         } else {
-            MAPPING( ch_sample, ch_genome_minimap2_idx)
-            ch_bam = MAPPING.out.bam
-            ch_bam_index = MAPPING.out.bai
-            ch_versions = ch_versions.mix(MAPPING.out.versions.first())
-            //ch_mixed_bam = ch_bam.mix(ch_bam_indx)
+            ch_genome_fasta = ch_genome_fasta
+        }
+        // If custom genome is provided --custom_genome=true
+        if (params.custom_genome) {
+            CUSTOM_GETCHROMSIZES( ch_genome_fasta )
+            ch_genome_index = CUSTOM_GETCHROMSIZES.out.fai
+            ch_genome_sizes = CUSTOM_GETCHROMSIZES.out.sizes
+            ch_versions = ch_versions.mix(CUSTOM_GETCHROMSIZES.out.versions.first())
+            MINIMAP2_INDEX( ch_genome_fasta )
+            ch_genome_minimap2_index = MINIMAP2_INDEX.out.index
+        } else {
+            ch_genome_index = Channel.fromPath(params.genome_fasta_index, checkIfExists: true)
+            ch_genome_minimap2_index = Channel.fromPath(params.genome_fasta_minimap2_index, checkIfExists: true)
+            ch_genome_sizes = Channel.fromPath(params.genome_fasta_sizes, checkIfExists: true)
+            }
+        MAPPING( ch_sample, ch_genome_fasta, ch_genome_minimap2_index )
+        ch_bam = MAPPING.out.bam
+        ch_bam_index = MAPPING.out.bai
+        ch_versions = ch_versions.mix(MAPPING.out.versions.first())
+        //ch_mixed_bam = ch_bam.mix(ch_bam_indx)
         }
 
     //
@@ -184,35 +190,32 @@ workflow DIRECTRNA{
     // Execute cramino, alfred and samtools flagstat on bam output from mapping
     if (!params.skip_mapping) {
         BAM_QC( ch_bam, ch_genome_fasta )
-        ch_versions = ch_versions.mix(BAM_QC.out.versions.first())
-    }
+        ch_versions = ch_versions.mix(BAM_QC.out.versions)
     // If a raw BAM is provided and mapping is not needed
-    // Will need to index it
-    else {
-        ch_bam = Channel.fromPath(params.bam_input, checkIfExists: true)
-        BAM_QC( ch_bam, ch_genome_fasta )
+    // May need to index it to work with downstream processes? Needs testing
+    } else {
+        //ch_bam = ch_sample
+        //ch_bam_index =
+        BAM_QC( ch_sample, ch_genome_fasta )
         ch_versions = ch_versions.mix(BAM_QC.out.versions.first())
         }
 
     //
-    // Transcript Reconstruction
+    // TRANSCRIPT RECONSTRUCTION
     //
-    // Source transcriptome annotation.gtf
-
-    //ch_annotation_gtf = file(params.annotation_gtf) // check if exists
-    ch_annotation_gtf = Channel.fromPath(params.annotation_gtf, checkIfExists: true) // check if exists
 
     if (!params.skip_flair_correct && !params.skip_flair_collapse) {
         BAM_TO_BED12( ch_bam, ch_bam_index )
         // seeing if a mixed channel with bam and bam.bai works
         //BAM_TO_BED12( ch_mixed_bam )
         ch_mapped_bed = BAM_TO_BED12.out.bed
-        FLAIR_CORRECT( ch_mapped_bed, ch_genome_fasta, ch_annotation_gtf )
+        /*FLAIR_CORRECT( ch_mapped_bed, ch_genome_fasta, ch_annotation_gtf )
         ch_corrected_bed = FLAIR_CORRECT.out.flair_corrected_bed
         FLAIR_COLLAPSE( ch_corrected_bed, ch_sample, ch_annotation_gtf, ch_genome_fasta )
         ch_collapsed_bed = FLAIR_COLLAPSE.out.collapsed_isoforms_bed
         ch_collapsed_gtf = FLAIR_COLLAPSE.out_collapsed_isoforms.gtf
-        ch_versions = ch_versions.mix(FLAIR_collapse.out.versions.first())
+        ch_versions = ch_versions.mix(FLAIR_collapse.out.versions)
+        */
         //ch_collapsed_bed
         //   .map { it -> [ it[0], it[1] ] }
         //   .set { ch_test_bed }
@@ -228,6 +231,7 @@ workflow DIRECTRNA{
             ch_corrected_bed = FLAIR_CORRECT.out.flair_corrected_bed
             ch_versions = ch_versions.mix(FLAIR_CORRECT.out.versions.first())
         } else {
+        // No correcton just collapsing
             BAM_TO_BED12( ch_bam, ch_bam_index )
             //BAM_TO_BED12( ch_mixed_bam )
             ch_mapped_bed = BAM_TO_BED12.out.bed
@@ -238,11 +242,8 @@ workflow DIRECTRNA{
             //ch_collapsed_bed
             //.map { it -> [ it[0], it[1] ] }
             //.set { ch_test_bed }
-            //BED_TO_BAM( ch_collapsed_bed, ch_genome_fasta_sizes )
-            //ch_collapsed_bam = BED_TO_BAM.out.collapsed_bam
         }
     }
-
 
     // Read correction tools? Which ones....
     // TC-CLEAN?
@@ -250,16 +251,16 @@ workflow DIRECTRNA{
     // FLAIR
 
     // BAMBU
-    if (!params.skip_bambu) {
-        BAMBU( ch_genome_fasta, ch_annotation_gtf, ch_bam )
-        ch_bambu_gtf = BAMBU.out.bambu_extended_gtf
-        ch_versions = ch_versions.mix(BAMBU.out.versions.first())
+    //if (!params.skip_bambu) {
+    //    BAMBU( ch_genome_fasta, ch_annotation_gtf, ch_bam )
+    //    ch_bambu_gtf = BAMBU.out.bambu_extended_gtf
+    //    ch_versions = ch_versions.mix(BAMBU.out.versions.first())
         // MIX genome fasta with fasta index as this will improve GFFREADs speed
-        GFFREAD_GETFASTA( ch_bambu_gtf, ch_genome_fasta )
-        ch_bambu_transcripts = GFFREAD_GETFASTA.out.transcripts_fa
-        ch_versions = ch_versions.mix(GFFREAD_GETFASTA.out.versions.first())
+        //GFFREAD_GETFASTA( ch_bambu_gtf, ch_genome_fasta )
+        //ch_bambu_transcripts = GFFREAD_GETFASTA.out.transcripts_fa
+        //ch_versions = ch_versions.mix(GFFREAD_GETFASTA.out.versions.first())
         }
-
+/*
     // ISOQUANT
     if (params.isoquant_reconstruction && params.skip_isoquant_correction) {
         ISOQUANT( ch_bam, ch_genome_fasta, ch_annotation_gtf )
@@ -277,7 +278,14 @@ workflow DIRECTRNA{
         ch_versions = ch_versions.mix(GFFREAD_GETFASTA.out.versions.first())
     }
 
-    // SQANTI?
+    //
+    // Transcript quantification
+    // TransSigner
+    //if (!params.skip_quantification && !params.skip_mapping)
+    //    TRANSIGNER_MAP
+    //    TRANSIGNER_
+    //    TRANSIGNER_QUANT
+
 
     //
     // Fusion gene detection
@@ -288,19 +296,20 @@ workflow DIRECTRNA{
         ch_jaffal_csv = JAFFAL.out.jaffal_csv
         ch_versions = ch_versions.mix(JAFFAL.out.versions.first())
         }
-
+*/
     //
     // Transcriptome assessment
     // SQANTI, gffcompare
-    //
+    // Different SQANTI options - create as subworkflow?
 
-    //
-    // Transcript quantification
-    // TransSigner
-    if (!params.skip_quantification && !params.skip_mapping)
-        TRANSIGNER_MAP
-        TRANSIGNER_
-        TRANSIGNER_QUANT
+    // Not done yet
+    if (!skip gff_compare) {
+        GFFCOMPARE( ch_reconstructed_gtf, ch_annotation_gtf, ch_genome_fasta )
+    }
+
+    if (!skip_sqanti_qc) {
+        if (!skip_sqanti
+
 
     //
     // Collate statistics
