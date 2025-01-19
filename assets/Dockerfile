@@ -19,7 +19,7 @@ ENV R_ENVIRON_USER=/.Renviron
 RUN apt-get update
 
 # Install Bioconductor Manager
-RUN R -e "install.packages('BiocManager', dependencies=TRUE, repos='http://cran.rstudio.com/')" && \
+RUN R -e "install.packages('BiocManager', quietly=TRUE, repos='http://cran.rstudio.com/')" && \
     R -e "BiocManager::install('bambu')" && \
     R -e "library(bambu)"
 
