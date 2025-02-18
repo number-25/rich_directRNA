@@ -75,6 +75,8 @@ include { BAMBU                     } from '../modules/local/bambu'
 // fusion gene detection
 //include { JAFFAL             } from '../modules/local/jaffal'
 // transcriptome assessment
+
+// Going to be a bit of a long-think
 //include { SQANTI               } from '../subworkflows/local/sqanti'
 //include { SQANTI_QC            } from '../modules/local/sqanti/sqanti_qc'
 //include { SQANTI_FILTER        } from '../modules/local/sqanti/sqanti_filter'
@@ -88,7 +90,10 @@ include { BAMBU                     } from '../modules/local/bambu'
 
 //include { FASTQC                 } from '../modules/nf-core/fastqc/main'
 //include { MULTIQC                } from '../modules/nf-core/multiqc/main'
-//include { paramsSummaryMap       } from 'plugin/nf-validation'
+//include { samplesheetToList } from 'plugin/nf-schema'
+include { paramsSummaryLog } from 'plugin/nf-schema'
+//include { validateParameters } from 'plugin/nf-schema'
+//include { paramsSummaryMap       } from 'plugin/nf-schema'
 //include { paramsSummaryMultiqc   } from '../subworkflows/nf-core/utils_nfcore_pipeline'
 include { softwareVersionsToYAML } from '../subworkflows/nf-core/utils_nfcore_pipeline'
 //include { methodsDescriptionText } from '../subworkflows/local/utils_nfcore_directrna_pipeline'
@@ -107,6 +112,19 @@ workflow DIRECTRNA{
 
     ch_versions = Channel.empty()
     //ch_multiqc_files = Channel.empty()
+
+    // nf-schema plugins
+    // Not working yet, but is promising for testing further on - it could avoid
+    // using the Julia script to validate inputs - consider embarking on this
+    // once a stable release it pushed/ Validate input parameters()
+    // https://nextflow-io.github.io/nf-schema/latest/parameters/help_text/
+    //validateParameters()
+
+    // Print summary to stdout of supplied parameters that differ from defaults
+    log.info paramsSummaryLog(workflow)
+
+    // Create a new channel of metadata from a sample sheet passed to the pipeline through the --input parameter
+    //ch_input = Channel.fromList(samplesheetToList(params.input, "assets/schema_input.json"))
 
     // INPUT_CHECK
     INPUT_CHECK ( ch_input )
@@ -141,11 +159,10 @@ workflow DIRECTRNA{
     // Only used when a completely custom workflow is being run
     if (!params.skip_prepare_reference) {
         PREPARE_REFERENCE ()
-        //ch_minimap2_genome_index = PREPARE_REFERENCE.minimap2_index
-        //ch_transcriptome_fasta = PREPARE_REFERENCE.out.transcriptome_fasta
         ch_cage_bed = PREPARE_REFERENCE.out.cage_bed
         ch_polyA_bed = PREPARE_REFERENCE.out.polyA_bed
-        ch_polyA_sites = Channel.fromPath(polyA_sites, checkIfExists = true)
+        ch_polyA_sites = PREPARE_REFERENCE.out.polyA_sites
+        //ch_polyA_sites = Channel.fromPath(polyA_sites, checkIfExists = true)
         ch_intropolis_bed = PREPARE_REFERENCE.out.intropolis_bed
         ch_versions = ch_versions.mix(PREPARE_REFERENCE.out.versions)
         ch_jaffal_ref = Channel.fromPath(jaffal_ref, checkIfExists = true)
@@ -174,6 +191,8 @@ workflow DIRECTRNA{
             ch_genome_minimap2_index = MINIMAP2_INDEX.out.index
         } else {
             ch_genome_index = Channel.fromPath(params.genome_fasta_index, checkIfExists: true)
+            if (!params.genome_fasta_minimap2_index) {
+                ch_genome_minimap2_index = Channel.fromPath(params.genome_fasta_minimap2_index, checkIfExists: true)
             ch_genome_minimap2_index = Channel.fromPath(params.genome_fasta_minimap2_index, checkIfExists: true)
             ch_genome_sizes = Channel.fromPath(params.genome_fasta_sizes, checkIfExists: true)
             }
@@ -197,7 +216,7 @@ workflow DIRECTRNA{
         //ch_bam = ch_sample
         //ch_bam_index =
         BAM_QC( ch_sample, ch_genome_fasta )
-        ch_versions = ch_versions.mix(BAM_QC.out.versions.first())
+        ch_versions = ch_versions.mix(BAM_QC.out.versions)
         }
 
     //

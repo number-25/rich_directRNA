@@ -21,31 +21,22 @@
 
 # checksamplecsv.jl
 
-using Pkg
-
-#import Pkg
-# Check if necessary package exists, else install it
-
-#haskey(Pkg.project().dependencies, "Glob") == true || Pkg.add("Glob")
-#haskey(Pkg.project().dependencies, "FileIO") == true || Pkg.add("FileIO")
-
 using Glob, FileIO
 
 nextflow_path = chop(@__DIR__, tail=4)
 
 input_samplesheet = readlines(open(ARGS[1]))
 #input_samplesheet = load(ARGS[1])
-#nextflow_base_path = ("../")
 
 # Check header
 header = input_samplesheet[1]
 split_header = split(header, ',')
 
-# length
+## length
 length(split_header) == 4 || throw("The header is the incorrect size, check how many columns you have provided (4 is required")
 println("sample sheet has the correct number of columns")
 
-# check that the header names are correct
+## check that the header names are correct
 header_names = ("sample", "replicate", "sequencing_summary_path", "read_path")
 for colname in header_names
     colname ∈ split_header || throw("column names are incorrectly spelled, ensure that they are sample,replicate,sequencing_summary_path,readpath")

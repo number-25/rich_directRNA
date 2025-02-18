@@ -14,12 +14,10 @@ include { GUNZIP as GUNZIP_INTROPOLIS } from '../../../modules/nf-core/gunzip'
 include { CUSTOM_GETCHROMSIZES } from '../../../modules/nf-core/custom/getchromsizes'
 
 // prepare additional files
-
 //TO-DO make these modules
 //include { GXF2BED as GTF_TO_BED } from '../../../modules/local/gxf2bed' // gxf2bed module
 //include { BIGWIG_TO_WIG } from '../../../modules/local/bigwigtowig'
 //include { BEDOPS as WIG_TO_BED } from '../../../modules/local/bedops'
-
 //include { SAMTOOLS_SORT } from '../../../modules/nf-core/samtools/sort/main'
 
 workflow PREPARE_REFERENCE {
@@ -30,6 +28,7 @@ workflow PREPARE_REFERENCE {
     annotation_gtf
     cage_bed
     polyA_bed
+    polyA_sites
     intropolis_bed
     //appris_bed?
     //mane_select_bed?
@@ -71,7 +70,7 @@ workflow PREPARE_REFERENCE {
         } else {
             //which one below?
             ch_annotation_gtf = Channel.value(file(annotation_gtf), checkIfExists: true)
-            ch_annotation_gtf = Channel.fromPath(params.annotation_gtf, checkIfExists: true)
+            //ch_annotation_gtf = Channel.fromPath(params.annotation_gtf, checkIfExists: true)
         }
     }
 
@@ -96,6 +95,16 @@ workflow PREPARE_REFERENCE {
             ch_versions = ch_versions.mix(GUNZIP_POLYA.out.versions)
         } else {
             ch_polyA_bed = Channel.value(file(polyA_bed), checkIfExists: true)
+        }
+    }
+
+    //
+    // Initialize polyA sites file
+    //
+    if (polyA_sites) {
+        } else {
+            ch_polyA_sites = Channel.value(file(polyA_sites), checkIfExists: true)
+            //ch_polyA_sites = Channel.fromPath(polyA_sites, checkIfExists = true)
         }
     }
 
@@ -130,6 +139,7 @@ workflow PREPARE_REFERENCE {
     //annotation_bed =
     cage_bed = ch_cage_bed
     polyA_bed = ch_polyA_bed
+    polyA_sites = ch_polyA_sites
     intropolis_bed = ch_intropolis_bed
     //phylop_bed = ch_phylop_bed
     versions = ch_versions                     // channel: [ versions.yml ]

@@ -1,6 +1,6 @@
 {
     "$schema": "https://json-schema.org/draft/2020-12/schema",
-    "$id": "https://raw.githubusercontent.com/medgen/directrna/master/nextflow_schema.json",
+    "$id": "https://raw.githubusercontent.com/medgen/directrna/dev/nextflow_schema.json",
     "title": "medgen/directrna pipeline parameters",
     "description": "Benchmarking and prototyping pipeline for ONT directRNA sequencing data",
     "type": "object",
