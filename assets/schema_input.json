@@ -13,21 +13,27 @@
                 "errorMessage": "Sample name must be provided and cannot contain spaces",
                 "meta": ["id"]
             },
-            "fastq_1": {
-                "type": "string",
-                "format": "file-path",
-                "exists": true,
-                "pattern": "^\\S+\\.f(ast)?q\\.gz$",
-                "errorMessage": "FastQ file for reads 1 must be provided, cannot contain spaces and must have extension '.fq.gz' or '.fastq.gz'"
+            "replicate": {
+                "type": "integer",
+                "pattern": "\d+",
+                "errorMessage": "Replicate must be an integer",
+                "meta": ["replicate"]
             },
-            "fastq_2": {
+            "sequencing_summary": {
+                "type": "string",
+                "format": "file-path",
+                "exists": true,
+                "pattern": "^\S+.txt$",
+                "errorMessage": "Sequencing summary file cannot contain spaces and must have extension '.txt'"
+            },
+            "fastq": {
                 "type": "string",
                 "format": "file-path",
                 "exists": true,
                 "pattern": "^\\S+\\.f(ast)?q\\.gz$",
-                "errorMessage": "FastQ file for reads 2 cannot contain spaces and must have extension '.fq.gz' or '.fastq.gz'"
+                "errorMessage": "FastQ file must be provided, cannot contain spaces and must have extension '.fq.gz' or '.fastq.gz'"
             }
         },
-        "required": ["sample", "fastq_1"]
+        "required": ["sample", "fastq"]
     }
 }
