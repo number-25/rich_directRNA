@@ -7,6 +7,19 @@
 // nextflow magik
 
 //def summary_params = NfcoreSchema.paramsSummaryMap(workflow, params)
+    // nf-schema plugins
+    // Not working yet, but is promising for testing further on - it could avoid
+    // using the Julia script to validate inputs - consider embarking on this
+    // once a stable release it pushed/ Validate input parameters()
+    // https://nextflow-io.github.io/nf-schema/latest/parameters/help_text/
+    //validateParameters()
+
+    // Print summary to stdout of supplied parameters that differ from defaults
+    log.info paramsSummaryLog(workflow)
+
+    // Create a new channel of metadata from a sample sheet passed to the pipeline through the --input parameter
+    //ch_input = Channel.fromList(samplesheetToList(params.input, "assets/schema_input.json"))
+
 
 //
 
@@ -113,52 +126,49 @@ workflow DIRECTRNA{
     ch_versions = Channel.empty()
     //ch_multiqc_files = Channel.empty()
 
-    // nf-schema plugins
-    // Not working yet, but is promising for testing further on - it could avoid
-    // using the Julia script to validate inputs - consider embarking on this
-    // once a stable release it pushed/ Validate input parameters()
-    // https://nextflow-io.github.io/nf-schema/latest/parameters/help_text/
-    //validateParameters()
-
-    // Print summary to stdout of supplied parameters that differ from defaults
-    log.info paramsSummaryLog(workflow)
-
-    // Create a new channel of metadata from a sample sheet passed to the pipeline through the --input parameter
-    //ch_input = Channel.fromList(samplesheetToList(params.input, "assets/schema_input.json"))
-
     // INPUT_CHECK
     INPUT_CHECK ( ch_input )
         .set { ch_sample }
-
     // playing around with channel transformations
-    //ch_sample
-        //.map { it -> [ it[0], it[1] ] } // take sample, replicate, reads
-        //.set { ch_fastq }
+    ///ch_sample
+    ///.map { it -> [ it[0], it[1] ] } // take sample, replicate, reads
+    ///.set { ch_fastq }
 
-    //
     // QC of fastq files
-    // Toulligqc?
-    // MODULE: NANOQ
+    /// Toulligqc?
+    /// MODULE: NANOQ
     if (!params.skip_qc) {
         NANOQ ( ch_sample )
         ch_versions = ch_versions.mix(NANOQ.out.versions.first())
     }
-
-    //
     // MODULE: Run FastQC
-    //
-    //FASTQC (
-    //    ch_samplesheet
-    //)
-    //ch_multiqc_files = ch_multiqc_files.mix(FASTQC.out.zip.collect{it[1]})
-    //ch_versions = ch_versions.mix(FASTQC.out.versions.first())
+    ///
+    ///)
+    ///ch_multiqc_files = ch_multiqc_files.mix(FASTQC.out.zip.collect{it[1]})
+    ///ch_versions = ch_versions.mix(FASTQC.out.versions.first())
 
-    //
     // Prepare the reference files
-    // SUBWORKFLOW: PREPARE_REFERENCE
-    // Only used when a completely custom workflow is being run
+    // Only for SQANTI3 at this moment
+    /// SUBWORKFLOW: PREPARE_REFERENCE
+    /// Only used when a completely custom workflow is being run
     if (!params.skip_prepare_reference) {
-        PREPARE_REFERENCE ()
+        PREPARE_REFERENCE (
+        params.
+        params.cage_bed
+        params.polyA_bed
+        params.polyA_sites
+        params.intropolis_bed
+        params.skip_sqanti_qc
+        )
+
+
+
+
+
+
+
+
+
         ch_cage_bed = PREPARE_REFERENCE.out.cage_bed
         ch_polyA_bed = PREPARE_REFERENCE.out.polyA_bed
         ch_polyA_sites = PREPARE_REFERENCE.out.polyA_sites
