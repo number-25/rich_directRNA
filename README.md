@@ -10,7 +10,7 @@
 
 ## Introduction
 
-**medgen/directrna** is a bioinformatics pipeline that ...
+**medgen/directrna** is a bioinformatics pipeline that is still in the works........ everyting below here is part of the TEMPLATE scaffold
 
 <!-- TODO nf-core:
    Complete this sentence with a 2-3 sentence summary of what types of data the pipeline ingests, a brief overview of the
