@@ -160,14 +160,11 @@ workflow DIRECTRNA{
         params.intropolis_bed
         params.skip_sqanti_qc
         )
-
-
-
-
-
-
-
-
+        ch_genome_fasta = PREPARE_REFERENCE.out.genome_fasta
+        ch_genome_index =
+        ch_genome_sizes =
+        ch_genome_minimap2_index
+        if (!params.skip_sqanti_qc)
 
         ch_cage_bed = PREPARE_REFERENCE.out.cage_bed
         ch_polyA_bed = PREPARE_REFERENCE.out.polyA_bed
