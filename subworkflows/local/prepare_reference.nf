@@ -1,5 +1,5 @@
 //
-// Uncompress and prepare reference genome files
+// Uncompress and prepare reference files
 //
 
 include { GUNZIP as GUNZIP_FASTA } from '../../../modules/nf-core/gunzip'
@@ -23,20 +23,29 @@ include { CUSTOM_GETCHROMSIZES } from '../../../modules/nf-core/custom/getchroms
 workflow PREPARE_REFERENCE {
 
     take:
-    genome_fasta                // file: /path/to/genome_fasta.fa
-    genome_fasta_index          // file: /path/to/genome_fasta_index.fa.fai
-    genome_fasta_minimap2_index // file: /path/to/minimap2_genome_index.fa.mai
-    genome_fasta_sizes          // file: /path/to/genome_fasta.sizes
-    annotation_gtf              // file: /path/to/annotation.gtf
-    cage_bed                    // file: /path/to/cage.bed
-    polyA_bed                   // file: /path/to/polyA.bed
-    polyA_sites                 // file: /path/to/polyA_sites.txt
-    intropolis_bed              // file: /path/to/intropolis.bed
+    genome_fasta                    // file: /path/to/genome_fasta.fa
+    genome_fasta_index              // file: /path/to/genome_fasta_index.fa.fai
+    //genome_fasta_minimap2_index   // file: /path/to/minimap2_genome_index.fa.mmi
+    genome_fasta_sizes              // file: /path/to/genome_fasta.sizes
+    transcriptome_fasta             // file: /path/to/genome_fasta.sizes
+    annotation_gtf                  // file: /path/to/annotation.gtf
+    //cage_bed                      // file: /path/to/cage.bed
+    //polyA_bed                     // file: /path/to/polyA.bed
+    //polyA_sites                   // file: /path/to/polyA_sites.txt
+    //intropolis_bed                // file: /path/to/intropolis.bed
     //appris_bed?
     //mane_select_bed?
     //mane_clinical_bed?
-    // indices
-    skip_sqanti_qc             // boolean: skip all of sqanti
+    skip_jaffal                     // boolean: skip jaffal fusion gene detection [default: false]
+    skip_jaffal_download            // boolean: skip jaffal fusion gene detection [default: false]
+    skip_sqanti_all                 // boolean: skip all of sqanti [default: false]
+    skip_sqanti_qc                  // boolean: skip sqanti qc [default: false]
+    sqanti_qc_download              // boolean: download sqanti [default: false]
+    sqanti_qc_reference             // boolean: three values options [mouse, human, custom]
+    sqanti_qc_cage                  // boolean: true [default: true]
+    sqanti_qc_polyA_sites           // boolean: true [default: true]
+    sqanti_qc_polyA_motif           // boolean: true [default: true]
+    sqanti_qc_intron_junctions      // boolean: true [default: true]
 
     main:
 
@@ -73,9 +82,21 @@ workflow PREPARE_REFERENCE {
         // downloads?
     }
 
+////// SQANTI
+
+    if (!skip_sqanti_all || !skip_sqanti_qc){
+        SQANTI_PREPARE_REFERENCE(
+            sqanti_qc_download,
+            sqanti_qc_reference,
+            sqanti_qc_cage,
+            sqanti_qc_polyA_sites,
+            sqanti_qc_polyA_motifs,
+            sqanti_qc_intron_junctions
+            )
+    }
 
     // Seed orthogonal files for SQANTI3
-    if (!params.skip_sqanti_qc) {
+    if (!params.skip_sqanti_all || !skip_sqanti_qc) {
     // Uncompress cage BED interval file
     // Optional input
     // or is the pattern if (params.cage_bed)
@@ -116,6 +137,12 @@ workflow PREPARE_REFERENCE {
             }
         }
     }
+
+
+
+
+
+
     //
     // Convert PhyloP bigWig to bed
     // Hold off on this - extremely memory intensive process
