@@ -77,6 +77,7 @@ include { MAPPING                   } from '../subworkflows/local/mapping'
 include { SAMTOOLS_FAIDX            } from '../modules/local/samtools/samtools_faidx'
 // bam QC
 include { BAM_QC                    } from '../subworkflows/local/bam_qc'
+include { SAMTOOLS_INDEX            } from '../modules/local/samtools/samtools_index'
 // transcript reconstruction
 include { BAM_TO_BED12              } from '../modules/local/flair/bam_to_bed12'
 include { FLAIR_CORRECT             } from '../modules/local/flair/flair_correct'
@@ -137,7 +138,7 @@ workflow DIRECTRNA{
     // QC of fastq files
     /// Toulligqc?
     /// MODULE: NANOQ
-    if (!params.skip_qc) {
+    if (!params.skip_qc || !params_bam_input) {
         NANOQ ( ch_sample )
         ch_versions = ch_versions.mix(NANOQ.out.versions.first())
     }
@@ -155,16 +156,18 @@ workflow DIRECTRNA{
         PREPARE_REFERENCE (
         params.genome_fasta,
         params.genome_fasta_index,
-        params.genoma_fasta_sizes,
-        params.annotation_gtf
-        params.skip_jaffal
-        params.skip_jaffal_download
-        params.skip_sqanti_all
-        params.skip_sqanti_qc
-        params.sqanti_qc_download
-        params.sqanti_qc_reference
-        params.sqanti_qc_polyA_sites
-        params.sqanti_qc_polyA_motif
+        params.genome_fasta_sizes,
+        params.genome_minimap2_index,
+        params.bam_input,
+        params.annotation_gtf,
+        params.skip_jaffal,
+        params.skip_jaffal_download,
+        params.skip_sqanti_all,
+        params.skip_sqanti_qc,
+        params.sqanti_qc_download,
+        params.sqanti_qc_reference,
+        params.sqanti_qc_polyA_sites,
+        params.sqanti_qc_polyA_motif,
         params.sqanti_qc_intron_junctions
         //params.cage_bed,
         //params.polyA_bed,
@@ -192,7 +195,7 @@ workflow DIRECTRNA{
     // if the reference preparation is skipped and a reference file isn't provided, minimap2 will generate an index
     // for the provided reference file
     //
-    if (!params.skip_mapping) {
+    if (!params.bam_input) {
         if (params.genome_fasta.endsWith('.gz')) {
             GUNZIP_FASTA( ch_genome_fasta )
             ch_genome_fasta = GUNZIP_FASTA.out.gunzip
@@ -221,6 +224,12 @@ workflow DIRECTRNA{
         ch_versions = ch_versions.mix(MAPPING.out.versions.first())
         //ch_mixed_bam = ch_bam.mix(ch_bam_indx)
         }
+    } else {
+        ch_bam = ch_sample
+        SAMTOOLS_INDEX( ch_sample )
+        ch_bam_index = SAMTOOLS_INDEX.out.bai
+
+
 
     //
     // BAM QC

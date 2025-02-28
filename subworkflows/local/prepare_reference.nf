@@ -3,15 +3,16 @@
 //
 
 include { GUNZIP as GUNZIP_FASTA } from '../../../modules/nf-core/gunzip'
-include { GUNZIP as GUNZIP_GTF } from '../../../modules/nf-core/gunzip'
+include { GUNZIP as GUNZIP_TRANSCRIPT_FASTA } from '../../../modules/nf-core/gunzip'
+include { CUSTOM_GETCHROMSIZES } from '../../../modules/nf-core/custom/getchromsizes'
+include { GUNZIP as GUNZIP_TRANSCRIPT_GTF } from '../../../modules/nf-core/gunzip'
+
 //include { GUNZIP as GUNZIP_BED } from '../modules/nf-core/gunzip'
-//include { GUNZIP as GUNZIP_TRANSCRIPT_FASTA } from '../../../modules/nf-core/gunzip'
 include { GUNZIP as GUNZIP_CAGE } from '../../../modules/nf-core/gunzip'
 include { GUNZIP as GUNZIP_POLYA } from '../../../modules/nf-core/gunzip'
-include { GUNZIP as GUNZIP_INTROPOLIS } from '../../../modules/nf-core/gunzip'
 
 // prepare indices for reference
-include { CUSTOM_GETCHROMSIZES } from '../../../modules/nf-core/custom/getchromsizes'
+include { MINIMAP2_INDEX } from '../../../modules/custom/minimap2_index'
 
 // prepare additional files
 //TO-DO make these modules
@@ -25,14 +26,11 @@ workflow PREPARE_REFERENCE {
     take:
     genome_fasta                    // file: /path/to/genome_fasta.fa
     genome_fasta_index              // file: /path/to/genome_fasta_index.fa.fai
-    //genome_fasta_minimap2_index   // file: /path/to/minimap2_genome_index.fa.mmi
+    genome_fasta_minimap2_index     // file: /path/to/minimap2_genome_index.fa.mmi
+    bam_input                       // boolean: false [default: false]
     genome_fasta_sizes              // file: /path/to/genome_fasta.sizes
     transcriptome_fasta             // file: /path/to/genome_fasta.sizes
     annotation_gtf                  // file: /path/to/annotation.gtf
-    //cage_bed                      // file: /path/to/cage.bed
-    //polyA_bed                     // file: /path/to/polyA.bed
-    //polyA_sites                   // file: /path/to/polyA_sites.txt
-    //intropolis_bed                // file: /path/to/intropolis.bed
     //appris_bed?
     //mane_select_bed?
     //mane_clinical_bed?
@@ -58,12 +56,27 @@ workflow PREPARE_REFERENCE {
             ch_genome_fasta = GUNZIP_GTF( [ [:], genome_fasta ] ).gunzip.map { it[1] }
             ch_versions = ch_versions.mix(GUNZIP_FASTA.out.versions)
         } else {
-            //which one below?
+     //which one below?
             ch_genome_fasta = Channel.value(file(genome_fasta), checkIfExists: true)
             //ch_annotation_gtf = Channel.fromPath(params.annotation_gtf, checkIfExists: true)
         }
     }
 
+    // Embed
+
+
+    // Uncompress transcriptome fasta file
+    // Mandatory input
+    if (transcriptome_fasta) {
+        if (transcriptome_fasta.endsWith('.gz')) {
+            ch_transcriptome_fasta = GUNZIP_GTF( [ [:], transcriptome_fasta ] ).gunzip.map { it[1] }
+            ch_versions = ch_versions.mix(GUNZIP_FASTA.out.versions)
+        } else {
+            //which one below?
+            ch_genome_fasta = Channel.value(file(genome_fasta), checkIfExists: true)
+            //ch_annotation_gtf = Channel.fromPath(params.annotation_gtf, checkIfExists: true)
+        }
+    }
     // Uncompress GTF annotation file
     // Mandatory input
     if (annotation_gtf) {
@@ -77,7 +90,16 @@ workflow PREPARE_REFERENCE {
     }
 
 
-    if (params.sqanti_download_reference) {
+    // Initialise minimap2 index if provided
+    if (genome_fasta_minimap2_index == null) {
+        MINIMAP2_INDEX( ch_genome_fasta )
+        ch_genome_minimap2_index = MINIMAP2_INDEX.out.bai
+        ch_versions = ch.versions.mix(MINIAP2_INDEX.out.versions)
+    } else {
+        ch_genome_minimap2_index = Channel.value(file(genome_fasta_minimap2_index), checkIfExists: true)
+    }
+
+     if (params.sqanti_download_reference) {
         // download references - perhaps upload them to figshare for easiest
         // downloads?
     }
@@ -156,9 +178,12 @@ workflow PREPARE_REFERENCE {
 //              Prepare indices                         //
 
     emit:
-    //genome_fasta = ch_genome_fasta
-    //transcriptome_fasta = ch_transcriptome_fasta
+    genome_fasta = ch_genome_fasta
+    genome_fasta_index = ch_genome_fasta_index
+    transcriptome_fasta = ch_transcriptome_fasta
+
     annotation_gtf = ch_annotation_gtf
+
     //annotation_bed =
     cage_bed = ch_cage_bed
     polyA_bed = ch_polyA_bed
