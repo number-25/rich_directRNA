@@ -149,9 +149,7 @@ workflow DIRECTRNA{
     ///ch_versions = ch_versions.mix(FASTQC.out.versions.first())
 
     // Prepare the reference files
-    // Only for SQANTI3 at this moment
     /// SUBWORKFLOW: PREPARE_REFERENCE
-    /// Only used when a completely custom workflow is being run
     if (!params.skip_prepare_reference) {
         PREPARE_REFERENCE (
         params.genome_fasta,
@@ -160,21 +158,17 @@ workflow DIRECTRNA{
         params.genome_minimap2_index,
         params.bam_input,
         params.annotation_gtf,
-        params.skip_jaffal,
-        params.skip_jaffal_download,
-        params.skip_sqanti_all,
-        params.skip_sqanti_qc,
-        params.sqanti_qc_download,
-        params.sqanti_qc_reference,
-        params.sqanti_qc_polyA_sites,
+        params.skip_jaffal,             //
+        params.skip_jaffal_download,    // boolean [default: false]
+        params.skip_sqanti_all,         // boolean [default: false]
+        params.skip_sqanti_qc,          // boolean [defeault: false]
+        params.sqanti_qc_reference,     // human, mouse or custom
+        params.sqanti_qc_cage,          // boolean [default: true]
+        params.sqanti_qc_polyA_sites,   // boolean [default: true]
         params.sqanti_qc_polyA_motif,
         params.sqanti_qc_intron_junctions
-        //params.cage_bed,
-        //params.polyA_bed,
-        //params.polyA_sites,
-        //params.intropolis_bed,
-        //params.skip_sqanti_qc
         )
+
         ch_genome_fasta = PREPARE_REFERENCE.out.genome_fasta
         ch_genome_index =
         ch_genome_sizes =
