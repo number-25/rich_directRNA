@@ -29,14 +29,28 @@ workflow PREPARE_REFERENCE {
     if (sqanti_qc_reference == 'human') {
         // cage data
         if (sqanti_qc_cage)
-            if (sqanti_qc_cage_path == null) // user doesn't provide path to predownload cage data
+            if (sqanti_qc_cage_path == null) { // user doesn't provide path to predownload cage data
                CURL_CAGE('refTSS_CAGE', 'bed', 'https://reftss.riken.jp/datafiles/current/human/refTSS_v4.1_human_coordinate.hg38.bed.txt.gz')
-               ch_sqanti_cage
+               ch_sqanti_cage_bed = CURL_CAGE.out.curl
+
+               ch_versions = ch_versions.mix(CURL_CAGE.out.versions)
+           } else {
+                ch_sqanti_cage_bed = sqanti_qc_cage
+            }
+        // poly_A sites
+        if (sqanti_qc_polyA_sites)
+            if (sqanti_qc_polyA_sites_path == null) { // user doesn't provide path to predownload polyA sites data
+               CURL_CAGE('refTSS_CAGE', 'bed', 'https://reftss.riken.jp/datafiles/current/human/refTSS_v4.1_human_coordinate.hg38.bed.txt.gz')
+               ch_sqanti_cage_bed = CURL_CAGE.out.curl
+               ch_versions = ch_versions.mix(CURL_CAGE.out.versions)
+           } else {
+                ch_sqanti_cage_bed = sqanti_qc_cage
+            }
+
 
 
     //} else { // mouse data - down the line
     }
-
     if (genome_fasta) {
         file(genome_fasta, checkIfExists: true)
         if (genome_fasta.endsWith('.gz')) {
