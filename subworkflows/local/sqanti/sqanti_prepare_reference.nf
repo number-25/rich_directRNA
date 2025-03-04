@@ -1,51 +1,23 @@
 //
-// Uncompress and prepare reference files
+// Download, uncompress and prepare reference files for SQANTI QC
 //
 
-include { GUNZIP as GUNZIP_FASTA } from '../../../modules/nf-core/gunzip'
-include { GUNZIP as GUNZIP_TRANSCRIPT_FASTA } from '../../../modules/nf-core/gunzip'
-include { CUSTOM_GETCHROMSIZES } from '../../../modules/nf-core/custom/getchromsizes'
-include { MINIMAP2_INDEX } from '../../../modules/custom/minimap2_index'
-include { GUNZIP as GUNZIP_TRANSCRIPT_GTF } from '../../../modules/nf-core/gunzip'
-
-//include { GUNZIP as GUNZIP_BED } from '../modules/nf-core/gunzip'
 include { GUNZIP as GUNZIP_CAGE } from '../../../modules/nf-core/gunzip'
-
-// prepare indices for reference
-
-// prepare additional files
-//TO-DO make these modules
-//include { GXF2BED as GTF_TO_BED } from '../../../modules/local/gxf2bed' // gxf2bed module
-//include { BIGWIG_TO_WIG } from '../../../modules/local/bigwigtowig'
-//include { BEDOPS as WIG_TO_BED } from '../../../modules/local/bedops'
-//include { SAMTOOLS_SORT } from '../../../modules/nf-core/samtools/sort/main'
+include { GUNZIP as GUNZIP_POLYA_SITES } from '../../../modules/nf-core/gunzip'
+include { GUNZIP as GUNZIP_INTROPOLIS } from '../../../modules/nf-core/gunzip'
 
 workflow PREPARE_REFERENCE {
 
     take:
-    genome_fasta                    // file: /path/to/genome_fasta.fa
-    genome_fasta_index              // file: /path/to/genome_fasta_index.fa.fai
-    genome_fasta_sizes              // file: /path/to/genome_fasta.sizes
-    genome_fasta_minimap2_index     // file: /path/to/minimap2_genome_index.fa.mmi
-    bam_input                       // boolean: false [default: false]
-    transcriptome_fasta             // file: /path/to/genome_fasta.sizes
-    annotation_gtf                  // file: /path/to/annotation.gtf
-    //appris_bed?
-    //mane_select_bed?
-    //mane_clinical_bed?
-    skip_jaffal                     // boolean: skip jaffal fusion gene detection [default: false]
-    skip_jaffal_download            // boolean: skip jaffal fusion gene detection [default: false]
-    skip_sqanti_all                 // boolean: skip all of sqanti [default: false]
-    skip_sqanti_qc                  // boolean: skip sqanti qc [default: false]
-    sqanti_qc_reference             // boolean: three values options [mouse, human, custom]
-    sqanti_qc_cage                  // boolean: true [default: true]
-    sqanti_qc_cage_path             // file:
-    sqanti_qc_polyA_sites           // boolean: true [default: true]
-    sqanti_qc_polyA_sites_path      // file:
-    sqanti_qc_polyA_motif           // boolean: true [default: true]
-    sqanti_qc_polyA_motif_path      // file:
-    sqanti_qc_intron_junctions      // boolean: true [default: true]
-    sqanti_qc_intron_path           // file:
+    sqanti_qc_reference
+    sqanti_qc_cage
+    sqanti_qc_cage_path
+    sqanti_qc_polyA_sites
+    sqanti_qc_polyA_sites_path
+    sqanti_qc_polyA_motif
+    sqanti_qc_polyA_motif_path
+    sqanti_qc_intron_junctions
+    sqanti_qc_intron_path
 
     main:
 
@@ -53,6 +25,18 @@ workflow PREPARE_REFERENCE {
 
     // Uncompress genome fasta file
     // Mandatory input
+
+    if (sqanti_qc_reference == 'human') {
+        // cage data
+        if (sqanti_qc_cage)
+            if (sqanti_qc_cage_path == null) // user doesn't provide path to predownload cage data
+               CURL_CAGE('refTSS_CAGE', 'bed', 'https://reftss.riken.jp/datafiles/current/human/refTSS_v4.1_human_coordinate.hg38.bed.txt.gz')
+               ch_sqanti_cage
+
+
+    //} else { // mouse data - down the line
+    }
+
     if (genome_fasta) {
         file(genome_fasta, checkIfExists: true)
         if (genome_fasta.endsWith('.gz')) {
@@ -122,7 +106,8 @@ workflow PREPARE_REFERENCE {
         }
     }
 
-    // Prepare references for SQANTI QC
+    // SQANTI
+
     if (!skip_sqanti_all || !skip_sqanti_qc) {
         SQANTI_PREPARE_REFERENCE(
             sqanti_qc_reference,  // human, mouse or custom
@@ -194,13 +179,8 @@ workflow PREPARE_REFERENCE {
 
     emit:
     genome_fasta = ch_genome_fasta
-    genome_fasta_index = ch_genome_fasta_index
-    genome_minimap2_index = ch_genome_minimap2_index
-    transcriptome_fasta = ch_transcriptome_fasta
-    annotation_gtf = ch_annotation_gtf
-    genome_fasta_minimap2_index = ch_genome_minimap2_index
-    annotation_gtf = ch_annotation_gtf
-    cage_bed = ch_cage_bed
+
+    sqanti_cage_bed = ch_sqanti_cage_bed
     polyA_bed = ch_polyA_bed
     polyA_sites = ch_polyA_sites
     intropolis_bed = ch_intropolis_bed

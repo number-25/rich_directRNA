@@ -68,6 +68,7 @@ fi
 # is going to need to be converted to have the correct chromosome naming
 zcat atlas.clusters.2.0.GRCh38.96.bed.gz | chromToUcsc -a hg38.chromAlias.txt > atlas.clusters.2.0.GRCh38.96_aliased.bed
 
+Do this with sed?
 
 ### Get intropolis files - hg19 to hg38 liftover
 if [ ! -f intropolis.v1.hg19_with_liftover_to_hg38.tsv.min_count_10.modified.gz ] ; then
@@ -75,12 +76,11 @@ if [ ! -f intropolis.v1.hg19_with_liftover_to_hg38.tsv.min_count_10.modified.gz 
 fi
 
 ### Get 7way PhyloP file - BigWig format
-https://hgdownload.cse.ucsc.edu/goldenpath/hg38/phyloP7way/
-if [ ! -f hg38.phyloP30way.bw ] ; then
-    wget https://hgdownload.cse.ucsc.edu/goldenpath/hg38/phyloP7way/hg38.phyloP7way.wigFix.gz
-fi
-
-gunzip hg38.phyloP7way.wigFix.gz
-rm hg38.phyloP7way.wigFix.gz
+#https://hgdownload.cse.ucsc.edu/goldenpath/hg38/phyloP7way/
+#if [ ! -f hg38.phyloP30way.bw ] ; then
+#    wget https://hgdownload.cse.ucsc.edu/goldenpath/hg38/phyloP7way/hg38.phyloP7way.wigFix.gz
+#fi
+#gunzip hg38.phyloP7way.wigFix.gz
+#rm hg38.phyloP7way.wigFix.gz
 
 
