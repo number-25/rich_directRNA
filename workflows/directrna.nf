@@ -68,6 +68,8 @@ def isOffline() {
 */
 // Check samplesheet
 include { INPUT_CHECK               } from '../subworkflows/local/input_check'
+// Prepare reference files
+include { PREPARE_REFERENCE         } from '../subworkflows/local/prepare_reference'
 // Load Unix Utils
 include { GUNZIP as GUNZIP_FASTA    } from '../modules/nf-core/gunzip'
 // fastq QC
@@ -158,22 +160,22 @@ workflow DIRECTRNA{
         params.genome_minimap2_index,
         params.bam_input,
         params.annotation_gtf,
-        params.skip_jaffal,             //
-        params.skip_jaffal_download,    // boolean [default: false]
         params.skip_sqanti_all,         // boolean [default: false]
         params.skip_sqanti_qc,          // boolean [defeault: false]
-        params.sqanti_qc_reference,     // human, mouse or custom
+        params.sqanti_qc_reference,     // value: human, mouse or custom
         params.sqanti_qc_cage,          // boolean [default: true]
         params.sqanti_qc_polyA_sites,   // boolean [default: true]
-        params.sqanti_qc_polyA_motif,
-        params.sqanti_qc_intron_junctions
+        params.sqanti_qc_polyA_motif,   // boolean [default: true]
+        params.sqanti_qc_intron_junctions // boolean [default: true]
+        params.skip_jaffal,             //
+        params.skip_jaffal_download    // boolean [default: true]
         )
-
         ch_genome_fasta = PREPARE_REFERENCE.out.genome_fasta
-        ch_genome_index =
-        ch_genome_sizes =
-        ch_genome_minimap2_index
+        ch_genome_index = PREPARE_REFERENCE.out.genome_fasta_index
+        ch_genome_sizes = PREPARE_REFERENCE.out.genome_fasta_sizes
+        ch_genome_minimap2_index = PREPARE_REFERENCE.out.genome_minimap2_index
         if (!params.skip_sqanti_qc)
+            ch_sqanti_qc_
 
         ch_cage_bed = PREPARE_REFERENCE.out.cage_bed
         ch_polyA_bed = PREPARE_REFERENCE.out.polyA_bed

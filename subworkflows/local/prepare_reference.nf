@@ -39,13 +39,13 @@ workflow PREPARE_REFERENCE {
     skip_sqanti_qc                  // boolean: skip sqanti qc [default: false]
     sqanti_qc_reference             // boolean: three values options [mouse, human, custom]
     sqanti_qc_cage                  // boolean: true [default: true]
-    sqanti_qc_cage_path             // file:
+    sqanti_qc_cage_path             // file path: [default: in config]
     sqanti_qc_polyA_sites           // boolean: true [default: true]
-    sqanti_qc_polyA_sites_path      // file:
+    sqanti_qc_polyA_sites_path      // file path: [default: in config]
     sqanti_qc_polyA_motif           // boolean: true [default: true]
-    sqanti_qc_polyA_motif_path      // file:
+    sqanti_qc_polyA_motif_path      // file path: [default: in config]
     sqanti_qc_intron_junctions      // boolean: true [default: true]
-    sqanti_qc_intron_path           // file:
+    sqanti_qc_intron_path           // file path: [default: in config]
 
     main:
 
@@ -116,7 +116,7 @@ workflow PREPARE_REFERENCE {
         if (genome_fasta_minimap2_index == null) {
             MINIMAP2_INDEX( ch_genome_fasta )
             ch_genome_minimap2_index = MINIMAP2_INDEX.out.bai
-            ch_versions = ch.versions.mix(MINIAP2_INDEX.out.versions)
+            ch_versions = ch.versions.mix(MINIMAP2_INDEX.out.versions)
         } else {
             ch_genome_minimap2_index = Channel.value(file(genome_fasta_minimap2_index), checkIfExists: true)
         }
@@ -135,49 +135,11 @@ workflow PREPARE_REFERENCE {
             sqanti_qc_intron_junctions,
             sqanti_qc_intron_path
             )
-    }
-
-    // Seed orthogonal files for SQANTI3
-    if (!params.skip_sqanti_all || !skip_sqanti_qc) {
-    // Uncompress cage BED interval file
-    // Optional input
-    // or is the pattern if (params.cage_bed)
-        if (cage_bed) {
-            if (cage_bed.endsWith('.gz')) {
-                ch_cage_bed = GUNZIP_CAGE( [ [:], cage_bed ] ).gunzip.map { it[1] }
-            } else {
-                ch_cage_bed = Channel.value(file(cage_bed), checkIfExists: true)
-            }
-        }
-    //
-    // Uncompress polyA BED interval file
-    //
-        if (polyA_bed) {
-            if (polyA_bed.endsWith('.gz')) {
-                ch_polyA_bed = GUNZIP_POLYA( [ [:], polyA_bed ] ).gunzip.map { it[1] }
-            } else {
-                ch_polyA_bed = Channel.value(file(polyA_bed), checkIfExists: true)
-            }
-        }
-    //
-    // Initialize polyA sites file
-    //
-        if (polyA_sites) {
-            } else {
-                ch_polyA_sites = Channel.value(file(polyA_sites), checkIfExists: true)
-                //ch_polyA_sites = Channel.fromPath(polyA_sites, checkIfExists = true)
-            }
-        }
-    //
-    // Uncompress intropolis BED interval file
-    //
-        if (intropolis_bed) {
-            if (intropolis_bed.endsWith('.gz')) {
-                ch_intropolis_bed = GUNZIP_INTROPOLIS ( [ [:], intropolis_bed ] ).gunzip.map { it[1] }
-            } else {
-                ch_intropolis_bed = Channel.value(file(intropolis_bed), checkIfExists: true)
-            }
-        }
+        ch_sqanti_qc_cage_bed = SQANTI_PREPARE_REFERENCE.out.sqanti_cage_bed
+        ch_sqanti_qc_polyA_sites_bed = SQANTI_PREPARE_REFERENCE.out.sqanti_polyA_sites_bed
+        ch_sqanti_qc_polyA_motif = SQANTI_PREPARE_REFERENCE.out.sqanti_qc_polyA_motif
+        ch_sqanti_qc_intron_junctions_bed = SQANTI_PREPARE_REFERENCE.out.sqanti_qc_intron_junctions_bed
+        ch_versions = ch.versions.mix(SQANTI_PREPARE_REFERENCE.out.versions)
     }
 
     //
@@ -189,21 +151,19 @@ workflow PREPARE_REFERENCE {
     //    ch_versions = ch_versions.mix(WIG_TO_BED.out.versions)
     //}
 
-//-------------------------------------------------------//
-//              Prepare indices                         //
-
     emit:
     genome_fasta = ch_genome_fasta
     genome_fasta_index = ch_genome_fasta_index
+    genome_fasta_sizes = ch_genome_fasta_sizes
     genome_minimap2_index = ch_genome_minimap2_index
     transcriptome_fasta = ch_transcriptome_fasta
     annotation_gtf = ch_annotation_gtf
     genome_fasta_minimap2_index = ch_genome_minimap2_index
     annotation_gtf = ch_annotation_gtf
-    cage_bed = ch_cage_bed
-    polyA_bed = ch_polyA_bed
-    polyA_sites = ch_polyA_sites
-    intropolis_bed = ch_intropolis_bed
+    sqanti_qc_cage_bed = ch_sqanti_qc_cage_bed
+    sqanti_qc_polyA_sites_bed = ch_sqanti_qc_polyA_sites_bed
+    sqanti_qc_polyA_motif = ch_sqanti_qc_polyA_motif
+    sqanti_qc_intron_junctions_bed = ch_sqanti_qc_polyA_motif
     //phylop_bed = ch_phylop_bed
     versions = ch_versions                     // channel: [ versions.yml ]
 }
