@@ -6,12 +6,10 @@ include { GUNZIP as GUNZIP_FASTA } from '../../../modules/nf-core/gunzip'
 include { GUNZIP as GUNZIP_TRANSCRIPT_FASTA } from '../../../modules/nf-core/gunzip'
 include { CUSTOM_GETCHROMSIZES } from '../../../modules/nf-core/custom/getchromsizes'
 include { MINIMAP2_INDEX } from '../../../modules/custom/minimap2_index'
-include { GUNZIP as GUNZIP_TRANSCRIPT_GTF } from '../../../modules/nf-core/gunzip'
-
-//include { GUNZIP as GUNZIP_BED } from '../modules/nf-core/gunzip'
-include { GUNZIP as GUNZIP_CAGE } from '../../../modules/nf-core/gunzip'
-
-// prepare indices for reference
+include { GUNZIP as GUNZIP_TRANSCRIPTOME } from '../../../modules/nf-core/gunzip'
+include { GUNZIP as GUNZIP_ANNOTATION_GTF } from '../../../modules/nf-core/gunzip'
+include { SQANTI_PREPARE_REFERENCE } from '../sqanti/sqanti_prepare_reference'
+include { JAFFAL_PREPARE_REFERENCE } from '../jaffal_prepare_reference'
 
 // prepare additional files
 //TO-DO make these modules
@@ -66,7 +64,6 @@ workflow PREPARE_REFERENCE {
     }
 
     // Genome fasta index
-
     if (!genome_fasta_index) {
         CUSTOM_GETCHROMSIZES( ch_genome_fasta )
         ch_genome_fasta_index = CUSTOM_GETCHROMSIZES.out.fai
@@ -76,7 +73,6 @@ workflow PREPARE_REFERENCE {
     }
 
     // Genome fasta sizes
-
     if (!genome_fasta_sizes) {
         CUSTOM_GETCHROMSIZES( ch_genome_fasta )
         ch_genome_fasta_sizes = CUSTOM_GETCHROMSIZES.out.sizes
@@ -90,23 +86,22 @@ workflow PREPARE_REFERENCE {
     if (transcriptome_fasta) {
         file(transcriptome_fasta, checkIfExists: true)
         if (transcriptome_fasta.endsWith('.gz')) {
-            ch_transcriptome_fasta = GUNZIP_GTF( [ [:], transcriptome_fasta ] ).gunzip.map { it[1] }
-        } else {
+            ch_transcriptome_fasta = GUNZIP_TRANSCRIPTOME( [ [:], transcriptome_fasta ] ).gunzip.map { it[1] }
+} else {
             //which one below?
-            ch_transcriptome_fasta = Channel.value(file(genome_fasta), checkIfExists: true)
-            //ch_annotation_gtf = Channel.fromPath(params.annotation_gtf, checkIfExists: true)
+            ch_transcriptome_fasta = Channel.value(file(transcriptome_fasta), checkIfExists: true)
         }
     }
+
     // Uncompress GTF annotation file
     // Mandatory input
     if (annotation_gtf) {
         file(annotation_gtf, checkIfExists:true)
         if (annotation_gtf.endsWith('.gz')) {
-            ch_annotation_gtf = GUNZIP_GTF( [ [:], annotation_gtf ] ).gunzip.map { it[1] }
+            ch_annotation_gtf = GUNZIP_ANNOTATION_GTF( [ [:], annotation_gtf ] ).gunzip.map { it[1] }
         } else {
             //which one below?
             ch_annotation_gtf = Channel.value(file(annotation_gtf), checkIfExists: true)
-            //ch_annotation_gtf = Channel.fromPath(params.annotation_gtf, checkIfExists: true)
         }
     }
 
@@ -142,6 +137,16 @@ workflow PREPARE_REFERENCE {
         ch_versions = ch.versions.mix(SQANTI_PREPARE_REFERENCE.out.versions)
     }
 
+    // Prepare reference for JAFFAL
+    if (!skip_jaffal) {
+        if (!skip_jaffal_download) {
+            JAFFAL_PREPARE_REFERENCE()
+            ch_jaffal_reference = JAFFAL_PREPARE_REFERENCE.out.jaffal_reference
+        } else {
+            ch_jaffal_reference = Channel.value(file(jaffal_reference), checkIfExists: true)
+        }
+    }
+
     //
     // Convert PhyloP bigWig to bed
     // Hold off on this - extremely memory intensive process
@@ -155,15 +160,14 @@ workflow PREPARE_REFERENCE {
     genome_fasta = ch_genome_fasta
     genome_fasta_index = ch_genome_fasta_index
     genome_fasta_sizes = ch_genome_fasta_sizes
-    genome_minimap2_index = ch_genome_minimap2_index
-    transcriptome_fasta = ch_transcriptome_fasta
-    annotation_gtf = ch_annotation_gtf
     genome_fasta_minimap2_index = ch_genome_minimap2_index
+    transcriptome_fasta = ch_transcriptome_fasta
     annotation_gtf = ch_annotation_gtf
     sqanti_qc_cage_bed = ch_sqanti_qc_cage_bed
     sqanti_qc_polyA_sites_bed = ch_sqanti_qc_polyA_sites_bed
     sqanti_qc_polyA_motif = ch_sqanti_qc_polyA_motif
-    sqanti_qc_intron_junctions_bed = ch_sqanti_qc_polyA_motif
+    sqanti_qc_intron_junctions_bed = ch_sqanti_qc_intron_junctions_bed
+    jaffal_reference = ch_jaffal_reference
     //phylop_bed = ch_phylop_bed
     versions = ch_versions                     // channel: [ versions.yml ]
 }

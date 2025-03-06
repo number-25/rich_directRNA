@@ -159,6 +159,7 @@ workflow DIRECTRNA{
         params.genome_fasta_sizes,
         params.genome_minimap2_index,
         params.bam_input,
+        params.transcriptome_fasta
         params.annotation_gtf,
         params.skip_sqanti_all,         // boolean [default: false]
         params.skip_sqanti_qc,          // boolean [defeault: false]
@@ -167,23 +168,36 @@ workflow DIRECTRNA{
         params.sqanti_qc_polyA_sites,   // boolean [default: true]
         params.sqanti_qc_polyA_motif,   // boolean [default: true]
         params.sqanti_qc_intron_junctions // boolean [default: true]
-        params.skip_jaffal,             //
+        params.skip_jaffal,             // boolean [default: false]
         params.skip_jaffal_download    // boolean [default: true]
         )
+        // initialize genome + transcriptome references
         ch_genome_fasta = PREPARE_REFERENCE.out.genome_fasta
         ch_genome_index = PREPARE_REFERENCE.out.genome_fasta_index
         ch_genome_sizes = PREPARE_REFERENCE.out.genome_fasta_sizes
         ch_genome_minimap2_index = PREPARE_REFERENCE.out.genome_minimap2_index
-        if (!params.skip_sqanti_qc)
-            ch_sqanti_qc_
-
-        ch_cage_bed = PREPARE_REFERENCE.out.cage_bed
-        ch_polyA_bed = PREPARE_REFERENCE.out.polyA_bed
-        ch_polyA_sites = PREPARE_REFERENCE.out.polyA_sites
-        //ch_polyA_sites = Channel.fromPath(polyA_sites, checkIfExists = true)
-        ch_intropolis_bed = PREPARE_REFERENCE.out.intropolis_bed
+        ch_transcriptome_fasta = PREPARE_REFERENCE.out.transcriptome_fasta
+        ch_annotation_gtf = PREPARE_REFERENCE.out.annotation_gtf
+        // initialize sqanti qc references
+        if (!params.skip_sqanti_qc) {
+            if (params.sqanti_qc_cage) {
+                ch_sqanti_qc_cage_bed = PREPARE_REFERENhttps://figshare.com/ndownloader/articles/27673314/versions/1CE.out.sqanti_qc_cage_bed
+            }
+            if (params.sqanti_qc_polyA_sites) {
+                ch_sqanti_qc_polyA_sites_bed = PREPARE_REFERENCE.out.sqanti_qc_polyA_sites_bed
+            }
+            if (params.sqanti_qc_polyA_motif) {
+                ch_sqanti_qc_polyA_motif = PREPARE_REFERENCE.out.sqanti_qc_polyA_motif
+            }
+            if (params.sqanti_qc_intron_junctions) {
+                ch_sqanti_qc_intron_junctions_bed = PREPARE_REFERENCE.out.sqanti_qc_intron_junctions_bed
+            }
+        }
+        // initialize jaffal reference
+        if (!params.skip_jaffal) {
+           ch_jaffal_reference = PREPARE_REFERENCE.out.jaffal_reference
+        }
         ch_versions = ch_versions.mix(PREPARE_REFERENCE.out.versions)
-        ch_jaffal_ref = Channel.fromPath(jaffal_ref, checkIfExists = true)
     }
 
     // Mapping and sorting
