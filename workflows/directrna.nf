@@ -74,6 +74,7 @@ include { PREPARE_REFERENCE         } from '../subworkflows/local/prepare_refere
 include { GUNZIP as GUNZIP_FASTA    } from '../modules/nf-core/gunzip'
 // fastq QC
 include { NANOQ                     } from '../modules/local/nanoq'
+include { SEQUALI                   } from '../modules/local/sequali'
 // fastq mapping
 include { MAPPING                   } from '../subworkflows/local/mapping'
 include { SAMTOOLS_FAIDX            } from '../modules/local/samtools/samtools_faidx'
@@ -138,13 +139,19 @@ workflow DIRECTRNA{
     ///.set { ch_fastq }
 
     // QC of fastq files
-    /// Toulligqc?
-    /// MODULE: NANOQ
+    /// MODULEs: NANOQ & SEQUALI
     if (!params.skip_qc || !params_bam_input) {
-        NANOQ ( ch_sample )
-        ch_versions = ch_versions.mix(NANOQ.out.versions.first())
+        if (!params.skip_nanoq) {
+            NANOQ( ch_sample )
+            ch_versions = ch_versions.mix(NANOQ.out.versions.first())
+        }
+        if (!params.skip_sequali) {
+            SEQUALI( ch_sample )
+            ch_versions = ch_versions.mix(SEQUALI.out.versions.first())
+            // multiQC integration
+        }
     }
-    // MODULE: Run FastQC
+
     ///
     ///)
     ///ch_multiqc_files = ch_multiqc_files.mix(FASTQC.out.zip.collect{it[1]})
@@ -181,7 +188,7 @@ workflow DIRECTRNA{
         // initialize sqanti qc references
         if (!params.skip_sqanti_qc) {
             if (params.sqanti_qc_cage) {
-                ch_sqanti_qc_cage_bed = PREPARE_REFERENhttps://figshare.com/ndownloader/articles/27673314/versions/1CE.out.sqanti_qc_cage_bed
+                ch_sqanti_qc_cage_bed = PREPARE_REFERENCE.out.sqanti_qc_cage_bed
             }
             if (params.sqanti_qc_polyA_sites) {
                 ch_sqanti_qc_polyA_sites_bed = PREPARE_REFERENCE.out.sqanti_qc_polyA_sites_bed
@@ -202,11 +209,10 @@ workflow DIRECTRNA{
 
     // Mapping and sorting
     // SUBWORKFLOW: MAPPING
-    // if the reference preparation is skipped and a reference file isn't provided, minimap2 will generate an index
-    // for the provided reference file
     //
     if (!params.bam_input) {
-        if (params.genome_fasta.endsWith('.gz')) {
+/*
+    if (params.genome_fasta.endsWith('.gz')) {
             GUNZIP_FASTA( ch_genome_fasta )
             ch_genome_fasta = GUNZIP_FASTA.out.gunzip
             ch_versions = ch_versions.mix(GUNZIP.out.versions.first())
@@ -228,52 +234,71 @@ workflow DIRECTRNA{
             ch_genome_minimap2_index = Channel.fromPath(params.genome_fasta_minimap2_index, checkIfExists: true)
             ch_genome_sizes = Channel.fromPath(params.genome_fasta_sizes, checkIfExists: true)
             }
-        MAPPING( ch_sample, ch_genome_fasta, ch_genome_minimap2_index )
-        ch_bam = MAPPING.out.bam
-        ch_bam_index = MAPPING.out.bai
-        ch_versions = ch_versions.mix(MAPPING.out.versions.first())
-        //ch_mixed_bam = ch_bam.mix(ch_bam_indx)
-        }
+*/
+    MAPPING( ch_sample, ch_genome_fasta, ch_genome_minimap2_index )
+    ch_bam = MAPPING.out.bam
+    ch_bam_index = MAPPING.out.bai
+    ch_versions = ch_versions.mix(MAPPING.out.versions.first())
+    //ch_mixed_bam = ch_bam.mix(ch_bam_indx)
     } else {
         ch_bam = ch_sample
-        SAMTOOLS_INDEX( ch_sample )
+        SAMTOOLS_INDEX( ch_bam )
         ch_bam_index = SAMTOOLS_INDEX.out.bai
+    }
 
-
-
-    //
     // BAM QC
     // SUBWORKFLOW: BAM_QC
     // Execute cramino, alfred and samtools flagstat on bam output from mapping
-    if (!params.skip_mapping) {
-        BAM_QC( ch_bam, ch_genome_fasta )
+    //if (!params.skip_mapping) {
+        if (!params.skip_bam_qc) {
+            ch_skip_cramino = params.skip_cramino
+            ch_skip_alfred = params.skip_alfred
+            ch_skip_samtools_flagstat = params.skip_samtools_flagstat
+            ch_cramino_min_length = params.cramino_min_length
+            ch_skip_ngs_bits = params.skip_ngs_bits
+            ch_ngs_bits_build = params.ngs_bits_build
+            ch_ngs_bits_contamination = params.ngs_bits_contamination
+            BAM_QC(
+                ch_skip_cramino,
+                ch_skip_alfred,
+                ch_skip_samtools_flagstat,
+                ch_skip_ngs_bits,
+                ch_ngs_bits_build,
+                ch_ngs_bits_contamination,
+                ch_bam,
+                ch_genome_fasta,
+                ch_cramino_min_length
+                )
+
         ch_versions = ch_versions.mix(BAM_QC.out.versions)
     // If a raw BAM is provided and mapping is not needed
     // May need to index it to work with downstream processes? Needs testing
     } else {
-        //ch_bam = ch_sample
-        //ch_bam_index =
-        BAM_QC( ch_sample, ch_genome_fasta )
+        BAM_QC( ch_sample, ch_genome_fasta, ch_cramino_min_length )
         ch_versions = ch_versions.mix(BAM_QC.out.versions)
-        }
+     //   }
 
-    //
+    // Read correction tools? Which ones....
+    // TC-CLEAN?
+    // IsoQUANT?
+    // FLAIR
+
     // TRANSCRIPT RECONSTRUCTION
     //
-
+    // FLAIR
     if (!params.skip_flair_correct && !params.skip_flair_collapse) {
         BAM_TO_BED12( ch_bam, ch_bam_index )
-        // seeing if a mixed channel with bam and bam.bai works
+        // seeing if a mixed channel with bam and bam.bai works - but given the bam path, the program may naturally search here too for a bam index? Hard to tell until we try out.
         //BAM_TO_BED12( ch_mixed_bam )
         ch_mapped_bed = BAM_TO_BED12.out.bed
-        /*FLAIR_CORRECT( ch_mapped_bed, ch_genome_fasta, ch_annotation_gtf )
+        FLAIR_CORRECT( ch_mapped_bed, ch_genome_fasta, ch_annotation_gtf )
         ch_corrected_bed = FLAIR_CORRECT.out.flair_corrected_bed
         FLAIR_COLLAPSE( ch_corrected_bed, ch_sample, ch_annotation_gtf, ch_genome_fasta )
         ch_collapsed_bed = FLAIR_COLLAPSE.out.collapsed_isoforms_bed
         ch_collapsed_gtf = FLAIR_COLLAPSE.out_collapsed_isoforms.gtf
+        BEDTOOLS_JACCARD( ch_collapsed_bed, ch_mapped_bed )
         ch_versions = ch_versions.mix(FLAIR_collapse.out.versions)
-        */
-        //ch_collapsed_bed
+         //ch_collapsed_bed
         //   .map { it -> [ it[0], it[1] ] }
         //   .set { ch_test_bed }
         //BED_TO_BAM( ch_collapsed_bed, ch_genome_fasta_sizes )
@@ -302,10 +327,7 @@ workflow DIRECTRNA{
         }
     }
 
-    // Read correction tools? Which ones....
-    // TC-CLEAN?
-    // IsoQUANT?
-    // FLAIR
+
 
     // BAMBU
     //if (!params.skip_bambu) {

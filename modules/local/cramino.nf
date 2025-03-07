@@ -10,6 +10,7 @@ process CRAMINO {
     // TODO nf-core: Where applicable please provide/convert compressed files as input/output
     //               e.g. "*.fastq.gz" and NOT "*.fastq", "*.bam" and NOT "*.sam" etc.
     tuple val(meta), path(bam)
+    val(read_length)
 
     output:
     tuple val(meta), path("*.stats"), emit: cramino_stats
@@ -20,11 +21,13 @@ process CRAMINO {
 
     script:
     def args = task.ext.args ?: '--spliced'
+    def read_length = task.ext.read_length ?: "--min-read-len ${read_length}"
     def prefix = task.ext.prefix ?: "${meta.id}_${meta.replicate}_cramino"
     """
     cramino \\
         -t $task.cpus \\
         $args \\
+        $read_length \\
         $bam \\
         > ${prefix}.stats
 
