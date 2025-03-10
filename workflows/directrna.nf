@@ -139,7 +139,7 @@ workflow DIRECTRNA{
     ///.set { ch_fastq }
 
     // QC of fastq files
-    /// MODULEs: NANOQ & SEQUALI
+    /// MODULES: NANOQ & SEQUALI
     if (!params.skip_qc || !params_bam_input) {
         if (!params.skip_nanoq) {
             NANOQ( ch_sample )
@@ -152,8 +152,6 @@ workflow DIRECTRNA{
         }
     }
 
-    ///
-    ///)
     ///ch_multiqc_files = ch_multiqc_files.mix(FASTQC.out.zip.collect{it[1]})
     ///ch_versions = ch_versions.mix(FASTQC.out.versions.first())
 
@@ -174,7 +172,7 @@ workflow DIRECTRNA{
         params.sqanti_qc_cage,          // boolean [default: true]
         params.sqanti_qc_polyA_sites,   // boolean [default: true]
         params.sqanti_qc_polyA_motif,   // boolean [default: true]
-        params.sqanti_qc_intron_junctions // boolean [default: true]
+        params.sqanti_qc_intron_junctions, // boolean [default: true]
         params.skip_jaffal,             // boolean [default: false]
         params.skip_jaffal_download    // boolean [default: true]
         )
@@ -211,35 +209,11 @@ workflow DIRECTRNA{
     // SUBWORKFLOW: MAPPING
     //
     if (!params.bam_input) {
-/*
-    if (params.genome_fasta.endsWith('.gz')) {
-            GUNZIP_FASTA( ch_genome_fasta )
-            ch_genome_fasta = GUNZIP_FASTA.out.gunzip
-            ch_versions = ch_versions.mix(GUNZIP.out.versions.first())
-        } else {
-            ch_genome_fasta = ch_genome_fasta
-        }
-        // If custom genome is provided --custom_genome=true
-        if (params.custom_genome) {
-            CUSTOM_GETCHROMSIZES( ch_genome_fasta )
-            ch_genome_index = CUSTOM_GETCHROMSIZES.out.fai
-            ch_genome_sizes = CUSTOM_GETCHROMSIZES.out.sizes
-            ch_versions = ch_versions.mix(CUSTOM_GETCHROMSIZES.out.versions.first())
-            MINIMAP2_INDEX( ch_genome_fasta )
-            ch_genome_minimap2_index = MINIMAP2_INDEX.out.index
-        } else {
-            ch_genome_index = Channel.fromPath(params.genome_fasta_index, checkIfExists: true)
-            if (!params.genome_fasta_minimap2_index) {
-                ch_genome_minimap2_index = Channel.fromPath(params.genome_fasta_minimap2_index, checkIfExists: true)
-            ch_genome_minimap2_index = Channel.fromPath(params.genome_fasta_minimap2_index, checkIfExists: true)
-            ch_genome_sizes = Channel.fromPath(params.genome_fasta_sizes, checkIfExists: true)
-            }
-*/
-    MAPPING( ch_sample, ch_genome_fasta, ch_genome_minimap2_index )
-    ch_bam = MAPPING.out.bam
-    ch_bam_index = MAPPING.out.bai
-    ch_versions = ch_versions.mix(MAPPING.out.versions.first())
-    //ch_mixed_bam = ch_bam.mix(ch_bam_indx)
+        MAPPING( ch_sample, ch_genome_fasta, ch_genome_minimap2_index )
+        ch_bam = MAPPING.out.bam
+        ch_bam_index = MAPPING.out.bai
+        ch_versions = ch_versions.mix(MAPPING.out.versions.first())
+        //ch_mixed_bam = ch_bam.mix(ch_bam_indx)
     } else {
         ch_bam = ch_sample
         SAMTOOLS_INDEX( ch_bam )
@@ -248,35 +222,28 @@ workflow DIRECTRNA{
 
     // BAM QC
     // SUBWORKFLOW: BAM_QC
-    // Execute cramino, alfred and samtools flagstat on bam output from mapping
-    //if (!params.skip_mapping) {
-        if (!params.skip_bam_qc) {
-            ch_skip_cramino = params.skip_cramino
-            ch_skip_alfred = params.skip_alfred
-            ch_skip_samtools_flagstat = params.skip_samtools_flagstat
-            ch_cramino_min_length = params.cramino_min_length
-            ch_skip_ngs_bits = params.skip_ngs_bits
-            ch_ngs_bits_build = params.ngs_bits_build
-            ch_ngs_bits_contamination = params.ngs_bits_contamination
-            BAM_QC(
-                ch_skip_cramino,
-                ch_skip_alfred,
-                ch_skip_samtools_flagstat,
-                ch_skip_ngs_bits,
-                ch_ngs_bits_build,
-                ch_ngs_bits_contamination,
-                ch_bam,
-                ch_genome_fasta,
-                ch_cramino_min_length
-                )
-
+    // Execute cramino, alfred, samtools flagstat, ngs-bits on bam output from mapping
+    if (!params.skip_bam_qc) {
+        ch_skip_cramino = params.skip_cramino
+        ch_skip_alfred = params.skip_alfred
+        ch_skip_samtools_flagstat = params.skip_samtools_flagstat
+        ch_cramino_min_length = params.cramino_min_length
+        ch_skip_ngs_bits = params.skip_ngs_bits
+        ch_ngs_bits_build = params.ngs_bits_build
+        ch_ngs_bits_contamination = params.ngs_bits_contamination
+        BAM_QC(
+            ch_skip_cramino,
+            ch_skip_alfred,
+            ch_skip_samtools_flagstat,
+            ch_skip_ngs_bits,
+            ch_ngs_bits_build,
+            ch_ngs_bits_contamination,
+            ch_bam,
+            ch_genome_fasta,
+            ch_cramino_min_length
+            )
         ch_versions = ch_versions.mix(BAM_QC.out.versions)
-    // If a raw BAM is provided and mapping is not needed
-    // May need to index it to work with downstream processes? Needs testing
-    } else {
-        BAM_QC( ch_sample, ch_genome_fasta, ch_cramino_min_length )
-        ch_versions = ch_versions.mix(BAM_QC.out.versions)
-     //   }
+    }
 
     // Read correction tools? Which ones....
     // TC-CLEAN?
@@ -327,8 +294,6 @@ workflow DIRECTRNA{
         }
     }
 
-
-
     // BAMBU
     //if (!params.skip_bambu) {
     //    BAMBU( ch_genome_fasta, ch_annotation_gtf, ch_bam )
@@ -356,6 +321,8 @@ workflow DIRECTRNA{
         ch_isoquant_transcripts = GFFREAD_GETFASTA.out.transcripts_fa
         ch_versions = ch_versions.mix(GFFREAD_GETFASTA.out.versions.first())
     }
+
+    // TALON + TRANSCRIPT CLEAN may be added if it begins being maintained regularly https://github.com/mortazavilab/TranscriptClean
 
     //
     // Transcript quantification

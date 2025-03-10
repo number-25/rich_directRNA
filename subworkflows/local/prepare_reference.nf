@@ -114,7 +114,7 @@ workflow PREPARE_REFERENCE {
             ch_versions = ch.versions.mix(MINIMAP2_INDEX.out.versions)
         } else {
             ch_genome_minimap2_index = Channel.value(file(genome_fasta_minimap2_index), checkIfExists: true)
-        }
+        } //else { ch_minimap2_index = null???
     }
 
     // Prepare references for SQANTI QC
