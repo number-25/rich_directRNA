@@ -21,8 +21,6 @@
     //ch_input = Channel.fromList(samplesheetToList(params.input, "assets/schema_input.json"))
 
 
-//
-
 // Check mandatory parameters (missing protocol or profile will exit the run.)
 // inputs samplesheet.csv
 if (params.input) {
@@ -92,6 +90,8 @@ include { BAMBU                     } from '../modules/local/bambu'
 // fusion gene detection
 //include { JAFFAL             } from '../modules/local/jaffal'
 // transcriptome assessment
+include { BEDTOOLS_JACCARD as BEDTOOLS_JACCARD_FLAIR } from '../modules/local/bedtools/jaccard'
+include { GFFREAD_GETFASTA          } from '../modules/local/gffread'
 
 // Going to be a bit of a long-think
 //include { SQANTI               } from '../subworkflows/local/sqanti'
@@ -245,15 +245,36 @@ workflow DIRECTRNA{
         ch_versions = ch_versions.mix(BAM_QC.out.versions)
     }
 
-    // Read correction tools? Which ones....
-    // TC-CLEAN?
-    // IsoQUANT?
-    // FLAIR
+    // Stand alone read correction tools? Which ones....
+    // TC-CLEAN, IsoQUANT, FLAIR
 
     // TRANSCRIPT RECONSTRUCTION
     //
     // FLAIR
-    if (!params.skip_flair_correct && !params.skip_flair_collapse) {
+
+    if (!params.skip_flair_correct) {
+        ch_flair = channel.value( 'flair' )
+        BAM_TO_BED12( ch_bam, ch_bam_index )
+        ch_mapped_bed = BAM_TO_BED12.out.bed
+        FLAIR_CORRECT( ch_mapped_bed, ch_genome_fasta, ch_annotation_gtf )
+        ch_flair_corrected_bed = FLAIR_CORRECT.out.flair_corrected_bed
+        BEDTOOLS_JACCARD_FLAIR( ch_flair_corrected_bed, ch_collapsed_bed, ch_flair )
+    }
+    if (!params.skip_flair_collapse) {
+        if !(params.skip_flair_correct) {
+        FLAIR_COLLAPSE( ch_flair_corrected_bed, ch_sample, ch_annotation_gtf, ch_genome_fasta )
+        ch_collapsed_bed = FLAIR_COLLAPSE.out.collapsed_isoforms_bed
+        ch_collapsed_gtf = FLAIR_COLLAPSE.out_collapsed_isoforms.gtf
+        } else {
+        BAM_TO_BED12( ch_bam, ch_bam_index )
+        ch_mapped_bed = BAM_TO_BED12.out.bed
+        FLAIR_COLLAPSE( ch_mapped_bed, ch_sample, ch_annotation_gtf, ch_genome_fasta )
+        ch_collapsed_bed = FLAIR_COLLAPSE.out.collapsed_isoforms_bed
+        ch_collapsed_gtf = FLAIR_COLLAPSE.out_collapsed_isoforms.gtf
+        }
+    }
+
+/*    if (!params.skip_flair_correct && !params.skip_flair_collapse) {
         BAM_TO_BED12( ch_bam, ch_bam_index )
         // seeing if a mixed channel with bam and bam.bai works - but given the bam path, the program may naturally search here too for a bam index? Hard to tell until we try out.
         //BAM_TO_BED12( ch_mixed_bam )
@@ -293,16 +314,17 @@ workflow DIRECTRNA{
             //.set { ch_test_bed }
         }
     }
+*/
 
     // BAMBU
-    //if (!params.skip_bambu) {
-    //    BAMBU( ch_genome_fasta, ch_annotation_gtf, ch_bam )
-    //    ch_bambu_gtf = BAMBU.out.bambu_extended_gtf
-    //    ch_versions = ch_versions.mix(BAMBU.out.versions.first())
+    if (!params.skip_bambu) {
+        BAMBU( ch_genome_fasta, ch_annotation_gtf, ch_bam )
+        ch_bambu_gtf = BAMBU.out.bambu_extended_gtf
+        ch_versions = ch_versions.mix(BAMBU.out.versions.first())
         // MIX genome fasta with fasta index as this will improve GFFREADs speed
-        //GFFREAD_GETFASTA( ch_bambu_gtf, ch_genome_fasta )
-        //ch_bambu_transcripts = GFFREAD_GETFASTA.out.transcripts_fa
-        //ch_versions = ch_versions.mix(GFFREAD_GETFASTA.out.versions.first())
+        GFFREAD_GETFASTA( ch_bambu_gtf, ch_genome_fasta )
+        ch_bambu_transcripts = GFFREAD_GETFASTA.out.transcripts_fa
+        ch_versions = ch_versions.mix(GFFREAD_GETFASTA.out.versions.first())
         }
 /*
     // ISOQUANT

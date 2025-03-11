@@ -1,4 +1,4 @@
-process GFFREAD {
+process GFFREAD_GETFASTA {
     tag "$meta.id"
     label 'process_single'
     conda "${moduleDir}/environment.yml"
@@ -19,6 +19,7 @@ process GFFREAD {
 
     script:
     def args = task.ext.args ?: ''
+    def show_warnings = task.ext.show_warnings ?: '-E'
     def prefix = task.ext.prefix ?: "${meta.id}_${meta.replicate}_transcripts"
     """
     gffread \\

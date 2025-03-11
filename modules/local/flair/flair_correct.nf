@@ -7,8 +7,6 @@ process FLAIR_CORRECT {
         'biocontainers/flair:2.0.0--pyhdfd78af_1' }"
 
     input:
-    // Where applicable please provide/convert compressed files as input/output
-    //               e.g. "*.fastq.gz" and NOT "*.fastq", "*.bam" and NOT "*.sam" etc.
     tuple val(meta), path(bed)
     path (genome_fasta)
     path (annotation_gtf)
