@@ -326,8 +326,12 @@ workflow DIRECTRNA{
         ch_bambu_transcripts = GFFREAD_GETFASTA.out.transcripts_fa
         ch_versions = ch_versions.mix(GFFREAD_GETFASTA.out.versions.first())
         }
-/*
+
     // ISOQUANT
+    if (!param.skip_isoquant) {
+        if (!params.skip_isoquant_correction) {
+
+
     if (params.isoquant_reconstruction && params.skip_isoquant_correction) {
         ISOQUANT( ch_bam, ch_genome_fasta, ch_annotation_gtf )
         ch_isoquant_gtf = ISOQUANT.out.isoquant_transcript_gtf
@@ -343,6 +347,9 @@ workflow DIRECTRNA{
         ch_isoquant_transcripts = GFFREAD_GETFASTA.out.transcripts_fa
         ch_versions = ch_versions.mix(GFFREAD_GETFASTA.out.versions.first())
     }
+
+    // STRINGTIE
+
 
     // TALON + TRANSCRIPT CLEAN may be added if it begins being maintained regularly https://github.com/mortazavilab/TranscriptClean
 
@@ -377,7 +384,6 @@ workflow DIRECTRNA{
 
     if (!skip_sqanti_qc) {
         if (!skip_sqanti
-
 
     //
     // Collate statistics
