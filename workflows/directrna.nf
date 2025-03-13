@@ -85,13 +85,15 @@ include { FLAIR_CORRECT             } from '../modules/local/flair/flair_correct
 include { FLAIR_COLLAPSE            } from '../modules/local/flair/flair_collapse'
 include { BED_TO_BAM                } from '../modules/local/bedtools/bed_to_bam'
 include { BAMBU                     } from '../modules/local/bambu'
-//include { ISOQUANT                } from '../modules/local/isoquant'
-//include { ISOQUANT_CORRECTION     } from '../modules/local/isoquant_correct'
+include { ISOQUANT                  } from '../modules/local/isoquant'
+include { STRINGTIE                 } from '../modules/local/stringtie'
+
 // fusion gene detection
 //include { JAFFAL             } from '../modules/local/jaffal'
 // transcriptome assessment
-include { BEDTOOLS_JACCARD as BEDTOOLS_JACCARD_FLAIR } from '../modules/local/bedtools/jaccard'
-include { GFFREAD_GETFASTA          } from '../modules/local/gffread'
+include { BEDTOOLS_JACCARD as BEDTOOLS_JACCARD_FLAIR    } from '../modules/local/bedtools/jaccard'
+include { BEDTOOLS_JACCARD as BEDTOOLS_JACCARD_ISOQUANT } from '../modules/local/bedtools/jaccard'
+include { GFFREAD_GETFASTA as GFFREAD_GETFASTA_BAMBU         } from '../modules/local/gffread'
 
 // Going to be a bit of a long-think
 //include { SQANTI               } from '../subworkflows/local/sqanti'
@@ -328,23 +330,12 @@ workflow DIRECTRNA{
         }
 
     // ISOQUANT
-    if (!param.skip_isoquant) {
-        if (!params.skip_isoquant_correction) {
-
-
-    if (params.isoquant_reconstruction && params.skip_isoquant_correction) {
+    if (!params.skip_isoquant) {
         ISOQUANT( ch_bam, ch_genome_fasta, ch_annotation_gtf )
         ch_isoquant_gtf = ISOQUANT.out.isoquant_transcript_gtf
         ch_versions = ch_versions.mix(ISOQUANT.out.versions.first())
         GFFREAD_GETFASTA( ch_isoquant_gtf, ch_genome_fasta )
-        ch_isoquant_transcripts = GFFREAD_GETFASTA.out.transcripts_fa
-        ch_versions = ch_versions.mix(GFFREAD_GETFASTA.out.versions.first())
-    } else {
-        ISOQUANT_CORRECTION ( ch_bam, ch_genome_fasta, ch_annotation_gtf )
-        ch_isoquant_gtf = ISOQUANT.out.isoquant_transcript_gtf
-        ch_versions = ch_versions.mix(ISOQUANT_CORRECTION.out.versions.first())
-        GFFREAD_GETFASTA( ch_isoquant_gtf, ch_genome_fasta )
-        ch_isoquant_transcripts = GFFREAD_GETFASTA.out.transcripts_fa
+        ch_isoquant_transcripts = GFFREAD_GETFASTA_.out.transcripts_fa
         ch_versions = ch_versions.mix(GFFREAD_GETFASTA.out.versions.first())
     }
 

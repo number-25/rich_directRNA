@@ -31,44 +31,54 @@ process ISOQUANT {
 
     script:
     def args = task.ext.args ?: ''
-    def prefix = task.ext.prefix ?: "${meta.id}_${meta.replicate}"_isoquant
-    def dRNA_preset = task.ext.dRNA_preset ?: "-d nanopore"
-    def strand_preset = task.ext.dRNA_preset ?: "--stranded none"
-    def input_bam = task.ext.kmer ?: "--bam $bam"
-    def ref_genome = task.ext.kmer ?: "--reference $genome_fasta"
-    def ref_gtf = task.ext.kmer ?: "--genedb $annotation_gtf"
-    def complete = task.ext.kmer ?: "--complete_genedb"
+    def prefix = task.ext.prefix ?: "${meta.id}_${meta.replicate}_isoquant"
+    //def dRNA_preset = task.ext.dRNA_preset ?: "-d nanopore"
+    //def strand_preset = task.ext.dRNA_preset ?: "--stranded none"
+    def input_bam = task.ext.input_bam ?: "--bam $bam"
+    def ref_genome = task.ext.ref_genome ?: "--reference $genome_fasta"
+    def ref_gtf = task.ext.ref_genome ?: "--genedb $annotation_gtf"
+    //def complete = task.ext.kmer ?: "--complete_genedb"
     //def output = task.ext.kmer ?: "--output $annotation_gtf"
     """
     isoquant.py \\
-        $dRNA_preset \\
-        $strand_preset \\
+        $args \\
+        // $dRNA_preset \\
+        // $strand_preset \\
         $input_bam \\
         $ref_genome \\
         $ref_gtf \\
-        $complete \\
         --prefix $prefix \\
         --threads $task.cpus
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
-        isoquant: \$(samtools --version |& sed '1!d ; s/samtools //')
+        isoquant: \$(isoquant --version)
     END_VERSIONS
     """
 
     stub:
     def args = task.ext.args ?: ''
-    def prefix = task.ext.prefix ?: "${meta.id}"
-    // TODO nf-core: A stub section should mimic the execution of the original module as best as possible
-    //               Have a look at the following examples:
-    //               Simple example: https://github.com/nf-core/modules/blob/818474a292b4860ae8ff88e149fbcda68814114d/modules/nf-core/bcftools/annotate/main.nf#L47-L63
-    //               Complex example: https://github.com/nf-core/modules/blob/818474a292b4860ae8ff88e149fbcda68814114d/modules/nf-core/bedtools/split/main.nf#L38-L54
+    def prefix = task.ext.prefix ?: "${meta.id}_${meta.replicate}_isoquant"
+    def input_bam = task.ext.input_bam ?: "--bam $bam"
+    def ref_genome = task.ext.ref_genome ?: "--reference $genome_fasta"
+    def ref_gtf = task.ext.ref_genome ?: "--genedb $annotation_gtf"
+
     """
     touch ${prefix}.bam
-
+    touch ${prefix}.read_assignments.tsv.gz
+    touch ${prefix}.corrected_reads.bed.gz
+    touch ${prefix}.transcript_tpm.tsv
+    touch ${prefix}.transcript_counts.tsv
+    touch ${prefix}.gene_tpm.tsv
+    touch ${prefix}.gene_counts.tsv
+    touch ${prefix}.transcript_models.gtf
+    touch ${prefix}.transcript_model_reads.tsv.gz
+    touch ${prefix}.transcript_model_tpm.tsv
+    touch ${prefix}.transcript_model_counts.tsv
+    touch ${prefix}.extended_annotation.gtf
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
-        isoquant: \$(samtools --version |& sed '1!d ; s/samtools //')
+        isoquant: \$(isoquant --version |& sed '1!d ; s/samtools //')
     END_VERSIONS
     """
 }
