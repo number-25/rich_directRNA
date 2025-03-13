@@ -37,7 +37,7 @@ workflow SQANTI_PREPARE_REFERENCE {
                 ch_versions = ch_versions.mix(CURL_CAGE.out.versions)
                 ch_sqanti_cage_bed = GUNZIP_CAGE( [ [:], sqanti_cage_bed_gzip ] ).gunzip.map { it[1] }
                 //ch_sqanti_cage_bed = GUNZIP_CAGE.out.
-           } else {
+            } else {
                 if (sqanti_qc_cage_path.endsWith('.gz')) {
                 ch_sqanti_cage_bed = GUNZIP_CAGE( [ [:], sqanti_qc_cage_path ] ).gunzip.map { it[1] }
                 } else {
@@ -52,7 +52,7 @@ workflow SQANTI_PREPARE_REFERENCE {
                 sqanti_polyA_sites_bed_gzip = CURL_POLYA_SITES.out.curl
                 ch_versions = ch_versions.mix(CURL_POLYA_SITES.out.versions)
                 ch_sqanti_polyA_sites_bed = GUNZIP_POLYA_SITES( [ [:], sqanti_polyA_sites_bed_gzip ] ).gunzip.map { it[1] }
-           } else {
+            } else {
                 if (sqanti_polyA_sites_path.endsWith('.gz')) {
                 ch_sqanti_qc_polyA_sites_bed = GUNZIP_CAGE( [ [:], sqanti_qc_polyA_sites_path ] ).gunzip.map { it[1] }
                 } else {
@@ -79,7 +79,7 @@ workflow SQANTI_PREPARE_REFERENCE {
                 sqanti_intron_junctions_bed_gzip = CURL_INTROPOLIS.out.curl
                 ch_versions = ch_versions.mix(CURL_INTROPOLIS.out.versions)
                 ch_sqanti_intron_junctions_bed = GUNZIP_INTROPOLIS( [ [:], sqanti_intron_junctions_bed_gzip ] ).gunzip.map { it[1] }
-           } else {
+            } else {
                 if (sqanti_qc_intron_path.endsWith('.gz')) {
                 ch_sqanti_qc_intron_junctions_bed = GUNZIP_CAGE( [ [:], sqanti_qc_intron_path ] ).gunzip.map { it[1] }
                 } else {

@@ -57,7 +57,7 @@ workflow PREPARE_REFERENCE {
             ch_genome_fasta = GUNZIP_GTF( [ [:], genome_fasta ] ).gunzip.map { it[1] }
             ch_versions = ch_versions.mix(GUNZIP_FASTA.out.versions)
         } else {
-     //which one below?
+    //which one below?
             ch_genome_fasta = Channel.value(file(genome_fasta), checkIfExists: true)
             //ch_annotation_gtf = Channel.fromPath(params.annotation_gtf, checkIfExists: true)
         }

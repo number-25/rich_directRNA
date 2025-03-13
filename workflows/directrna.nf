@@ -202,7 +202,7 @@ workflow DIRECTRNA{
         }
         // initialize jaffal reference
         if (!params.skip_jaffal) {
-           ch_jaffal_reference = PREPARE_REFERENCE.out.jaffal_reference
+            ch_jaffal_reference = PREPARE_REFERENCE.out.jaffal_reference
         }
         ch_versions = ch_versions.mix(PREPARE_REFERENCE.out.versions)
     }
@@ -288,7 +288,7 @@ workflow DIRECTRNA{
         ch_collapsed_gtf = FLAIR_COLLAPSE.out_collapsed_isoforms.gtf
         BEDTOOLS_JACCARD( ch_collapsed_bed, ch_mapped_bed )
         ch_versions = ch_versions.mix(FLAIR_collapse.out.versions)
-         //ch_collapsed_bed
+        //ch_collapsed_bed
         //   .map { it -> [ it[0], it[1] ] }
         //   .set { ch_test_bed }
         //BED_TO_BAM( ch_collapsed_bed, ch_genome_fasta_sizes )
