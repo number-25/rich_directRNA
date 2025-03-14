@@ -88,7 +88,6 @@ workflow PREPARE_REFERENCE {
         if (transcriptome_fasta.endsWith('.gz')) {
             ch_transcriptome_fasta = GUNZIP_TRANSCRIPTOME( [ [:], transcriptome_fasta ] ).gunzip.map { it[1] }
 } else {
-            //which one below?
             ch_transcriptome_fasta = Channel.value(file(transcriptome_fasta), checkIfExists: true)
         }
     }
@@ -100,7 +99,6 @@ workflow PREPARE_REFERENCE {
         if (annotation_gtf.endsWith('.gz')) {
             ch_annotation_gtf = GUNZIP_ANNOTATION_GTF( [ [:], annotation_gtf ] ).gunzip.map { it[1] }
         } else {
-            //which one below?
             ch_annotation_gtf = Channel.value(file(annotation_gtf), checkIfExists: true)
         }
     }

@@ -68,14 +68,16 @@ def isOffline() {
 include { INPUT_CHECK               } from '../subworkflows/local/input_check'
 // Prepare reference files
 include { PREPARE_REFERENCE         } from '../subworkflows/local/prepare_reference'
-// Load Unix Utils
-include { GUNZIP as GUNZIP_FASTA    } from '../modules/nf-core/gunzip'
 // fastq QC
 include { NANOQ                     } from '../modules/local/nanoq'
 include { SEQUALI                   } from '../modules/local/sequali'
 // fastq mapping
 include { MAPPING                   } from '../subworkflows/local/mapping'
 include { SAMTOOLS_FAIDX            } from '../modules/local/samtools/samtools_faidx'
+include { BAM_TO_BEDGRAPH_FW        } from '../modules/local/bedtools/bam_to_bedgraph.nf
+include { BAM_TO_BEDGRAPH_REV       } from '../modules/local/bedtools/bam_to_bedgraph.nf
+include { BEDGRAPH_BEDCLIP_BEDGRAPHTOBIGWIG as BEDGRAPH_BEDCLIP_BEDGRAPHTOBIGWIG_FW } from '../subworkflows/nf-core/bedgraph_bedclip_bedgraphtobigwig'
+include { BEDGRAPH_BEDCLIP_BEDGRAPHTOBIGWIG as BEDGRAPH_BEDCLIP_BEDGRAPHTOBIGWIG_REV } from '../subworkflows/nf-core/bedgraph_bedclip_bedgraphtobigwig'
 // bam QC
 include { BAM_QC                    } from '../subworkflows/local/bam_qc'
 include { SAMTOOLS_INDEX            } from '../modules/local/samtools/samtools_index'
@@ -222,6 +224,17 @@ workflow DIRECTRNA{
         ch_bam_index = SAMTOOLS_INDEX.out.bai
     }
 
+    // BAM TO BIGWIG for visualisation
+    // uses SUBWORKFLOW: BEDGRAPH_BEDCLIP_BEDGRAPHTOBIGWIG
+    if (!params.skip_bam_to_bigwig) {
+        BAM_TO_BEDGRAPH_FW( ch_bam, ch_genome_sizes, '+' )
+        BAM_TO_BEDGRAPH_REV( ch_bam, ch_genome_sizes, '-' )
+        ch_bedgraph_fw = BAM_TO_BEDGRAPH_FW.out.bedgraph
+        ch_bedgraph_rev = BAM_TO_BEDGRAPH_REV.out.bedgraph
+        BEDGRAPH_BEDCLIP_BEDGRAPHTOBIGWIG_FW( ch_bedgraph_fw, ch_genome_sizes )
+        BEDGRAPH_BEDCLIP_BEDGRAPHTOBIGWIG_REV( ch_bedgraph_rev, ch_genome_sizes )
+    }
+
     // BAM QC
     // SUBWORKFLOW: BAM_QC
     // Execute cramino, alfred, samtools flagstat, ngs-bits on bam output from mapping
@@ -255,6 +268,7 @@ workflow DIRECTRNA{
     // FLAIR
 
     if (!params.skip_flair_correct) {
+        //ch_flair = channel.value( 'flair' )
         ch_flair = channel.value( 'flair' )
         BAM_TO_BED12( ch_bam, ch_bam_index )
         ch_mapped_bed = BAM_TO_BED12.out.bed
