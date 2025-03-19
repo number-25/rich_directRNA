@@ -14,7 +14,7 @@
 #`bmP                                   #
 #########################################
 #                                       #
-# Written: deanB                        #
+# Written: Dean Basic                        #
 # Purpose: verify that the samplesheet.csv#
 # is correctly formatted for input      #
 #########################################

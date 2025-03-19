@@ -2,14 +2,14 @@
 // Uncompress and prepare reference files
 //
 
-include { GUNZIP as GUNZIP_FASTA } from '../../../modules/nf-core/gunzip'
-include { GUNZIP as GUNZIP_TRANSCRIPT_FASTA } from '../../../modules/nf-core/gunzip'
-include { CUSTOM_GETCHROMSIZES } from '../../../modules/nf-core/custom/getchromsizes'
-include { MINIMAP2_INDEX } from '../../../modules/custom/minimap2_index'
-include { GUNZIP as GUNZIP_TRANSCRIPTOME } from '../../../modules/nf-core/gunzip'
-include { GUNZIP as GUNZIP_ANNOTATION_GTF } from '../../../modules/nf-core/gunzip'
-include { SQANTI_PREPARE_REFERENCE } from '../sqanti/sqanti_prepare_reference'
-include { JAFFAL_PREPARE_REFERENCE } from '../jaffal_prepare_reference'
+include { GUNZIP as GUNZIP_FASTA            } from '../../modules/nf-core/gunzip'
+include { GUNZIP as GUNZIP_TRANSCRIPT_FASTA } from '../../modules/nf-core/gunzip'
+include { CUSTOM_GETCHROMSIZES              } from '../../modules/nf-core/custom/getchromsizes'
+include { MINIMAP2_INDEX                    } from '../../modules/local/minimap2_index'
+include { GUNZIP as GUNZIP_TRANSCRIPTOME    } from '../../modules/nf-core/gunzip'
+include { GUNZIP as GUNZIP_ANNOTATION_GTF   } from '../../modules/nf-core/gunzip'
+include { SQANTI_PREPARE_REFERENCE          } from '../local/sqanti/sqanti_prepare_reference'
+include { JAFFAL_PREPARE_REFERENCE          } from '../local/jaffal_prepare_reference'
 
 // prepare additional files
 //TO-DO make these modules
@@ -18,7 +18,7 @@ include { JAFFAL_PREPARE_REFERENCE } from '../jaffal_prepare_reference'
 //include { BEDOPS as WIG_TO_BED } from '../../../modules/local/bedops'
 //include { SAMTOOLS_SORT } from '../../../modules/nf-core/samtools/sort/main'
 
-workflow PREPARE_REFERENCE {
+workflow PREPARE_REFERENCE{
 
     take:
     genome_fasta                    // file: /path/to/genome_fasta.fa
@@ -128,11 +128,11 @@ workflow PREPARE_REFERENCE {
             sqanti_qc_intron_junctions,
             sqanti_qc_intron_path
             )
-        ch_sqanti_qc_cage_bed = SQANTI_PREPARE_REFERENCE.out.sqanti_cage_bed
-        ch_sqanti_qc_polyA_sites_bed = SQANTI_PREPARE_REFERENCE.out.sqanti_polyA_sites_bed
-        ch_sqanti_qc_polyA_motif = SQANTI_PREPARE_REFERENCE.out.sqanti_qc_polyA_motif
-        ch_sqanti_qc_intron_junctions_bed = SQANTI_PREPARE_REFERENCE.out.sqanti_qc_intron_junctions_bed
-        ch_versions = ch.versions.mix(SQANTI_PREPARE_REFERENCE.out.versions)
+        ch_sqanti_qc_cage_bed               = SQANTI_PREPARE_REFERENCE.out.sqanti_cage_bed
+        ch_sqanti_qc_polyA_sites_bed        = SQANTI_PREPARE_REFERENCE.out.sqanti_polyA_sites_bed
+        ch_sqanti_qc_polyA_motif            = SQANTI_PREPARE_REFERENCE.out.sqanti_qc_polyA_motif
+        ch_sqanti_qc_intron_junctions_bed   = SQANTI_PREPARE_REFERENCE.out.sqanti_qc_intron_junctions_bed
+        ch_versions                         = ch.versions.mix(SQANTI_PREPARE_REFERENCE.out.versions)
     }
 
     // Prepare reference for JAFFAL

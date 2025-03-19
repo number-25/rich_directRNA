@@ -3,7 +3,7 @@
 //
 
 //include { GUNZIP as GUNZIP_JAFFAL } from '../../../modules/nf-core/gunzip'
-include { CURL as CURL_JAFFAL } from '../../../modules/local/curl'
+include { CURL as CURL_JAFFAL } from '../../modules/local/curl'
 
 workflow JAFFAL_PREPARE_REFERENCE {
 

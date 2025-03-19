@@ -1,7 +1,6 @@
 process ISOQUANT {
     tag "$meta.id"
     label 'process_medium'
-
     conda "${moduleDir}/environment.yml"
     container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
         'https://depot.galaxyproject.org/singularity/isoquant:3.6.2--hdfd78af_0':
@@ -9,21 +8,21 @@ process ISOQUANT {
 
     input:
     tuple val(meta), path(bam)
-    path(annotation_gtf)
-    path(genome_fasta)
+    path annotation_gtf
+    path genome_fasta
 
     output:
-    tuple val(meta), path("*.read_assignments.tsv.gz"),
-    tuple val(meta), path("*.corrected_reads.bed.gz"),
-    tuple val(meta), path("*.transcript_tpm.tsv"),
-    tuple val(meta), path("*.transcript_counts.tsv"),
-    tuple val(meta), path("*.gene_tpm.tsv"),
-    tuple val(meta), path("*.gene_counts.tsv"),
+    tuple val(meta), path("*.read_assignments.tsv.gz")
+    tuple val(meta), path("*.corrected_reads.bed.gz")
+    tuple val(meta), path("*.transcript_tpm.tsv")
+    tuple val(meta), path("*.transcript_counts.tsv")
+    tuple val(meta), path("*.gene_tpm.tsv")
+    tuple val(meta), path("*.gene_counts.tsv")
     tuple val(meta), path("*.transcript_models.gtf"), emit: isoquant_transcript_gtf
     tuple val(meta), path("*.transcript_model_reads.tsv.gz"), emit: isoquant_transcript_models
-    tuple val(meta), path("*.transcript_model_tpm.tsv"),
-    tuple val(meta), path("*.transcript_model_counts.tsv"),
-    tuple val(meta), path("*.extended_annotation.gtf"), emit isoquant_new_reference_transcriptome_gtf, optional: true
+    tuple val(meta), path("*.transcript_model_tpm.tsv")
+    tuple val(meta), path("*.transcript_model_counts.tsv")
+    tuple val(meta), path("*.extended_annotation.gtf"), emit: isoquant_new_reference_transcriptome_gtf, optional: true
     path "versions.yml"           , emit: versions
 
     when:
@@ -78,7 +77,7 @@ process ISOQUANT {
     touch ${prefix}.extended_annotation.gtf
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
-        isoquant: \$(isoquant --version |& sed '1!d ; s/samtools //')
+        isoquant: \$(isoquant --version)
     END_VERSIONS
     """
 }

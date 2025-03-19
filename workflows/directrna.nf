@@ -15,7 +15,8 @@
     //validateParameters()
 
     // Print summary to stdout of supplied parameters that differ from defaults
-    log.info paramsSummaryLog(workflow)
+
+   // log.info paramsSummaryLog(workflow)
 
     // Create a new channel of metadata from a sample sheet passed to the pipeline through the --input parameter
     //ch_input = Channel.fromList(samplesheetToList(params.input, "assets/schema_input.json"))
@@ -49,6 +50,12 @@ if (params.transcriptome_fasta) {
     exit 1, 'Reference transcriptome fasta file is not specified! please modify nextflow.config or use --transcriptome_fasta parameter'
 }
 
+if (params.skip_prepare_reference){
+    ch_genome_minimap2_index = Channel.fromPath(params.genome_minimap2_index, checkIfExists: true)
+    ch_genome_fasta_index    = Channel.fromPath(params.genome_fasta_index, checkIfExists: true)
+    ch_genome_fasta_sizes    = Channel.fromPath(params.genome_fasta_sizes, checkIfExists: true)
+}
+
 // Function to check if running offline
 def isOffline() {
     try {
@@ -74,8 +81,8 @@ include { SEQUALI                   } from '../modules/local/sequali'
 // fastq mapping
 include { MAPPING                   } from '../subworkflows/local/mapping'
 include { SAMTOOLS_FAIDX            } from '../modules/local/samtools/samtools_faidx'
-include { BAM_TO_BEDGRAPH_FW        } from '../modules/local/bedtools/bam_to_bedgraph.nf
-include { BAM_TO_BEDGRAPH_REV       } from '../modules/local/bedtools/bam_to_bedgraph.nf
+include { BAM_TO_BEDGRAPH as BAM_TO_BEDGRAPH_FW } from '../modules/local/bedtools/bam_to_bedgraph'
+include { BAM_TO_BEDGRAPH as BAM_TO_BEDGRAPH_REV } from '../modules/local/bedtools/bam_to_bedgraph'
 include { BEDGRAPH_BEDCLIP_BEDGRAPHTOBIGWIG as BEDGRAPH_BEDCLIP_BEDGRAPHTOBIGWIG_FW } from '../subworkflows/nf-core/bedgraph_bedclip_bedgraphtobigwig'
 include { BEDGRAPH_BEDCLIP_BEDGRAPHTOBIGWIG as BEDGRAPH_BEDCLIP_BEDGRAPHTOBIGWIG_REV } from '../subworkflows/nf-core/bedgraph_bedclip_bedgraphtobigwig'
 // bam QC
@@ -95,7 +102,9 @@ include { STRINGTIE                 } from '../modules/local/stringtie'
 // transcriptome assessment
 include { BEDTOOLS_JACCARD as BEDTOOLS_JACCARD_FLAIR    } from '../modules/local/bedtools/jaccard'
 include { BEDTOOLS_JACCARD as BEDTOOLS_JACCARD_ISOQUANT } from '../modules/local/bedtools/jaccard'
-include { GFFREAD_GETFASTA as GFFREAD_GETFASTA_BAMBU         } from '../modules/local/gffread'
+include { GFFREAD_GETFASTA as GFFREAD_GETFASTA_BAMBU    } from '../modules/local/gffread'
+include { GFFREAD_GETFASTA as GFFREAD_GETFASTA_ISOQUANT } from '../modules/local/gffread'
+include { GFFREAD_GETFASTA as GFFREAD_GETFASTA_STRINGTIE} from '../modules/local/gffread'
 
 // Going to be a bit of a long-think
 //include { SQANTI               } from '../subworkflows/local/sqanti'
@@ -109,14 +118,13 @@ include { GFFREAD_GETFASTA as GFFREAD_GETFASTA_BAMBU         } from '../modules/
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
-//include { FASTQC                 } from '../modules/nf-core/fastqc/main'
 //include { MULTIQC                } from '../modules/nf-core/multiqc/main'
 //include { samplesheetToList } from 'plugin/nf-schema'
-include { paramsSummaryLog } from 'plugin/nf-schema'
+//WANTTHISONE include { paramsSummaryLog          } from 'plugin/nf-schema'
 //include { validateParameters } from 'plugin/nf-schema'
 //include { paramsSummaryMap       } from 'plugin/nf-schema'
 //include { paramsSummaryMultiqc   } from '../subworkflows/nf-core/utils_nfcore_pipeline'
-include { softwareVersionsToYAML } from '../subworkflows/nf-core/utils_nfcore_pipeline'
+include { softwareVersionsToYAML    } from '../subworkflows/nf-core/utils_nfcore_pipeline'
 //include { methodsDescriptionText } from '../subworkflows/local/utils_nfcore_directrna_pipeline'
 
 /*
@@ -156,37 +164,39 @@ workflow DIRECTRNA{
         }
     }
 
+
+
     ///ch_multiqc_files = ch_multiqc_files.mix(FASTQC.out.zip.collect{it[1]})
     ///ch_versions = ch_versions.mix(FASTQC.out.versions.first())
 
     // Prepare the reference files
     /// SUBWORKFLOW: PREPARE_REFERENCE
-    if (!params.skip_prepare_reference) {
+   /* if (!params.skip_prepare_reference) {
         PREPARE_REFERENCE (
-        params.genome_fasta,
-        params.genome_fasta_index,
-        params.genome_fasta_sizes,
-        params.genome_minimap2_index,
-        params.bam_input,
-        params.transcriptome_fasta
-        params.annotation_gtf,
-        params.skip_sqanti_all,         // boolean [default: false]
-        params.skip_sqanti_qc,          // boolean [defeault: false]
-        params.sqanti_qc_reference,     // value: human, mouse or custom
-        params.sqanti_qc_cage,          // boolean [default: true]
-        params.sqanti_qc_polyA_sites,   // boolean [default: true]
-        params.sqanti_qc_polyA_motif,   // boolean [default: true]
-        params.sqanti_qc_intron_junctions, // boolean [default: true]
-        params.skip_jaffal,             // boolean [default: false]
-        params.skip_jaffal_download    // boolean [default: true]
+            params.genome_fasta,
+            params.genome_fasta_index,
+            params.genome_fasta_sizes,
+            params.genome_minimap2_index,
+            params.bam_input,
+            params.transcriptome_fasta,
+            params.annotation_gtf,
+            params.skip_sqanti_all,         // boolean [default: false]
+            params.skip_sqanti_qc,          // boolean [defeault: false]
+            params.sqanti_qc_reference,     // value: human, mouse or custom
+            params.sqanti_qc_cage,          // boolean [default: true]
+            params.sqanti_qc_polyA_sites,   // boolean [default: true]
+            params.sqanti_qc_polyA_motif,   // boolean [default: true]
+            params.sqanti_qc_intron_junctions, // boolean [default: true]
+            params.skip_jaffal,             // boolean [default: false]
+            params.skip_jaffal_download    // boolean [default: true]
         )
         // initialize genome + transcriptome references
-        ch_genome_fasta = PREPARE_REFERENCE.out.genome_fasta
-        ch_genome_index = PREPARE_REFERENCE.out.genome_fasta_index
-        ch_genome_sizes = PREPARE_REFERENCE.out.genome_fasta_sizes
-        ch_genome_minimap2_index = PREPARE_REFERENCE.out.genome_minimap2_index
-        ch_transcriptome_fasta = PREPARE_REFERENCE.out.transcriptome_fasta
-        ch_annotation_gtf = PREPARE_REFERENCE.out.annotation_gtf
+        ch_genome_fasta             = PREPARE_REFERENCE.out.genome_fasta
+        ch_genome_index             = PREPARE_REFERENCE.out.genome_fasta_index
+        ch_genome_sizes             = PREPARE_REFERENCE.out.genome_fasta_sizes
+        ch_genome_minimap2_index    = PREPARE_REFERENCE.out.genome_minimap2_index
+        ch_transcriptome_fasta      = PREPARE_REFERENCE.out.transcriptome_fasta
+        ch_annotation_gtf           = PREPARE_REFERENCE.out.annotation_gtf
         // initialize sqanti qc references
         if (!params.skip_sqanti_qc) {
             if (params.sqanti_qc_cage) {
@@ -208,7 +218,7 @@ workflow DIRECTRNA{
         }
         ch_versions = ch_versions.mix(PREPARE_REFERENCE.out.versions)
     }
-
+*/
     // Mapping and sorting
     // SUBWORKFLOW: MAPPING
     //
@@ -223,6 +233,8 @@ workflow DIRECTRNA{
         SAMTOOLS_INDEX( ch_bam )
         ch_bam_index = SAMTOOLS_INDEX.out.bai
     }
+
+/*
 
     // BAM TO BIGWIG for visualisation
     // uses SUBWORKFLOW: BEDGRAPH_BEDCLIP_BEDGRAPHTOBIGWIG
@@ -269,12 +281,13 @@ workflow DIRECTRNA{
 
     if (!params.skip_flair_correct) {
         //ch_flair = channel.value( 'flair' )
-        ch_flair = channel.value( 'flair' )
+        ch_flair = 'flair'
         BAM_TO_BED12( ch_bam, ch_bam_index )
         ch_mapped_bed = BAM_TO_BED12.out.bed
         FLAIR_CORRECT( ch_mapped_bed, ch_genome_fasta, ch_annotation_gtf )
         ch_flair_corrected_bed = FLAIR_CORRECT.out.flair_corrected_bed
-        BEDTOOLS_JACCARD_FLAIR( ch_flair_corrected_bed, ch_collapsed_bed, ch_flair )
+        //GFFREAD_GETFASTA_FLAIR(
+        BEDTOOLS_JACCARD_FLAIR( ch_flair_corrected_bed, ch_mapped_bed, ch_flair )
     }
     if (!params.skip_flair_collapse) {
         if !(params.skip_flair_correct) {
@@ -330,7 +343,7 @@ workflow DIRECTRNA{
             //.set { ch_test_bed }
         }
     }
-*/
+
 
     // BAMBU
     if (!params.skip_bambu) {
@@ -338,8 +351,8 @@ workflow DIRECTRNA{
         ch_bambu_gtf = BAMBU.out.bambu_extended_gtf
         ch_versions = ch_versions.mix(BAMBU.out.versions.first())
         // MIX genome fasta with fasta index as this will improve GFFREADs speed
-        GFFREAD_GETFASTA( ch_bambu_gtf, ch_genome_fasta )
-        ch_bambu_transcripts = GFFREAD_GETFASTA.out.transcripts_fa
+        GFFREAD_GETFASTA_BAMBU( ch_bambu_gtf, ch_genome_fasta )
+        ch_bambu_transcripts = GFFREAD_GETFASTA_BAMBU.out.transcripts_fa
         ch_versions = ch_versions.mix(GFFREAD_GETFASTA.out.versions.first())
         }
 
@@ -348,13 +361,20 @@ workflow DIRECTRNA{
         ISOQUANT( ch_bam, ch_genome_fasta, ch_annotation_gtf )
         ch_isoquant_gtf = ISOQUANT.out.isoquant_transcript_gtf
         ch_versions = ch_versions.mix(ISOQUANT.out.versions.first())
-        GFFREAD_GETFASTA( ch_isoquant_gtf, ch_genome_fasta )
-        ch_isoquant_transcripts = GFFREAD_GETFASTA_.out.transcripts_fa
-        ch_versions = ch_versions.mix(GFFREAD_GETFASTA.out.versions.first())
+        GFFREAD_GETFASTA_ISOQUANT( ch_isoquant_gtf, ch_genome_fasta )
+        ch_isoquant_transcripts = GFFREAD_GETFASTA_ISOQUANT.out.transcripts_fa
+        ch_versions = ch_versions.mix(GFFREAD_GETFASTA_ISOQUANT.out.versions.first())
     }
 
     // STRINGTIE
-
+    if (!params.skip_stringtie) {
+        STRINGTIE( ch_bam, ch_annotation_gtf )
+        ch_stringtie_gtf = STRINGTIE.out.stringtie_gtf
+        ch_versions = ch_versions.mix(STRINGTIE.out.versions.first())
+        GFFREAD_GETFASTA_STRINGTIE( ch_stringtie_gtf, ch_genome_fasta )
+        ch_stringtie_transcripts = GFFREAD_GETFASTA_STRINGTIE.out.transcripts_fa
+        ch_versions = ch_versions.mix(GFFREAD_GETFASTA_STRINGTIE.out.versions.first())
+    }
 
     // TALON + TRANSCRIPT CLEAN may be added if it begins being maintained regularly https://github.com/mortazavilab/TranscriptClean
 
@@ -370,13 +390,15 @@ workflow DIRECTRNA{
     //
     // Fusion gene detection
     // MODULE: JAFFAL
+/*
     if (!params.skip_jaffal && !params.custom_genome) {
         JAFFAL( ch_sample, ch_jaffal_ref )
         ch_jaffal_fasta = JAFFAL.out.jaffal_fasta
         ch_jaffal_csv = JAFFAL.out.jaffal_csv
         ch_versions = ch_versions.mix(JAFFAL.out.versions.first())
         }
-*/
+
+
     //
     // Transcriptome assessment
     // SQANTI, gffcompare
@@ -389,6 +411,7 @@ workflow DIRECTRNA{
 
     if (!skip_sqanti_qc) {
         if (!skip_sqanti
+*/
 
     //
     // Collate statistics
@@ -405,6 +428,7 @@ workflow DIRECTRNA{
             sort: true,
             newLine: true
         ).set { ch_collated_versions }
+}
 
     //
     // MODULE: MultiQC
@@ -451,10 +475,13 @@ workflow DIRECTRNA{
     versions       = ch_versions                 // channel: [ path(versions.yml) ]
 
     */
-}
+
+
+
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     THE END
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
+

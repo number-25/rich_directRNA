@@ -4,8 +4,8 @@ process CHECK_SAMPLESHEET {
 
     conda "${moduleDir}/environment.yml"
     container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
-        'quay.io/number_25/julia-alpine:1.10.8':
-        'number25/julia-alpine:1.10.8' }"
+        'quay.io/number_25/julia:alpine-1.10.8':
+        'number25/julia:alpine-1.10.8' }"
 
     input:
     path samplesheet
@@ -34,7 +34,7 @@ process CHECK_SAMPLESHEET {
     """
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
-        julia: \$(julia --version | sed 's/julia verison //g')
+        julia: \$(julia --version | sed 's/julia version //g')
     END_VERSIONS
     """
 }
