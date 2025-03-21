@@ -28,23 +28,23 @@ workflow BAM_QC {
     ch_versions = Channel.empty()
 
     // cramino
-    if (ch_skip_cramino != true) {
+    if (skip_cramino != true) {
         CRAMINO( bam, cramino_min_length )
         ch_versions = ch_versions.mix(CRAMINO.out.versions.first())
     }
 
     // alfred
-    if (ch_skip_alfred != true) {
+    if (skip_alfred != true) {
         ALFRED( bam, genome_fasta )
         ch_versions = ch_versions.mix(ALFRED.out.versions.first())
     }
 
     // cramino
-    if (ch_skip_samtools_flagstat != true) {
+    if (skip_samtools_flagstat != true) {
         SAMTOOLS_FLAGSTAT( bam )
     }
 
-    if (ch_skip_ngs_bits != true) {
+    if (skip_ngs_bits != true) {
         NGS_BITS(
         bam,
         genome_fasta,
@@ -53,12 +53,14 @@ workflow BAM_QC {
         )
         ch_versions = ch_versions.mix(NGS_BITS.out.versions.first())
     }
+    ch_ngs_bits = null
 
     emit:
     cramino_stats       = CRAMINO.out.cramino_stats // channel: [ val(meta), [ bam ] ]
     alfred_stats        = ALFRED.out.alfred_stats          // channel: [ val(meta), [ bai ] ]
     flagstat            = SAMTOOLS_FLAGSTAT.out.flagstat          // channel: [ val(meta), [ csi ] ]
-    ngs_bits_stats      = NGS_BITS.out.qcML
+    //ngs_bits_stats      = NGS_BITS.out.qcML
+    ngs_bits_stats      = ch_ngs_bits
 
     versions = ch_versions                     // channel: [ versions.yml ]
 }

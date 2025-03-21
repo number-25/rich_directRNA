@@ -2,13 +2,13 @@
 // Download, uncompress and prepare reference files for SQANTI QC
 //
 
-include { GUNZIP as GUNZIP_CAGE } from '../../../modules/nf-core/gunzip'
-include { GUNZIP as GUNZIP_POLYA_SITES } from '../../../modules/nf-core/gunzip'
-include { GUNZIP as GUNZIP_INTROPOLIS } from '../../../modules/nf-core/gunzip'
-include { CURL as CURL_CAGE } from '../../../modules/local/curl'
-include { CURL as CURL_POLYA_SITES } from '../../../modules/local/curl'
-include { CURL as CURL_POLYA_MOTIF } from '../../../modules/local/curl'
-include { CURL as CURL_INTROPOLIS } from '../../../modules/local/curl'
+include { GUNZIP as GUNZIP_CAGE         } from '../../../../modules/nf-core/gunzip'
+include { GUNZIP as GUNZIP_POLYA_SITES  } from '../../../../modules/nf-core/gunzip'
+include { GUNZIP as GUNZIP_INTROPOLIS   } from '../../../../modules/nf-core/gunzip'
+include { CURL as CURL_CAGE             } from '../../../../modules/local/curl'
+include { CURL as CURL_POLYA_SITES      } from '../../../../modules/local/curl'
+include { CURL as CURL_POLYA_MOTIF      } from '../../../../modules/local/curl'
+include { CURL as CURL_INTROPOLIS       } from '../../../../modules/local/curl'
 
 
 workflow SQANTI_PREPARE_REFERENCE {

@@ -83,8 +83,8 @@ include { MAPPING                   } from '../subworkflows/local/mapping'
 include { SAMTOOLS_FAIDX            } from '../modules/local/samtools/samtools_faidx'
 include { BAM_TO_BEDGRAPH as BAM_TO_BEDGRAPH_FW } from '../modules/local/bedtools/bam_to_bedgraph'
 include { BAM_TO_BEDGRAPH as BAM_TO_BEDGRAPH_REV } from '../modules/local/bedtools/bam_to_bedgraph'
-include { BEDGRAPH_BEDCLIP_BEDGRAPHTOBIGWIG as BEDGRAPH_BEDCLIP_BEDGRAPHTOBIGWIG_FW } from '../subworkflows/nf-core/bedgraph_bedclip_bedgraphtobigwig'
-include { BEDGRAPH_BEDCLIP_BEDGRAPHTOBIGWIG as BEDGRAPH_BEDCLIP_BEDGRAPHTOBIGWIG_REV } from '../subworkflows/nf-core/bedgraph_bedclip_bedgraphtobigwig'
+include { BEDGRAPH_BEDCLIP_BEDGRAPHTOBIGWIG as BEDGRAPH_BEDCLIP_BEDGRAPHTOBIGWIG_FW } from '../subworkflows/local/bedgraph_bedclip_bedgraphtobigwig'
+include { BEDGRAPH_BEDCLIP_BEDGRAPHTOBIGWIG as BEDGRAPH_BEDCLIP_BEDGRAPHTOBIGWIG_REV } from '../subworkflows/local/bedgraph_bedclip_bedgraphtobigwig'
 // bam QC
 include { BAM_QC                    } from '../subworkflows/local/bam_qc'
 include { SAMTOOLS_INDEX            } from '../modules/local/samtools/samtools_index'
@@ -234,18 +234,18 @@ workflow DIRECTRNA{
         ch_bam_index = SAMTOOLS_INDEX.out.bai
     }
 
-/*
 
     // BAM TO BIGWIG for visualisation
     // uses SUBWORKFLOW: BEDGRAPH_BEDCLIP_BEDGRAPHTOBIGWIG
     if (!params.skip_bam_to_bigwig) {
-        BAM_TO_BEDGRAPH_FW( ch_bam, ch_genome_sizes, '+' )
-        BAM_TO_BEDGRAPH_REV( ch_bam, ch_genome_sizes, '-' )
+        BAM_TO_BEDGRAPH_FW( ch_bam, ch_genome_fasta_sizes, '+' )
+        BAM_TO_BEDGRAPH_REV( ch_bam, ch_genome_fasta_sizes, '-' )
         ch_bedgraph_fw = BAM_TO_BEDGRAPH_FW.out.bedgraph
         ch_bedgraph_rev = BAM_TO_BEDGRAPH_REV.out.bedgraph
-        BEDGRAPH_BEDCLIP_BEDGRAPHTOBIGWIG_FW( ch_bedgraph_fw, ch_genome_sizes )
-        BEDGRAPH_BEDCLIP_BEDGRAPHTOBIGWIG_REV( ch_bedgraph_rev, ch_genome_sizes )
+        BEDGRAPH_BEDCLIP_BEDGRAPHTOBIGWIG_FW( ch_bedgraph_fw, ch_genome_fasta_sizes, '+' )
+        BEDGRAPH_BEDCLIP_BEDGRAPHTOBIGWIG_REV( ch_bedgraph_rev, ch_genome_fasta_sizes, '-' )
     }
+
 
     // BAM QC
     // SUBWORKFLOW: BAM_QC
@@ -257,14 +257,14 @@ workflow DIRECTRNA{
         ch_cramino_min_length = params.cramino_min_length
         ch_skip_ngs_bits = params.skip_ngs_bits
         ch_ngs_bits_build = params.ngs_bits_build
-        ch_ngs_bits_contamination = params.ngs_bits_contamination
+        ch_ngs_bits_skip_contamination = params.ngs_bits_skip_contamination
         BAM_QC(
             ch_skip_cramino,
             ch_skip_alfred,
             ch_skip_samtools_flagstat,
             ch_skip_ngs_bits,
             ch_ngs_bits_build,
-            ch_ngs_bits_contamination,
+            ch_ngs_bits_skip_contamination,
             ch_bam,
             ch_genome_fasta,
             ch_cramino_min_length
@@ -272,6 +272,7 @@ workflow DIRECTRNA{
         ch_versions = ch_versions.mix(BAM_QC.out.versions)
     }
 
+/*
     // Stand alone read correction tools? Which ones....
     // TC-CLEAN, IsoQUANT, FLAIR
 

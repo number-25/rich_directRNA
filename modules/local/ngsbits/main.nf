@@ -4,14 +4,14 @@ process NGS_BITS {
 
     conda "${moduleDir}/environment.yml"
     container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
-        'https://depot.galaxyproject.org/singularity/ngs-bits:2022_12--py311hf1a0324_0':
-        'biocontainers/ngs-bits:2022_12--py311hf1a0324_0' }"
+        'https://depot.galaxyproject.org/singularity/ngs-bits:2025_01--py313h6fdbb3c_0':
+        'benekenobi/ngs-bits:2025_01' }"
 
     input:
     tuple val(meta), path(bam)
-    path(genome_fasta)
-    val(build)
-    val(contamination)
+    path genome_fasta
+    val build
+    val contamination
 
     output:
     tuple val(meta), path("*.qcML"), emit: qcML
@@ -22,19 +22,19 @@ process NGS_BITS {
 
     script:
     def args = task.ext.args ?: ''
-    def contamination = task.ext.contamination ?: "$contamination"
-    def build = task.ext.build ?: "$build"
+    def contamination = task.ext.contamination ? "-no_cont" : ""
+    def genome_build = task.ext.build ?: "$build"
     def prefix = task.ext.prefix ?: "${meta.id}_${meta.replicate}_ngsbits"
 
+       // -build $genome_build
     """
     MappingQC \\
         -in $bam \\
         -out ${prefix}.qcML \\
         -rna \\
         -ref $genome_fasta \\
-        -long_read true \\
-        -no_cont $contamination \\
-        -build $build
+        -long_read \\
+        $contamination \\
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
@@ -44,7 +44,7 @@ process NGS_BITS {
 
     stub:
     def args = task.ext.args ?: ''
-    def contamination = task.ext.contamination ?: "$contamination"
+    def contamination = task.ext.contamination ? "-no_cont" : ""
     def build = task.ext.build ?: "$build"
     def prefix = task.ext.prefix ?: "${meta.id}_${meta.replicate}_ngsbits"
 

@@ -10,7 +10,8 @@ process UCSC_BEDGRAPHTOBIGWIG {
 
     input:
     tuple val(meta), path(bedgraph)
-    path  sizes
+    path sizes
+    val strand
 
     output:
     tuple val(meta), path("*.bigWig"), emit: bigwig
@@ -21,7 +22,7 @@ process UCSC_BEDGRAPHTOBIGWIG {
 
     script:
     def args = task.ext.args ?: ''
-    def prefix = task.ext.prefix ?: "${meta.id}"
+    def prefix = task.ext.prefix ?: "${meta.id}_${meta.replicate}_${strand}"
     def VERSION = '469' // WARN: Version information not provided by tool on CLI. Please update this string when bumping container versions.
     """
     bedGraphToBigWig \\
@@ -36,7 +37,7 @@ process UCSC_BEDGRAPHTOBIGWIG {
     """
 
     stub:
-    def prefix = task.ext.prefix ?: "${meta.id}"
+    def prefix = task.ext.prefix ?: "${meta.id}_${meta.replicate}_${strand}"
     def VERSION = '469' // WARN: Version information not provided by tool on CLI. Please update this string when bumping container versions.
     """
     touch ${prefix}.bigWig

@@ -14,6 +14,7 @@ process ALFRED {
 
     output:
     tuple val(meta), path("*.tsv.gz"), emit: alfred_stats
+    path "*.tranposed.stats"
     path "versions.yml"           , emit: versions
 
     when:
@@ -30,6 +31,12 @@ process ALFRED {
         -o ${prefix}.tsv.gz \\
         ${bam}
 
+    zgrep ^ME *.tsv.gz \\
+    | cut -f 2- \\
+    | datamash transpose \\
+    | column -t \\
+    > ${prefix}.transposed.stats
+
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
         alfred: \$(alfred --version |& sed '1!d ; s/Alfred version: v//')
@@ -41,6 +48,7 @@ process ALFRED {
     def prefix = task.ext.prefix ?: "${meta.id}_${meta.replicate}_alfred"
     """
     touch ${prefix}.tsv.gz
+    touch ${prefix}.transposed.stats
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":

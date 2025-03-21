@@ -2,13 +2,14 @@
 // Run bedClip and bedGraphToBigWig
 //
 
-include { UCSC_BEDCLIP          } from '../../../modules/nf-core/ucsc/bedclip/main'
-include { UCSC_BEDGRAPHTOBIGWIG } from '../../../modules/nf-core/ucsc/bedgraphtobigwig/main'
+include { UCSC_BEDCLIP          } from '../../../modules/local/ucsc/bedclip/main'
+include { UCSC_BEDGRAPHTOBIGWIG } from '../../../modules/local/ucsc/bedgraphtobigwig/main'
 
 workflow BEDGRAPH_BEDCLIP_BEDGRAPHTOBIGWIG {
     take:
     bedgraph // channel: [ val(meta), [ bedgraph ] ]
-    sizes    //    path: chrom.sizes
+    sizes    // path: chrom.sizes
+    strand   // value: strand information
 
     main:
 
@@ -17,13 +18,13 @@ workflow BEDGRAPH_BEDCLIP_BEDGRAPHTOBIGWIG {
     //
     // Clip bedGraph file
     //
-    UCSC_BEDCLIP ( bedgraph, sizes )
+    UCSC_BEDCLIP ( bedgraph, sizes, strand )
     ch_versions = ch_versions.mix(UCSC_BEDCLIP.out.versions.first())
 
     //
     // Convert bedGraph to bigWig
     //
-    UCSC_BEDGRAPHTOBIGWIG ( UCSC_BEDCLIP.out.bedgraph, sizes )
+    UCSC_BEDGRAPHTOBIGWIG ( UCSC_BEDCLIP.out.bedgraph, sizes, strand )
     ch_versions = ch_versions.mix(UCSC_BEDGRAPHTOBIGWIG.out.versions.first())
 
     emit:

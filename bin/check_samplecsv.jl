@@ -24,6 +24,8 @@
 using Glob, FileIO
 
 nextflow_path = chop(@__DIR__, tail=4)
+@show @__DIR__
+@show nextflow_path
 
 input_samplesheet = readlines(open(ARGS[1]))
 #input_samplesheet = load(ARGS[1])

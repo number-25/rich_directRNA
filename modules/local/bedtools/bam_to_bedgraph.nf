@@ -29,7 +29,7 @@ process BAM_TO_BEDGRAPH {
         -bg \
         -strand $strand \
         | bedtools sort \
-        > $prefix.bedgraph
+        > ${prefix}.bedgraph
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
