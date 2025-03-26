@@ -5,7 +5,7 @@ process BAM_TO_BED12 {
     container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
         'docker://brookslab/flair:2.0.0' :
         'biocontainers/flair:2.0.0--pyhdfd78af_1' }"
-        ///'quay.io/biocontainers/flair:2.0.0--pyhdfd78af_1' }"
+
     input:
     tuple val(meta), path(mapped_bam)
     tuple val(meta), path(mapped_bam_index)
@@ -29,7 +29,7 @@ process BAM_TO_BED12 {
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
-        bam_to_bed12: \$(flair --version |& sed 's/flair //')
+        bam_to_bed12: \$(flair --version | sed 's/FLAIR //')
     END_VERSIONS
     """
 
@@ -41,7 +41,7 @@ process BAM_TO_BED12 {
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
-        bam_to_bed12: \$(flair --version |& sed 's/flair //')
+        bam_to_bed12: \$(flair --version | sed 's/FLAIR //')
     END_VERSIONS
     """
 }

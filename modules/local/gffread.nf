@@ -8,7 +8,7 @@ process GFFREAD_GETFASTA {
 
     input:
     tuple val(meta), path(gtf)
-    path(genome_fasta)
+    path genome_fasta
 
     output:
     tuple val(meta), path("*.fa"), emit: transcripts_fa
@@ -29,7 +29,7 @@ process GFFREAD_GETFASTA {
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
-        gffread: \$(gffread --version |& sed '1!d ; s/ //')
+        gffread: \$(gffread --version')
     END_VERSIONS
     """
 
@@ -41,7 +41,7 @@ process GFFREAD_GETFASTA {
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
-        gffread: \$(gffread --version |& sed '1!d ; s/ //')
+        gffread: \$(gffread --version')
     END_VERSIONS
     """
 }

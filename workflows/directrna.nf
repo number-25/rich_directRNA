@@ -272,16 +272,13 @@ workflow DIRECTRNA{
         ch_versions = ch_versions.mix(BAM_QC.out.versions)
     }
 
-/*
     // Stand alone read correction tools? Which ones....
-    // TC-CLEAN, IsoQUANT, FLAIR
 
     // TRANSCRIPT RECONSTRUCTION
     //
     // FLAIR
 
     if (!params.skip_flair_correct) {
-        //ch_flair = channel.value( 'flair' )
         ch_flair = 'flair'
         BAM_TO_BED12( ch_bam, ch_bam_index )
         ch_mapped_bed = BAM_TO_BED12.out.bed
@@ -291,59 +288,21 @@ workflow DIRECTRNA{
         BEDTOOLS_JACCARD_FLAIR( ch_flair_corrected_bed, ch_mapped_bed, ch_flair )
     }
     if (!params.skip_flair_collapse) {
-        if !(params.skip_flair_correct) {
-        FLAIR_COLLAPSE( ch_flair_corrected_bed, ch_sample, ch_annotation_gtf, ch_genome_fasta )
-        ch_collapsed_bed = FLAIR_COLLAPSE.out.collapsed_isoforms_bed
-        ch_collapsed_gtf = FLAIR_COLLAPSE.out_collapsed_isoforms.gtf
+        if (!params.skip_flair_correct) {
+            FLAIR_COLLAPSE( ch_sample, ch_flair_corrected_bed, ch_annotation_gtf, ch_genome_fasta )
+            ch_collapsed_bed = FLAIR_COLLAPSE.out.collapsed_isoforms_bed
+            ch_collapsed_gtf = FLAIR_COLLAPSE.out.collapsed_isoforms_gtf
+            ch_collapsed_fa = FLAIR_COLLAPSE.out.collapsed_isoforms_fa
         } else {
-        BAM_TO_BED12( ch_bam, ch_bam_index )
-        ch_mapped_bed = BAM_TO_BED12.out.bed
-        FLAIR_COLLAPSE( ch_mapped_bed, ch_sample, ch_annotation_gtf, ch_genome_fasta )
-        ch_collapsed_bed = FLAIR_COLLAPSE.out.collapsed_isoforms_bed
-        ch_collapsed_gtf = FLAIR_COLLAPSE.out_collapsed_isoforms.gtf
+            BAM_TO_BED12( ch_bam, ch_bam_index )
+            ch_mapped_bed = BAM_TO_BED12.out.bed
+            FLAIR_COLLAPSE( ch_sample, ch_mapped_bed, ch_annotation_gtf, ch_genome_fasta )
+            ch_collapsed_bed = FLAIR_COLLAPSE.out.collapsed_isoforms_bed
+            ch_collapsed_gtf = FLAIR_COLLAPSE.out.collapsed_isoforms_gtf
+            ch_collapsed_fa = FLAIR_COLLAPSE.out.collapsed_isoforms_fa
         }
     }
 
-/*    if (!params.skip_flair_correct && !params.skip_flair_collapse) {
-        BAM_TO_BED12( ch_bam, ch_bam_index )
-        // seeing if a mixed channel with bam and bam.bai works - but given the bam path, the program may naturally search here too for a bam index? Hard to tell until we try out.
-        //BAM_TO_BED12( ch_mixed_bam )
-        ch_mapped_bed = BAM_TO_BED12.out.bed
-        FLAIR_CORRECT( ch_mapped_bed, ch_genome_fasta, ch_annotation_gtf )
-        ch_corrected_bed = FLAIR_CORRECT.out.flair_corrected_bed
-        FLAIR_COLLAPSE( ch_corrected_bed, ch_sample, ch_annotation_gtf, ch_genome_fasta )
-        ch_collapsed_bed = FLAIR_COLLAPSE.out.collapsed_isoforms_bed
-        ch_collapsed_gtf = FLAIR_COLLAPSE.out_collapsed_isoforms.gtf
-        BEDTOOLS_JACCARD( ch_collapsed_bed, ch_mapped_bed )
-        ch_versions = ch_versions.mix(FLAIR_collapse.out.versions)
-        //ch_collapsed_bed
-        //   .map { it -> [ it[0], it[1] ] }
-        //   .set { ch_test_bed }
-        //BED_TO_BAM( ch_collapsed_bed, ch_genome_fasta_sizes )
-        //ch_collapsed_bam = BED_TO_BAM.out.collapsed_bed
-    } else {
-        // No collapsing just correction
-        if (!params.skip_flair_correct && params.skip_flair_collapse) {
-            BAM_TO_BED12( ch_bam, ch_bam_index )
-            //BAM_TO_BED12( ch__mixed_bam )
-            ch_mapped_bed = BAM_TO_BED12.out.bed
-            FLAIR_CORRECT( ch_mapped_bed, ch_genome_fasta, ch_annotation_gtf )
-            ch_corrected_bed = FLAIR_CORRECT.out.flair_corrected_bed
-            ch_versions = ch_versions.mix(FLAIR_CORRECT.out.versions.first())
-        } else {
-        // No correcton just collapsing
-            BAM_TO_BED12( ch_bam, ch_bam_index )
-            //BAM_TO_BED12( ch_mixed_bam )
-            ch_mapped_bed = BAM_TO_BED12.out.bed
-            FLAIR_COLLAPSE( ch_mapped_bed, ch_sample, ch_annotation_gtf, ch_genome_fasta )
-            ch_collapsed_bed = FLAIR_COLLAPSE.out.collapsed_isoforms_bed
-            ch_collapsed_gtf = FLAIR_COLLAPSE.out.collapsed_isoforms_gtf
-            ch_versions = ch_versions.mix(FLAIR_COLLAPSE.out.versions.first())
-            //ch_collapsed_bed
-            //.map { it -> [ it[0], it[1] ] }
-            //.set { ch_test_bed }
-        }
-    }
 
 
     // BAMBU
@@ -366,7 +325,7 @@ workflow DIRECTRNA{
         ch_isoquant_transcripts = GFFREAD_GETFASTA_ISOQUANT.out.transcripts_fa
         ch_versions = ch_versions.mix(GFFREAD_GETFASTA_ISOQUANT.out.versions.first())
     }
-
+/*
     // STRINGTIE
     if (!params.skip_stringtie) {
         STRINGTIE( ch_bam, ch_annotation_gtf )

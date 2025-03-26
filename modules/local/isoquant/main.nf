@@ -41,8 +41,6 @@ process ISOQUANT {
     """
     isoquant.py \\
         $args \\
-        // $dRNA_preset \\
-        // $strand_preset \\
         $input_bam \\
         $ref_genome \\
         $ref_gtf \\

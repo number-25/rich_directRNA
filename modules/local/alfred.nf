@@ -14,7 +14,6 @@ process ALFRED {
 
     output:
     tuple val(meta), path("*.tsv.gz"), emit: alfred_stats
-    path "*.tranposed.stats"
     path "versions.yml"           , emit: versions
 
     when:
@@ -30,12 +29,6 @@ process ALFRED {
         -s \\
         -o ${prefix}.tsv.gz \\
         ${bam}
-
-    zgrep ^ME *.tsv.gz \\
-    | cut -f 2- \\
-    | datamash transpose \\
-    | column -t \\
-    > ${prefix}.transposed.stats
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":

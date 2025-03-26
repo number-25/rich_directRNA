@@ -3,8 +3,8 @@ process FLAIR_CORRECT {
     label 'process_medium'
     conda "${moduleDir}/environment.yml"
     container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
-        'docker://brookslab/flair:2.0.0' :
-        'biocontainers/flair:2.0.0--pyhdfd78af_1' }"
+        'https://depot.galaxyproject.org/singularity/flair:2.0.0--pyhdfd78af_1':
+        'brookslab/flair:2.0.0' }"
 
     input:
     tuple val(meta), path(bed)
@@ -35,13 +35,13 @@ process FLAIR_CORRECT {
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
-        flaircorrect: \$(flair --version |& sed '1!d ; s/samtools //')
+        flaircorrect: \$(flair --version |& sed 's/FLAIR //')
     END_VERSIONS
     """
 
     stub:
     def args = task.ext.args ?: ''
-    def prefix = task.ext.prefix ?: "${meta.id}_${meta.replicate}_flair"
+    def prefix = task.ext.prefix ?: "${meta.id}_${meta.replicate}_flair_correct"
     """
     touch ${prefix}_all_corrected.bed
     touch ${prefix}_all_inconsistent.bed
@@ -49,7 +49,7 @@ process FLAIR_CORRECT {
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
-        flaircorrect: \$(flair --version |& sed '1!d ; s/samtools //')
+        flaircorrect: \$(flair --version |& sed 's/FLAIR //')
     END_VERSIONS
     """
 }
