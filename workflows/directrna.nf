@@ -226,12 +226,20 @@ workflow DIRECTRNA{
         MAPPING( ch_sample, ch_genome_fasta, ch_genome_minimap2_index )
         ch_bam = MAPPING.out.bam
         ch_bam_index = MAPPING.out.bai
+        ch_bam_index_path = MAPPING.out.bai.flatten().last()
+        ch_bam
+            .flatten()
+            .last()
+            .view()
+        ch_mixed_bam = ch_bam.combine(ch_bam_index_path)
+        ch_mixed_bam.view()
         ch_versions = ch_versions.mix(MAPPING.out.versions.first())
         //ch_mixed_bam = ch_bam.mix(ch_bam_indx)
     } else {
         ch_bam = ch_sample
         SAMTOOLS_INDEX( ch_bam )
         ch_bam_index = SAMTOOLS_INDEX.out.bai
+        //ch_mixed_bam = ch_bam.combine(ch_bam_index)
     }
 
 
@@ -318,7 +326,7 @@ workflow DIRECTRNA{
 
     // ISOQUANT
     if (!params.skip_isoquant) {
-        ISOQUANT( ch_bam, ch_genome_fasta, ch_annotation_gtf )
+        ISOQUANT( ch_mixed_bam, ch_annotation_gtf, ch_genome_fasta)
         ch_isoquant_gtf = ISOQUANT.out.isoquant_transcript_gtf
         ch_versions = ch_versions.mix(ISOQUANT.out.versions.first())
         GFFREAD_GETFASTA_ISOQUANT( ch_isoquant_gtf, ch_genome_fasta )

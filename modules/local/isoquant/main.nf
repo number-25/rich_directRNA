@@ -3,11 +3,11 @@ process ISOQUANT {
     label 'process_medium'
     conda "${moduleDir}/environment.yml"
     container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
-        'https://depot.galaxyproject.org/singularity/isoquant:3.6.2--hdfd78af_0':
-        'biocontainers/isoquant:3.6.2--hdfd78af_0' }"
+        'https://depot.galaxyproject.org/singularity/isoquant:3.6.3--hdfd78af_0':
+        'biocontainers/isoquant:3.6.3--hdfd78af_0' }"
 
     input:
-    tuple val(meta), path(bam)
+    tuple val(meta), path(bam), path(bam_bai)
     path annotation_gtf
     path genome_fasta
 
@@ -35,21 +35,25 @@ process ISOQUANT {
     //def strand_preset = task.ext.dRNA_preset ?: "--stranded none"
     def input_bam = task.ext.input_bam ?: "--bam $bam"
     def ref_genome = task.ext.ref_genome ?: "--reference $genome_fasta"
-    def ref_gtf = task.ext.ref_genome ?: "--genedb $annotation_gtf"
+    def ref_gtf = task.ext.ref_gtf ?: "--genedb $annotation_gtf"
     //def complete = task.ext.kmer ?: "--complete_genedb"
-    //def output = task.ext.kmer ?: "--output $annotation_gtf"
+    //def output = task.ext.output ?: "--output isoquant_${meta.id}_${meta.replicate}"
     """
+    export HOME=\$(pwd)
+
     isoquant.py \\
         $args \\
         $input_bam \\
         $ref_genome \\
         $ref_gtf \\
+        -o . \\
         --prefix $prefix \\
         --threads $task.cpus
 
+
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
-        isoquant: \$(isoquant --version)
+        isoquant: \$(isoquant.py -v | sed 's#IsoQuant ##')
     END_VERSIONS
     """
 
@@ -58,7 +62,8 @@ process ISOQUANT {
     def prefix = task.ext.prefix ?: "${meta.id}_${meta.replicate}_isoquant"
     def input_bam = task.ext.input_bam ?: "--bam $bam"
     def ref_genome = task.ext.ref_genome ?: "--reference $genome_fasta"
-    def ref_gtf = task.ext.ref_genome ?: "--genedb $annotation_gtf"
+    def ref_gtf = task.ext.ref_gtf ?: "--genedb $annotation_gtf"
+    //def output = task.ext.output ?: "--output isoquant_${meta.id}_${meta.replicate}"
 
     """
     touch ${prefix}.bam
@@ -75,7 +80,7 @@ process ISOQUANT {
     touch ${prefix}.extended_annotation.gtf
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
-        isoquant: \$(isoquant --version)
+        isoquant: \$(isoquant.py -v | sed 's#IsoQuant ##')
     END_VERSIONS
     """
 }
