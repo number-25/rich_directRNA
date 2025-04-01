@@ -16,13 +16,11 @@
     val intron_junctions
     path introns_junctions_path
 
-
     output:
     // Substantial outputs list
 
-
-    path "*.html", optional:yes
-    path "*.pdf", optional:yes
+    path "*.html", optional: yes
+    path "*.pdf", optional: yes
 
     tuple val(meta), path("*.bam"), emit: bam
     path "versions.yml"           , emit: versions
@@ -42,6 +40,9 @@
         $reconstructed_transcriptome \\
         $annotation_gtf \\
         $genome_fasta \\
+        $args
+
+
         $with_cage \\
         $with_polyA_motif \\
         $with_polyA_sites \\

@@ -29,7 +29,7 @@ process JAFFAL {
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
-        jaffa: \$( echo '2.0' )
+        jaffa: \$( echo '2.3' )
     END_VERSIONS
     """
 }

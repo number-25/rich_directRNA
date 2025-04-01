@@ -3,13 +3,18 @@
     conda "${moduleDir}/environment.yml"
     container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
         'https://depot.galaxyproject.org/singularity/YOUR-TOOL-HERE':
-        'biocontainers/YOUR-TOOL-HERE' }"
+        'docker/number25/transigner:' }"
+
     //TO-DO
     // Split the different chunks of the program into separate modules and wrap into a subworkflow?
-    // Need a MAPPED_BAM_TO_FASTQ module to convert the mapped bam reads to fastq format, to then use here.
+    // Need a MAPPED_BAM_TO_FASTQ module to convert the mapped bam reads to
+    // fastq format, to then use here. - this is assuming that we're not taking
+    // the fasta reads that we're reconstructed, or even downstream recovered
+    // from sqanti
 
     input:
-    tuple val(meta), path(bam)
+    tuple val(meta), path(transcripts)
+    path transcriptome_fasta
 
     output:
     tuple val(meta), path("*.bam", temporary: true), emit: bam
@@ -18,43 +23,41 @@
     when:
     task.ext.when == null || task.ext.when
 
+// add -dtype $data_type options
+
     script:
-    def args = task.ext.args ?: ''
+    def align_args = task.ext.args ?: ''
+    def prefilter_args = task.ext.args ?: ''
+    def em_args = task.ext.args ?: ''
     def outdir = task.ext.args ?: './'
-    def prefix = task.ext.prefix ?: "${meta.id}_${meta.replicate}"
+    def prefix = task.ext.prefix ?: "${meta.id}_${meta.replicate}_transigner"
     """
-    easy.sh \\
-        ${sample_fastq} \\
-        ${transcriptome_fasta} \\
-        ${outdir}
+    transigner \\
+        align \\
+        ${align_args} \\
+        -q ${transcripts} \\
+        -t ${transcriptome_fasta} \\
+        -d . \\
+        -o ${prefix}.bam \\
+        -p $tasks.cpu
 
-    transigner \
-    align \
-    -q ${sample_fastq} \ ? what is it called in the minimap2 module
-    -t ${transcriptome} \
-    -d . \
-    -o ${prefix}.bam \
-    -p $tasks.cpu
+    transigner \\
+        pre \\
+        ${prefilter_args} \\
+        -i ${prefix}.bam \\
+        -d .
 
-
-    transigner \
-    prefilter \
-    -a ${bam} \
-    -t transcripts.fa \
-    -o output_dir \
-    --filter \
-    -tp -1 | \
-    transigner \
-    em \
-    -s output_dir/scores.tsv \
-    -i output_dir/ti.pkl \
-    -o output_dir \
-    --drop \
-    --use-score
+    transigner \\
+        em \\
+        ${em_args} \\
+        -s ./${prefix}_scores.tsv \\
+        -u ./${prefix}_unmapped.tsv \\
+        -m ./${prefix}_tmap.csv \\
+        -p $tasks.cpu
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
-        transigner: 1.1.0
+        transigner: \$(echo 1.1.0)
     END_VERSIONS
     """
     //transigner: \$(transigner --version |& sed '1!d ; s/samtools //')
@@ -66,7 +69,7 @@
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
-        transigner: \$(samtools --version |& sed '1!d ; s/samtools //')
+        transigner: \$(echo 1.1.0)
     END_VERSIONS
     """
 }

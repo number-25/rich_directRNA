@@ -98,7 +98,7 @@ include { ISOQUANT                  } from '../modules/local/isoquant'
 include { STRINGTIE                 } from '../modules/local/stringtie'
 
 // fusion gene detection
-//include { JAFFAL             } from '../modules/local/jaffal'
+//include { JAFFAL                  } from '../modules/local/jaffal'
 // transcriptome assessment
 include { BEDTOOLS_JACCARD as BEDTOOLS_JACCARD_FLAIR    } from '../modules/local/bedtools/jaccard'
 include { BEDTOOLS_JACCARD as BEDTOOLS_JACCARD_ISOQUANT } from '../modules/local/bedtools/jaccard'
@@ -107,10 +107,14 @@ include { GFFREAD_GETFASTA as GFFREAD_GETFASTA_ISOQUANT } from '../modules/local
 include { GFFREAD_GETFASTA as GFFREAD_GETFASTA_STRINGTIE} from '../modules/local/gffread'
 
 // Going to be a bit of a long-think
-//include { SQANTI               } from '../subworkflows/local/sqanti'
+//include { SQANTI_PREPARE_REFERENCE    } from '../subworkflows/local/sqanti'
 //include { SQANTI_QC            } from '../modules/local/sqanti/sqanti_qc'
 //include { SQANTI_FILTER        } from '../modules/local/sqanti/sqanti_filter'
 //include { SQANTI_RESCUE        } from '../modules/local/sqanti/sqanti_rescue'
+
+// transcript reconstruction
+//include { TRANSCRIPT_RECONSTRUCTION
+
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -136,7 +140,6 @@ include { softwareVersionsToYAML    } from '../subworkflows/nf-core/utils_nfcore
 workflow DIRECTRNA{
 
     //take:
-    //ch_samplesheet // channel: samplesheet read in from --input
     //main:
 
     ch_versions = Channel.empty()
@@ -163,8 +166,6 @@ workflow DIRECTRNA{
             // multiQC integration
         }
     }
-
-
 
     ///ch_multiqc_files = ch_multiqc_files.mix(FASTQC.out.zip.collect{it[1]})
     ///ch_versions = ch_versions.mix(FASTQC.out.versions.first())
@@ -242,7 +243,6 @@ workflow DIRECTRNA{
         //ch_mixed_bam = ch_bam.combine(ch_bam_index)
     }
 
-
     // BAM TO BIGWIG for visualisation
     // uses SUBWORKFLOW: BEDGRAPH_BEDCLIP_BEDGRAPHTOBIGWIG
     if (!params.skip_bam_to_bigwig) {
@@ -311,8 +311,6 @@ workflow DIRECTRNA{
         }
     }
 
-
-
     // BAMBU
     if (!params.skip_bambu) {
         BAMBU( ch_genome_fasta, ch_annotation_gtf, ch_bam )
@@ -345,16 +343,6 @@ workflow DIRECTRNA{
     }
 
     // TALON + TRANSCRIPT CLEAN may be added if it begins being maintained regularly https://github.com/mortazavilab/TranscriptClean
-
-    //
-    // Transcript quantification
-    // TransSigner
-    //if (!params.skip_quantification && !params.skip_mapping)
-    //    TRANSIGNER_MAP
-    //    TRANSIGNER_
-    //    TRANSIGNER_QUANT
-
-
     //
     // Fusion gene detection
     // MODULE: JAFFAL
@@ -370,7 +358,6 @@ workflow DIRECTRNA{
     //
     // Transcriptome assessment
     // SQANTI, gffcompare
-    // Different SQANTI options - create as subworkflow?
 
     // Not done yet
     if (!skip gff_compare) {
@@ -378,7 +365,17 @@ workflow DIRECTRNA{
     }
 
     if (!skip_sqanti_qc) {
-        if (!skip_sqanti
+        if (!skip_flair)
+        SQANTI_QC_
+
+    //
+    // Transcript quantification
+    // TransSigner
+    //if (!params.skip_quantification && !params.skip_mapping)
+    //    TRANSIGNER_MAP
+    //    TRANSIGNER_
+    //    TRANSIGNER_QUANT
+
 */
 
     //
