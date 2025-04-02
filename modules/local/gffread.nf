@@ -3,12 +3,13 @@ process GFFREAD_GETFASTA {
     label 'process_single'
     conda "${moduleDir}/environment.yml"
     container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
-        'https://depot.galaxyproject.org/singularity/gffutils:0.13--pyh7cba7a3_0':
-        'quay.io/sangerpathogens/gffutils:0.13' }"
+        'https://depot.galaxyproject.org/singularity/gffread:0.12.7--hdcf5f25_4':
+        'willmundlab/gffread:0.12.7' }"
 
     input:
     tuple val(meta), path(gtf)
-    path genome_fasta
+    tuple path(genome_fasta), path(genome_fasta_index)
+    val origin
 
     output:
     tuple val(meta), path("*.fa"), emit: transcripts_fa
@@ -20,7 +21,7 @@ process GFFREAD_GETFASTA {
     script:
     def args = task.ext.args ?: ''
     def show_warnings = task.ext.show_warnings ?: '-E'
-    def prefix = task.ext.prefix ?: "${meta.id}_${meta.replicate}_transcripts"
+    def prefix = task.ext.prefix ?: "${meta.id}_${meta.replicate}_${origin}_transcripts"
     """
     gffread \\
     -w ${prefix}.fa \\
@@ -29,19 +30,19 @@ process GFFREAD_GETFASTA {
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
-        gffread: \$(gffread --version')
+        gffread: \$(gffread --version)
     END_VERSIONS
     """
 
     stub:
     def args = task.ext.args ?: ''
-    def prefix = task.ext.prefix ?: "${meta.id}_${meta.replicate}_transcripts"
+    def prefix = task.ext.prefix ?: "${meta.id}_${meta.replicate}_${origin}_transcripts"
     """
     touch ${prefix}.fa
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
-        gffread: \$(gffread --version')
+        gffread: \$(gffread --version)
     END_VERSIONS
     """
 }

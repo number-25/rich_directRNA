@@ -78,6 +78,7 @@ include { PREPARE_REFERENCE         } from '../subworkflows/local/prepare_refere
 // fastq QC
 include { NANOQ                     } from '../modules/local/nanoq'
 include { SEQUALI                   } from '../modules/local/sequali'
+
 // fastq mapping
 include { MAPPING                   } from '../subworkflows/local/mapping'
 include { SAMTOOLS_FAIDX            } from '../modules/local/samtools/samtools_faidx'
@@ -85,9 +86,11 @@ include { BAM_TO_BEDGRAPH as BAM_TO_BEDGRAPH_FW } from '../modules/local/bedtool
 include { BAM_TO_BEDGRAPH as BAM_TO_BEDGRAPH_REV } from '../modules/local/bedtools/bam_to_bedgraph'
 include { BEDGRAPH_BEDCLIP_BEDGRAPHTOBIGWIG as BEDGRAPH_BEDCLIP_BEDGRAPHTOBIGWIG_FW } from '../subworkflows/local/bedgraph_bedclip_bedgraphtobigwig'
 include { BEDGRAPH_BEDCLIP_BEDGRAPHTOBIGWIG as BEDGRAPH_BEDCLIP_BEDGRAPHTOBIGWIG_REV } from '../subworkflows/local/bedgraph_bedclip_bedgraphtobigwig'
+
 // bam QC
 include { BAM_QC                    } from '../subworkflows/local/bam_qc'
 include { SAMTOOLS_INDEX            } from '../modules/local/samtools/samtools_index'
+
 // transcript reconstruction
 include { BAM_TO_BED12              } from '../modules/local/flair/bam_to_bed12'
 include { FLAIR_CORRECT             } from '../modules/local/flair/flair_correct'
@@ -96,16 +99,21 @@ include { BED_TO_BAM                } from '../modules/local/bedtools/bed_to_bam
 include { BAMBU                     } from '../modules/local/bambu'
 include { ISOQUANT                  } from '../modules/local/isoquant'
 include { STRINGTIE                 } from '../modules/local/stringtie'
-
-// fusion gene detection
-//include { JAFFAL                  } from '../modules/local/jaffal'
-// transcriptome assessment
-include { BEDTOOLS_JACCARD as BEDTOOLS_JACCARD_FLAIR    } from '../modules/local/bedtools/jaccard'
-include { BEDTOOLS_JACCARD as BEDTOOLS_JACCARD_ISOQUANT } from '../modules/local/bedtools/jaccard'
 include { GFFREAD_GETFASTA as GFFREAD_GETFASTA_BAMBU    } from '../modules/local/gffread'
 include { GFFREAD_GETFASTA as GFFREAD_GETFASTA_ISOQUANT } from '../modules/local/gffread'
 include { GFFREAD_GETFASTA as GFFREAD_GETFASTA_STRINGTIE} from '../modules/local/gffread'
 
+// fusion gene detection
+//include { JAFFAL                  } from '../modules/local/jaffal'
+
+// transcriptome assessment
+// JACCARD
+include { BEDTOOLS_JACCARD as BEDTOOLS_JACCARD_FLAIR    } from '../modules/local/bedtools/jaccard'
+include { BEDTOOLS_JACCARD as BEDTOOLS_JACCARD_ISOQUANT } from '../modules/local/bedtools/jaccard'
+include { GFFCOMPARE as GFFCOMPARE_FLAIR_FLAIR          } from '../modules/local/gffcompare'
+include { GFFCOMPARE as GFFCOMPARE_FLAIR_BAMBU          } from '../modules/local/gffcompare'
+include { GFFCOMPARE as GFFCOMPARE_FLAIR_ISOQUANT       } from '../modules/local/gffcompare'
+include { GFFCOMPARE as GFFCOMPARE_FLAIR_STRINGTIE      } from '../modules/local/gffcompare'
 // Going to be a bit of a long-think
 //include { SQANTI_PREPARE_REFERENCE    } from '../subworkflows/local/sqanti'
 //include { SQANTI_QC            } from '../modules/local/sqanti/sqanti_qc'
@@ -192,12 +200,12 @@ workflow DIRECTRNA{
             params.skip_jaffal_download    // boolean [default: true]
         )
         // initialize genome + transcriptome references
-        ch_genome_fasta             = PREPARE_REFERENCE.out.genome_fasta
-        ch_genome_index             = PREPARE_REFERENCE.out.genome_fasta_index
-        ch_genome_sizes             = PREPARE_REFERENCE.out.genome_fasta_sizes
-        ch_genome_minimap2_index    = PREPARE_REFERENCE.out.genome_minimap2_index
-        ch_transcriptome_fasta      = PREPARE_REFERENCE.out.transcriptome_fasta
-        ch_annotation_gtf           = PREPARE_REFERENCE.out.annotation_gtf
+        ch_genome_fasta                 = PREPARE_REFERENCE.out.genome_fasta
+        ch_genome_fasta_index           = PREPARE_REFERENCE.out.genome_fasta_index
+        ch_genome_sizes                 = PREPARE_REFERENCE.out.genome_fasta_sizes
+        ch_genome_minimap2_index        = PREPARE_REFERENCE.out.genome_minimap2_index
+        ch_transcriptome_fasta          = PREPARE_REFERENCE.out.transcriptome_fasta
+        ch_annotation_gtf               = PREPARE_REFERENCE.out.annotation_gtf
         // initialize sqanti qc references
         if (!params.skip_sqanti_qc) {
             if (params.sqanti_qc_cage) {
@@ -220,6 +228,10 @@ workflow DIRECTRNA{
         ch_versions = ch_versions.mix(PREPARE_REFERENCE.out.versions)
     }
 */
+
+    // Combine genome fasta with genome fasta index into single channel
+    ch_genome_fasta_with_index = ch_genome_fasta.combine(ch_genome_fasta_index)
+
     // Mapping and sorting
     // SUBWORKFLOW: MAPPING
     //
@@ -287,27 +299,27 @@ workflow DIRECTRNA{
     // FLAIR
 
     if (!params.skip_flair_correct) {
-        ch_flair = 'flair'
         BAM_TO_BED12( ch_bam, ch_bam_index )
         ch_mapped_bed = BAM_TO_BED12.out.bed
         FLAIR_CORRECT( ch_mapped_bed, ch_genome_fasta, ch_annotation_gtf )
         ch_flair_corrected_bed = FLAIR_CORRECT.out.flair_corrected_bed
-        //GFFREAD_GETFASTA_FLAIR(
-        BEDTOOLS_JACCARD_FLAIR( ch_flair_corrected_bed, ch_mapped_bed, ch_flair )
+        //BED_TO_GTF?
+        //GFFREAD_FLAIR( ch_
+        BEDTOOLS_JACCARD_FLAIR( ch_flair_corrected_bed, ch_mapped_bed, 'flair' )
     }
     if (!params.skip_flair_collapse) {
         if (!params.skip_flair_correct) {
             FLAIR_COLLAPSE( ch_sample, ch_flair_corrected_bed, ch_annotation_gtf, ch_genome_fasta )
-            ch_collapsed_bed = FLAIR_COLLAPSE.out.collapsed_isoforms_bed
-            ch_collapsed_gtf = FLAIR_COLLAPSE.out.collapsed_isoforms_gtf
-            ch_collapsed_fa = FLAIR_COLLAPSE.out.collapsed_isoforms_fa
+            ch_flair_collapsed_bed = FLAIR_COLLAPSE.out.collapsed_isoforms_bed
+            ch_flair_collapsed_gtf = FLAIR_COLLAPSE.out.collapsed_isoforms_gtf
+            ch_flair_collapsed_fa = FLAIR_COLLAPSE.out.collapsed_isoforms_fa
         } else {
             BAM_TO_BED12( ch_bam, ch_bam_index )
             ch_mapped_bed = BAM_TO_BED12.out.bed
             FLAIR_COLLAPSE( ch_sample, ch_mapped_bed, ch_annotation_gtf, ch_genome_fasta )
-            ch_collapsed_bed = FLAIR_COLLAPSE.out.collapsed_isoforms_bed
-            ch_collapsed_gtf = FLAIR_COLLAPSE.out.collapsed_isoforms_gtf
-            ch_collapsed_fa = FLAIR_COLLAPSE.out.collapsed_isoforms_fa
+            ch_flair_collapsed_bed = FLAIR_COLLAPSE.out.collapsed_isoforms_bed
+            ch_flair_collapsed_gtf = FLAIR_COLLAPSE.out.collapsed_isoforms_gtf
+            ch_flair_collapsed_fa = FLAIR_COLLAPSE.out.collapsed_isoforms_fa
         }
     }
 
@@ -317,56 +329,69 @@ workflow DIRECTRNA{
         ch_bambu_gtf = BAMBU.out.bambu_extended_gtf
         ch_versions = ch_versions.mix(BAMBU.out.versions.first())
         // MIX genome fasta with fasta index as this will improve GFFREADs speed
-        GFFREAD_GETFASTA_BAMBU( ch_bambu_gtf, ch_genome_fasta )
+        GFFREAD_GETFASTA_BAMBU( ch_bambu_gtf, ch_genome_fasta_with_index, 'bambu' )
         ch_bambu_transcripts = GFFREAD_GETFASTA_BAMBU.out.transcripts_fa
         ch_versions = ch_versions.mix(GFFREAD_GETFASTA.out.versions.first())
         }
 
     // ISOQUANT
-    if (!params.skip_isoquant) {
-        ISOQUANT( ch_mixed_bam, ch_annotation_gtf, ch_genome_fasta)
-        ch_isoquant_gtf = ISOQUANT.out.isoquant_transcript_gtf
-        ch_versions = ch_versions.mix(ISOQUANT.out.versions.first())
-        GFFREAD_GETFASTA_ISOQUANT( ch_isoquant_gtf, ch_genome_fasta )
-        ch_isoquant_transcripts = GFFREAD_GETFASTA_ISOQUANT.out.transcripts_fa
-        ch_versions = ch_versions.mix(GFFREAD_GETFASTA_ISOQUANT.out.versions.first())
-    }
-/*
+   // if (!params.skip_isoquant) {
+   //     ISOQUANT( ch_mixed_bam, ch_annotation_gtf, ch_genome_fasta)
+   //     ch_isoquant_gtf = ISOQUANT.out.isoquant_transcript_gtf
+   //     ch_versions = ch_versions.mix(ISOQUANT.out.versions.first())
+    //    GFFREAD_GETFASTA_ISOQUANT( ch_isoquant_gtf, ch_genome_fasta_with_index, 'isoquant' )
+     //   ch_isoquant_transcripts = GFFREAD_GETFASTA_ISOQUANT.out.transcripts_fa
+    //    ch_versions = ch_versions.mix(GFFREAD_GETFASTA_ISOQUANT.out.versions.first())
+    //}
+
+
     // STRINGTIE
     if (!params.skip_stringtie) {
         STRINGTIE( ch_bam, ch_annotation_gtf )
         ch_stringtie_gtf = STRINGTIE.out.stringtie_gtf
         ch_versions = ch_versions.mix(STRINGTIE.out.versions.first())
-        GFFREAD_GETFASTA_STRINGTIE( ch_stringtie_gtf, ch_genome_fasta )
+        GFFREAD_GETFASTA_STRINGTIE( ch_stringtie_gtf, ch_genome_fasta_with_index, 'stringtie' )
         ch_stringtie_transcripts = GFFREAD_GETFASTA_STRINGTIE.out.transcripts_fa
         ch_versions = ch_versions.mix(GFFREAD_GETFASTA_STRINGTIE.out.versions.first())
     }
+
+/*
 
     // TALON + TRANSCRIPT CLEAN may be added if it begins being maintained regularly https://github.com/mortazavilab/TranscriptClean
     //
     // Fusion gene detection
     // MODULE: JAFFAL
-/*
+
     if (!params.skip_jaffal && !params.custom_genome) {
         JAFFAL( ch_sample, ch_jaffal_ref )
         ch_jaffal_fasta = JAFFAL.out.jaffal_fasta
         ch_jaffal_csv = JAFFAL.out.jaffal_csv
         ch_versions = ch_versions.mix(JAFFAL.out.versions.first())
         }
-
-
+*/
     //
     // Transcriptome assessment
     // SQANTI, gffcompare
 
     // Not done yet
-    if (!skip gff_compare) {
-        GFFCOMPARE( ch_reconstructed_gtf, ch_annotation_gtf, ch_genome_fasta )
+    if (!skip_gff_compare) {
+        if (run_flair) {
+            GFFCOMPARE_FLAIR( ch_flair_collapsed_gtf, ch_annotation_gtf, ch_genome_fasta_with_index, 'flair' )
+        }
+        if (run_bambu) {
+            GFFCOMPARE_BAMBU( ch_bambu_gtf, ch_annotation_gtf, ch_genome_fasta_with_index, 'bambu' )
+        }
+        if (run_isoquant) {
+            GFFCOMPARE_ISOQUANT( ch_isoquant_gtf, ch_annotation_gtf, ch_genome_fasta_with_index, 'isoquant' )
+        }
+        if (run_stringtie) {
+            GFFCOMPARE_STRINGTIE( ch_stringtie_gtf, ch_annotation_gtf, ch_genome_fasta_with_index, 'stringtie' )
+        }
     }
 
-    if (!skip_sqanti_qc) {
-        if (!skip_flair)
-        SQANTI_QC_
+   // if (!skip_sqanti_qc) {
+   //     if (!skip_flair)
+    //    SQANTI_QC_
 
     //
     // Transcript quantification

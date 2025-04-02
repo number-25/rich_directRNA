@@ -30,7 +30,6 @@ Official nextflow sample test data for directRNA is
 summary files, bams, fast5's even! Unfortunately there aren't enough dRNA data,
 so additional datasets will be included.
 
-
 ## Usage
 
 > [!NOTE]
