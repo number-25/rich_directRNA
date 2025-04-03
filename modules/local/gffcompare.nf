@@ -28,11 +28,10 @@ process GFFCOMPARE {
     def prefix = task.ext.prefix ?: "${meta.id}_${meta.replicate}_${origin}"
     """
     gffcompare \\
-    ${args} \\ add -V to args etc.
+    ${args}
     -r ${annnotation.gtf} \\
     -s ${genome_fasta} \\
     -w ${prefix}.fa \\
-    -g ${genome_fasta} \\
     ${reconstructed_gtf}
 
     cat <<-END_VERSIONS > versions.yml
