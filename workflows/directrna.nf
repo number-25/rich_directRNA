@@ -115,10 +115,19 @@ include { GFFCOMPARE as GFFCOMPARE_FLAIR_BAMBU          } from '../modules/local
 include { GFFCOMPARE as GFFCOMPARE_FLAIR_ISOQUANT       } from '../modules/local/gffcompare'
 include { GFFCOMPARE as GFFCOMPARE_FLAIR_STRINGTIE      } from '../modules/local/gffcompare'
 // Going to be a bit of a long-think
-//include { SQANTI_PREPARE_REFERENCE    } from '../subworkflows/local/sqanti'
-//include { SQANTI_QC            } from '../modules/local/sqanti/sqanti_qc'
-//include { SQANTI_FILTER        } from '../modules/local/sqanti/sqanti_filter'
-//include { SQANTI_RESCUE        } from '../modules/local/sqanti/sqanti_rescue'
+include { SQANTI_PREPARE_REFERENCE                  } from '../subworkflows/local/sqanti'
+include { SQANTI_QC as SQANTI_QC_FLAIR              } from '../subworkflows/local/sqanti/sqanti_qc'
+include { SQANTI_QC as SQANTI_QC_BAMBU              } from '../subworkflows/local/sqanti/sqanti_qc'
+include { SQANTI_QC as SQANTI_QC_ISOQUANT           } from '../subworkflows/local/sqanti/sqanti_qc'
+include { SQANTI_QC as SQANTI_QC_STRINGTIE          } from '../subworkflows/local/sqanti/sqanti_qc'
+include { SQANTI_FILTER as SQANTI_FILTER_FLAIR      } from '../subworkflows/local/sqanti/sqanti_filter'
+include { SQANTI_FILTER as SQANTI_FILTER_BAMBU      } from '../subworkflows/local/sqanti/sqanti_filter'
+include { SQANTI_FILTER as SQANTI_FILTER_ISOQUANT   } from '../subworkflows/local/sqanti/sqanti_filter'
+include { SQANTI_FILTER as SQANTI_FILTER_STRINGTIE  } from '../subworkflows/local/sqanti/sqanti_filter'
+include { SQANTI_RESCUE as SQANTI_RESCUE_FLAIR      } from '../subworkflows/local/sqanti/sqanti_rescue'
+include { SQANTI_RESCUE as SQANTI_RESCUE_BAMBU      } from '../subworkflows/local/sqanti/sqanti_rescue'
+include { SQANTI_RESCUE as SQANTI_RESCUE_ISOQUANT   } from '../subworkflows/local/sqanti/sqanti_rescue'
+include { SQANTI_RESCUE as SQANTI_RESCUE_STRINGTIE  } from '../subworkflows/local/sqanti/sqanti_rescue'
 
 // transcript reconstruction
 //include { TRANSCRIPT_RECONSTRUCTION
@@ -297,34 +306,35 @@ workflow DIRECTRNA{
     // TRANSCRIPT RECONSTRUCTION
     //
     // FLAIR
-
-    if (!params.skip_flair_correct) {
-        BAM_TO_BED12( ch_bam, ch_bam_index )
-        ch_mapped_bed = BAM_TO_BED12.out.bed
-        FLAIR_CORRECT( ch_mapped_bed, ch_genome_fasta, ch_annotation_gtf )
-        ch_flair_corrected_bed = FLAIR_CORRECT.out.flair_corrected_bed
-        //BED_TO_GTF?
-        //GFFREAD_FLAIR( ch_
-        BEDTOOLS_JACCARD_FLAIR( ch_flair_corrected_bed, ch_mapped_bed, 'flair' )
-    }
-    if (!params.skip_flair_collapse) {
+    if (params.run_flair) {
         if (!params.skip_flair_correct) {
-            FLAIR_COLLAPSE( ch_sample, ch_flair_corrected_bed, ch_annotation_gtf, ch_genome_fasta )
-            ch_flair_collapsed_bed = FLAIR_COLLAPSE.out.collapsed_isoforms_bed
-            ch_flair_collapsed_gtf = FLAIR_COLLAPSE.out.collapsed_isoforms_gtf
-            ch_flair_collapsed_fa = FLAIR_COLLAPSE.out.collapsed_isoforms_fa
-        } else {
             BAM_TO_BED12( ch_bam, ch_bam_index )
             ch_mapped_bed = BAM_TO_BED12.out.bed
-            FLAIR_COLLAPSE( ch_sample, ch_mapped_bed, ch_annotation_gtf, ch_genome_fasta )
-            ch_flair_collapsed_bed = FLAIR_COLLAPSE.out.collapsed_isoforms_bed
-            ch_flair_collapsed_gtf = FLAIR_COLLAPSE.out.collapsed_isoforms_gtf
-            ch_flair_collapsed_fa = FLAIR_COLLAPSE.out.collapsed_isoforms_fa
+            FLAIR_CORRECT( ch_mapped_bed, ch_genome_fasta, ch_annotation_gtf )
+            ch_flair_corrected_bed = FLAIR_CORRECT.out.flair_corrected_bed
+            //BED_TO_GTF?
+            //GFFREAD_FLAIR( ch_
+            BEDTOOLS_JACCARD_FLAIR( ch_flair_corrected_bed, ch_mapped_bed, 'flair' )
+        }
+        if (!params.skip_flair_collapse) {
+            if (!params.skip_flair_correct) {
+                FLAIR_COLLAPSE( ch_sample, ch_flair_corrected_bed, ch_annotation_gtf, ch_genome_fasta )
+                ch_flair_collapsed_bed = FLAIR_COLLAPSE.out.collapsed_isoforms_bed
+                ch_flair_collapsed_gtf = FLAIR_COLLAPSE.out.collapsed_isoforms_gtf
+                ch_flair_collapsed_fa = FLAIR_COLLAPSE.out.collapsed_isoforms_fa
+            } else {
+                BAM_TO_BED12( ch_bam, ch_bam_index )
+                ch_mapped_bed = BAM_TO_BED12.out.bed
+                FLAIR_COLLAPSE( ch_sample, ch_mapped_bed, ch_annotation_gtf, ch_genome_fasta )
+                ch_flair_collapsed_bed = FLAIR_COLLAPSE.out.collapsed_isoforms_bed
+                ch_flair_collapsed_gtf = FLAIR_COLLAPSE.out.collapsed_isoforms_gtf
+                ch_flair_collapsed_fa = FLAIR_COLLAPSE.out.collapsed_isoforms_fa
+            }
         }
     }
 
     // BAMBU
-    if (!params.skip_bambu) {
+    if (params.run_bambu) {
         BAMBU( ch_genome_fasta, ch_annotation_gtf, ch_bam )
         ch_bambu_gtf = BAMBU.out.bambu_extended_gtf
         ch_versions = ch_versions.mix(BAMBU.out.versions.first())
@@ -346,7 +356,7 @@ workflow DIRECTRNA{
 
 
     // STRINGTIE
-    if (!params.skip_stringtie) {
+    if (params.run_stringtie) {
         STRINGTIE( ch_bam, ch_annotation_gtf )
         ch_stringtie_gtf = STRINGTIE.out.stringtie_gtf
         ch_versions = ch_versions.mix(STRINGTIE.out.versions.first())
@@ -374,7 +384,7 @@ workflow DIRECTRNA{
     // SQANTI, gffcompare
 
     // Not done yet
-    if (!skip_gff_compare) {
+    if (!params.skip_gff_compare) {
         if (run_flair) {
             GFFCOMPARE_FLAIR( ch_flair_collapsed_gtf, ch_annotation_gtf, ch_genome_fasta_with_index, 'flair' )
         }
@@ -389,9 +399,16 @@ workflow DIRECTRNA{
         }
     }
 
-   // if (!skip_sqanti_qc) {
-   //     if (!skip_flair)
-    //    SQANTI_QC_
+   // if (!skip_sqanti_all) {
+        if (!skip_sqanti_qc) {
+            if (run_flair){
+            }
+            if (run_bambu){
+            }
+            if (run_isoquant){
+            }
+            if (run_stringtie){
+            }
 
     //
     // Transcript quantification

@@ -1,3 +1,4 @@
+process QC_SQANTI {
     tag "$meta.id"
     label 'process_high'
     container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
@@ -30,10 +31,6 @@
 
     script:
     def args                    = task.ext.args ?: ''
-    def with_cage               = cage ? "${cage_path}" : ''
-    def with_polyA_motif        = polyA_motif ? "${polyA_motif_path}" : ''
-    def with_polyA_sites        = polyA_sites ? "${polyA_sites_path}" : ''
-    def with_intron_junctions   = intron_junctions ? "${intron_junctions_path}" : ''
     def prefix = task.ext.prefix ?: "${meta.id}.${meta.replicate}_sqantiQC"
     """
     sqantiqc.py \\
