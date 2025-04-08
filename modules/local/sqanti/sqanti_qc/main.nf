@@ -8,20 +8,15 @@ process QC_SQANTI {
     tuple val(meta), path(reconstructed_transcriptome)
     path annotation_gtf
     path genome_fasta
-    val cage
-    path cage_path
-    val polyA_motif
-    path polyA_motif_path
-    val polyA_sites
-    path polyA_sites_path
-    val intron_junctions
-    path introns_junctions_path
+    val program
 
     output:
     // Substantial outputs list
-
     path "*.html", optional: yes
     path "*.pdf", optional: yes
+
+    path GMST
+    path
 
     tuple val(meta), path("*.bam"), emit: bam
     path "versions.yml"           , emit: versions
