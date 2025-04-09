@@ -1,4 +1,4 @@
-//
+// SUBWORKFLOW: PREPARE_REFERENCE
 // Uncompress and prepare reference files
 //
 
