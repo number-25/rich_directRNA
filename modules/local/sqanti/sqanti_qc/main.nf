@@ -12,22 +12,20 @@ process QC_SQANTI {
 
     output:
     // Substantial outputs list
-    path "refAnnotation_*.genePred"
+    path "refAnnotation_*.genePred", optional: yes
     path "*.params.txt"
     path "*_classification.txt"
     path "*_corrected.faa"
     path "*_corrected.fasta"
-    path "*_corrected.genePred
+    path "*_corrected.genePred",    optional: yes
     path "*.corrected.gtf"
     path "*.corrected.gtf.cds.gff"
-    path "*.html", optional: yes
-    path "*.pdf", optional: yes
-    path "*.junctions.txt", optional: yes
+    path "*.html",                  optional: yes
+    path "*.pdf",                   optional: yes
+    path "*.junctions.txt",         optional: yes
     path "unknown_strand.gtf"
     path "GMST"
     path "RTS"
-
-    tuple val(meta), path("*.bam"), emit: bam
     path "versions.yml"           , emit: versions
 
     when:
@@ -53,8 +51,9 @@ process QC_SQANTI {
     """
 
     stub:
-    def args = task.ext.args ?: ''
-    def prefix = task.ext.prefix ?: "${meta.id}"
+    def args        = task.ext.args ?: ''
+    def output_name = task.ext.out_name ?: "--output ${program}"
+    def prefix      = task.ext.prefix ?: "${meta.id}.${meta.replicate}_${program}_sqantiQC"
     """
 
     mkdir GMST
