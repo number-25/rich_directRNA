@@ -78,6 +78,7 @@ include { PREPARE_REFERENCE         } from '../subworkflows/local/prepare_refere
 // fastq QC
 include { NANOQ                     } from '../modules/local/nanoq'
 include { SEQUALI                   } from '../modules/local/sequali'
+include { MULTIQC                   } from '../modules/nf-core/multiqc/main'
 
 // fastq mapping
 include { MAPPING                   } from '../subworkflows/local/mapping'
@@ -139,7 +140,6 @@ include { SQANTI_RESCUE as SQANTI_RESCUE_STRINGTIE  } from '../subworkflows/loca
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
-//include { MULTIQC                } from '../modules/nf-core/multiqc/main'
 //include { samplesheetToList } from 'plugin/nf-schema'
 //WANTTHISONE include { paramsSummaryLog          } from 'plugin/nf-schema'
 //include { validateParameters } from 'plugin/nf-schema'
@@ -160,7 +160,8 @@ workflow DIRECTRNA{
     //main:
 
     ch_versions = Channel.empty()
-    //ch_multiqc_files = Channel.empty()
+    ch_multiqc_files = Channel.empty()
+    //def multiqc_report      = []
 
     // INPUT_CHECK
     INPUT_CHECK ( ch_input )
@@ -175,12 +176,13 @@ workflow DIRECTRNA{
     if (!params.skip_qc || !params_bam_input) {
         if (!params.skip_nanoq) {
             NANOQ( ch_sample )
+            ch_multiqc_files = ch_multiqc_files.mix(NANOQ.out.stats.ifEmpty([]),)
             ch_versions = ch_versions.mix(NANOQ.out.versions.first())
         }
         if (!params.skip_sequali) {
             SEQUALI( ch_sample )
+            ch_multiqc_files = ch_multiqc_files.mix(SEQUALI.out.json.ifEmpty([]),)
             ch_versions = ch_versions.mix(SEQUALI.out.versions.first())
-            // multiQC integration
         }
     }
 
@@ -286,6 +288,7 @@ workflow DIRECTRNA{
         ch_cramino_min_length = params.cramino_min_length
         ch_skip_ngs_bits = params.skip_ngs_bits
         ch_ngs_bits_build = params.ngs_bits_build
+        //TODO NEED TO ADD THIS CONTAMINATION TO A CUSTOM CONFIG
         ch_ngs_bits_skip_contamination = params.ngs_bits_skip_contamination
         BAM_QC(
             ch_skip_cramino,
@@ -298,6 +301,12 @@ workflow DIRECTRNA{
             ch_genome_fasta,
             ch_cramino_min_length
             )
+        if (!params.skip_ngs_bits){
+            ch_multiqc_files = ch_multiqc_files.mix(BAM_QC.out.ngs_bits_stats.ifEmpty([]))
+        }
+        if (!params.skip_samtools_flagstat){
+            ch_multiqc_files = ch_multiqc_files.mix.(BAM_QC.out.flagstat.ifEmpty([]))
+        }
         ch_versions = ch_versions.mix(BAM_QC.out.versions)
     }
 
@@ -402,13 +411,18 @@ workflow DIRECTRNA{
    // if (!skip_sqanti_all) {
         if (!skip_sqanti_qc) {
             if (run_flair){
+                SQANTI_QC_FLAIR( ch_flair_collapsed_gtf, ch_annotation_gtf, ch_genome_fasta_with_index, 'flair' )
             }
             if (run_bambu){
+                SQANTI_QC_BAMBU( ch_bambu_gtf, ch_annotation_gtf, ch_genome_fasta_with_index, 'bambu' )
             }
             if (run_isoquant){
+                SQANTI_QC_ISOQUANT( ch_isoquant_gtf, ch_annotation_gtf, ch_genome_fasta_with_index, 'isoquant' )
             }
             if (run_stringtie){
+                SQANTI_QC_STRINGTIE( ch_stringtie_gtf, ch_annotation_gtf, ch_genome_fasta_with_index, 'stringtie' )
             }
+        }
 
     //
     // Transcript quantification
@@ -440,7 +454,6 @@ workflow DIRECTRNA{
     //
     // MODULE: MultiQC
     //
-    /*
 
     ch_multiqc_config        = Channel.fromPath(
         "$projectDir/assets/multiqc_config.yml", checkIfExists: true)
@@ -451,15 +464,15 @@ workflow DIRECTRNA{
         Channel.fromPath(params.multiqc_logo, checkIfExists: true) :
         Channel.empty()
 
-    summary_params      = paramsSummaryMap(
-        workflow, parameters_schema: "nextflow_schema.json")
+    //summary_params      = paramsSummaryMap(
+     //   workflow, parameters_schema: "nextflow_schema.json")
     ch_workflow_summary = Channel.value(paramsSummaryMultiqc(summary_params))
 
-    ch_multiqc_custom_methods_description = params.multiqc_methods_description ?
-        file(params.multiqc_methods_description, checkIfExists: true) :
-        file("$projectDir/assets/methods_description_template.yml", checkIfExists: true)
-    ch_methods_description                = Channel.value(
-        methodsDescriptionText(ch_multiqc_custom_methods_description))
+   // ch_multiqc_custom_methods_description = params.multiqc_methods_description ?
+   //     file(params.multiqc_methods_description, checkIfExists: true) :
+   //     file("$projectDir/assets/methods_description_template.yml", checkIfExists: true)
+   // ch_methods_description                = Channel.value(
+   //     methodsDescriptionText(ch_multiqc_custom_methods_description))
 
     ch_multiqc_files = ch_multiqc_files.mix(
         ch_workflow_summary.collectFile(name: 'workflow_summary_mqc.yaml'))
@@ -481,11 +494,6 @@ workflow DIRECTRNA{
     emit:
     multiqc_report = MULTIQC.out.report.toList() // channel: /path/to/multiqc_report.html
     versions       = ch_versions                 // channel: [ path(versions.yml) ]
-
-    */
-
-
-
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

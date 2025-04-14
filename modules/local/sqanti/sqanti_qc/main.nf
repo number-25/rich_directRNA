@@ -7,7 +7,7 @@ process QC_SQANTI {
     input:
     tuple val(meta), path(reconstructed_transcriptome)
     path annotation_gtf
-    path genome_fasta
+    tuple path(genome_fasta), path(genome_fasta_index)
     val program
 
     output:
@@ -55,7 +55,6 @@ process QC_SQANTI {
     def output_name = task.ext.out_name ?: "--output ${program}"
     def prefix      = task.ext.prefix ?: "${meta.id}.${meta.replicate}_${program}_sqantiQC"
     """
-
     mkdir GMST
     touch GMST/gms.log
     touch GMST/GMST_tmp
