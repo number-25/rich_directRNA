@@ -111,24 +111,24 @@ include { GFFREAD_GETFASTA as GFFREAD_GETFASTA_STRINGTIE} from '../modules/local
 // JACCARD
 include { BEDTOOLS_JACCARD as BEDTOOLS_JACCARD_FLAIR    } from '../modules/local/bedtools/jaccard'
 include { BEDTOOLS_JACCARD as BEDTOOLS_JACCARD_ISOQUANT } from '../modules/local/bedtools/jaccard'
-include { GFFCOMPARE as GFFCOMPARE_FLAIR_FLAIR          } from '../modules/local/gffcompare'
-include { GFFCOMPARE as GFFCOMPARE_FLAIR_BAMBU          } from '../modules/local/gffcompare'
-include { GFFCOMPARE as GFFCOMPARE_FLAIR_ISOQUANT       } from '../modules/local/gffcompare'
-include { GFFCOMPARE as GFFCOMPARE_FLAIR_STRINGTIE      } from '../modules/local/gffcompare'
+include { GFFCOMPARE as GFFCOMPARE_FLAIR          } from '../modules/local/gffcompare/gffcompare'
+include { GFFCOMPARE as GFFCOMPARE_BAMBU          } from '../modules/local/gffcompare/gffcompare'
+include { GFFCOMPARE as GFFCOMPARE_ISOQUANT       } from '../modules/local/gffcompare/gffcompare'
+include { GFFCOMPARE as GFFCOMPARE_STRINGTIE      } from '../modules/local/gffcompare/gffcompare'
 // Going to be a bit of a long-think
-include { SQANTI_PREPARE_REFERENCE                  } from '../subworkflows/local/sqanti'
-include { SQANTI_QC as SQANTI_QC_FLAIR              } from '../subworkflows/local/sqanti/sqanti_qc'
-include { SQANTI_QC as SQANTI_QC_BAMBU              } from '../subworkflows/local/sqanti/sqanti_qc'
-include { SQANTI_QC as SQANTI_QC_ISOQUANT           } from '../subworkflows/local/sqanti/sqanti_qc'
-include { SQANTI_QC as SQANTI_QC_STRINGTIE          } from '../subworkflows/local/sqanti/sqanti_qc'
-include { SQANTI_FILTER as SQANTI_FILTER_FLAIR      } from '../subworkflows/local/sqanti/sqanti_filter'
-include { SQANTI_FILTER as SQANTI_FILTER_BAMBU      } from '../subworkflows/local/sqanti/sqanti_filter'
-include { SQANTI_FILTER as SQANTI_FILTER_ISOQUANT   } from '../subworkflows/local/sqanti/sqanti_filter'
-include { SQANTI_FILTER as SQANTI_FILTER_STRINGTIE  } from '../subworkflows/local/sqanti/sqanti_filter'
-include { SQANTI_RESCUE as SQANTI_RESCUE_FLAIR      } from '../subworkflows/local/sqanti/sqanti_rescue'
-include { SQANTI_RESCUE as SQANTI_RESCUE_BAMBU      } from '../subworkflows/local/sqanti/sqanti_rescue'
-include { SQANTI_RESCUE as SQANTI_RESCUE_ISOQUANT   } from '../subworkflows/local/sqanti/sqanti_rescue'
-include { SQANTI_RESCUE as SQANTI_RESCUE_STRINGTIE  } from '../subworkflows/local/sqanti/sqanti_rescue'
+//include { SQANTI_PREPARE_REFERENCE                  } from '../subworkflows/local/sqanti/'
+//include { QC_SQANTI as SQANTI_QC_FLAIR              } from '../subworkflows/local/sqanti/sqanti_qc'
+//include { QC_SQANTI as SQANTI_QC_BAMBU              } from '../subworkflows/local/sqanti/sqanti_qc'
+//include { QC_SQANTI as SQANTI_QC_ISOQUANT           } from '../subworkflows/local/sqanti/sqanti_qc'
+//include { QC_SQANTI as SQANTI_QC_STRINGTIE          } from '../subworkflows/local/sqanti/sqanti_qc'
+//include { SQANTI_FILTER as SQANTI_FILTER_FLAIR      } from '../subworkflows/local/sqanti/sqanti_filter'
+//include { SQANTI_FILTER as SQANTI_FILTER_BAMBU      } from '../subworkflows/local/sqanti/sqanti_filter'
+//include { SQANTI_FILTER as SQANTI_FILTER_ISOQUANT   } from '../subworkflows/local/sqanti/sqanti_filter'
+//include { SQANTI_FILTER as SQANTI_FILTER_STRINGTIE  } from '../subworkflows/local/sqanti/sqanti_filter'
+//include { SQANTI_RESCUE as SQANTI_RESCUE_FLAIR      } from '../subworkflows/local/sqanti/sqanti_rescue'
+//include { SQANTI_RESCUE as SQANTI_RESCUE_BAMBU      } from '../subworkflows/local/sqanti/sqanti_rescue'
+//include { SQANTI_RESCUE as SQANTI_RESCUE_ISOQUANT   } from '../subworkflows/local/sqanti/sqanti_rescue'
+//include { SQANTI_RESCUE as SQANTI_RESCUE_STRINGTIE  } from '../subworkflows/local/sqanti/sqanti_rescue'
 
 // transcript reconstruction
 //include { TRANSCRIPT_RECONSTRUCTION
@@ -161,6 +161,7 @@ workflow DIRECTRNA{
 
     ch_versions = Channel.empty()
     ch_multiqc_files = Channel.empty()
+    ch_multiqc_files.view()
     //def multiqc_report      = []
 
     // INPUT_CHECK
@@ -181,7 +182,7 @@ workflow DIRECTRNA{
         }
         if (!params.skip_sequali) {
             SEQUALI( ch_sample )
-            ch_multiqc_files = ch_multiqc_files.mix(SEQUALI.out.json.ifEmpty([]),)
+            ch_multiqc_files = ch_multiqc_files.mix(SEQUALI.out.sequali_json.ifEmpty([]),)
             ch_versions = ch_versions.mix(SEQUALI.out.versions.first())
         }
     }
@@ -258,12 +259,10 @@ workflow DIRECTRNA{
         ch_mixed_bam = ch_bam.combine(ch_bam_index_path)
         ch_mixed_bam.view()
         ch_versions = ch_versions.mix(MAPPING.out.versions.first())
-        //ch_mixed_bam = ch_bam.mix(ch_bam_indx)
     } else {
         ch_bam = ch_sample
         SAMTOOLS_INDEX( ch_bam )
         ch_bam_index = SAMTOOLS_INDEX.out.bai
-        //ch_mixed_bam = ch_bam.combine(ch_bam_index)
     }
 
     // BAM TO BIGWIG for visualisation
@@ -305,7 +304,7 @@ workflow DIRECTRNA{
             ch_multiqc_files = ch_multiqc_files.mix(BAM_QC.out.ngs_bits_stats.ifEmpty([]))
         }
         if (!params.skip_samtools_flagstat){
-            ch_multiqc_files = ch_multiqc_files.mix.(BAM_QC.out.flagstat.ifEmpty([]))
+            ch_multiqc_files = ch_multiqc_files.mix(BAM_QC.out.flagstat.ifEmpty([]))
         }
         ch_versions = ch_versions.mix(BAM_QC.out.versions)
     }
@@ -394,20 +393,25 @@ workflow DIRECTRNA{
 
     // Not done yet
     if (!params.skip_gff_compare) {
-        if (run_flair) {
+        if (params.run_flair) {
             GFFCOMPARE_FLAIR( ch_flair_collapsed_gtf, ch_annotation_gtf, ch_genome_fasta_with_index, 'flair' )
+            ch_multiqc_files = ch_multiqc_files.mix(GFFCOMPARE_FLAIR.out.gffcompare_stats.ifEmpty([]))
         }
-        if (run_bambu) {
+        if (params.run_bambu) {
             GFFCOMPARE_BAMBU( ch_bambu_gtf, ch_annotation_gtf, ch_genome_fasta_with_index, 'bambu' )
+            ch_multiqc_files = ch_multiqc_files.mix(GFFCOMPARE_BAMBU.out.gffcompare_stats.ifEmpty([]))
         }
-        if (run_isoquant) {
-            GFFCOMPARE_ISOQUANT( ch_isoquant_gtf, ch_annotation_gtf, ch_genome_fasta_with_index, 'isoquant' )
-        }
-        if (run_stringtie) {
+      //  if (params.run_isoquant) {
+      //      GFFCOMPARE_ISOQUANT( ch_isoquant_gtf, ch_annotation_gtf, ch_genome_fasta_with_index, 'isoquant' )
+       //     ch_multiqc_files = ch_multiqc_files.mix(GFFCOMPARE_ISOQUANT.out.gffcompare_stats.ifEmpty([]))
+       // }
+        if (params.run_stringtie) {
             GFFCOMPARE_STRINGTIE( ch_stringtie_gtf, ch_annotation_gtf, ch_genome_fasta_with_index, 'stringtie' )
+            ch_multiqc_files = ch_multiqc_files.mix(GFFCOMPARE_STRINGTIE.out.gffcompare_stats.ifEmpty([]))
         }
     }
 
+/*
    // if (!skip_sqanti_all) {
         if (!skip_sqanti_qc) {
             if (run_flair){
@@ -464,15 +468,15 @@ workflow DIRECTRNA{
         Channel.fromPath(params.multiqc_logo, checkIfExists: true) :
         Channel.empty()
 
-    //summary_params      = paramsSummaryMap(
-     //   workflow, parameters_schema: "nextflow_schema.json")
-    ch_workflow_summary = Channel.value(paramsSummaryMultiqc(summary_params))
+    /* summary_params      = paramsSummaryMap(
+    //    workflow, parameters_schema: "nextflow_schema.json")
+    ///ch_workflow_summary = Channel.value(paramsSummaryMultiqc(summary_params))
 
-   // ch_multiqc_custom_methods_description = params.multiqc_methods_description ?
-   //     file(params.multiqc_methods_description, checkIfExists: true) :
-   //     file("$projectDir/assets/methods_description_template.yml", checkIfExists: true)
-   // ch_methods_description                = Channel.value(
-   //     methodsDescriptionText(ch_multiqc_custom_methods_description))
+    //ch_multiqc_custom_methods_description = params.multiqc_methods_description ?
+    //    file(params.multiqc_methods_description, checkIfExists: true) :
+    //    file("$projectDir/assets/methods_description_template.yml", checkIfExists: true)
+    //ch_methods_description                = Channel.value(
+    //    methodsDescriptionText(ch_multiqc_custom_methods_description))
 
     ch_multiqc_files = ch_multiqc_files.mix(
         ch_workflow_summary.collectFile(name: 'workflow_summary_mqc.yaml'))
@@ -483,6 +487,7 @@ workflow DIRECTRNA{
             sort: true
         )
     )
+*/
 
     MULTIQC (
         ch_multiqc_files.collect(),

@@ -3,7 +3,7 @@
 //* Run SQANTI QC on output of transcript reconstruction programs
 //****************************************************************************
 
-include { QC_SQANTI } from '../../modules/local/sqanti/sqanti_qc'
+include { QC_SQANTI } from '../../../../modules/local/sqanti/sqanti_qc'
 
 workflow SQANTI_QC {
 

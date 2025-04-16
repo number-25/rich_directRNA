@@ -42,8 +42,8 @@ process SEQUALI {
     def html_output = task.ext.html_output ?: "--html ${prefix}.html"
     def json_output = task.ext.json_output ?: "--json ${prefix}.json"
     """
-    touch ${prefix}.html
     touch ${prefix}.json
+    touch ${prefix}.html
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":

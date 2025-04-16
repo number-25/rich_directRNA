@@ -32,7 +32,6 @@ process GFFCOMPARE {
     -r ${annnotation.gtf} \\
     -s ${genome_fasta} \\
     -w ${prefix}.fa \\
-    -g ${genome_fasta} \\
     ${reconstructed_gtf}
 
     cat <<-END_VERSIONS > versions.yml
