@@ -154,12 +154,16 @@ include { softwareVersionsToYAML    } from '../subworkflows/nf-core/utils_nfcore
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
+
+//ch_multiqc_files = Channel.empty()
+
 workflow DIRECTRNA{
 
     //take:
     //main:
 
     ch_versions = Channel.empty()
+    ch_versions.view()
     ch_multiqc_files = Channel.empty()
     ch_multiqc_files.view()
     //def multiqc_report      = []
@@ -392,13 +396,13 @@ workflow DIRECTRNA{
     // SQANTI, gffcompare
 
     // Not done yet
-    if (!params.skip_gff_compare) {
+    if (!params.skip_gffcompare) {
         if (params.run_flair) {
-            GFFCOMPARE_FLAIR( ch_flair_collapsed_gtf, ch_annotation_gtf, ch_genome_fasta_with_index, 'flair' )
+            GFFCOMPARE_FLAIR( ch_genome_fasta_with_index, ch_flair_collapsed_gtf, ch_annotation_gtf, 'flair' )
             ch_multiqc_files = ch_multiqc_files.mix(GFFCOMPARE_FLAIR.out.gffcompare_stats.ifEmpty([]))
         }
         if (params.run_bambu) {
-            GFFCOMPARE_BAMBU( ch_bambu_gtf, ch_annotation_gtf, ch_genome_fasta_with_index, 'bambu' )
+            GFFCOMPARE_BAMBU( ch_genome_fasta_with_index, ch_bambu_gtf, ch_annotation_gtf, 'bambu' )
             ch_multiqc_files = ch_multiqc_files.mix(GFFCOMPARE_BAMBU.out.gffcompare_stats.ifEmpty([]))
         }
       //  if (params.run_isoquant) {
@@ -406,7 +410,7 @@ workflow DIRECTRNA{
        //     ch_multiqc_files = ch_multiqc_files.mix(GFFCOMPARE_ISOQUANT.out.gffcompare_stats.ifEmpty([]))
        // }
         if (params.run_stringtie) {
-            GFFCOMPARE_STRINGTIE( ch_stringtie_gtf, ch_annotation_gtf, ch_genome_fasta_with_index, 'stringtie' )
+            GFFCOMPARE_STRINGTIE( ch_genome_fasta_with_index, ch_stringtie_gtf, ch_annotation_gtf, 'stringtie' )
             ch_multiqc_files = ch_multiqc_files.mix(GFFCOMPARE_STRINGTIE.out.gffcompare_stats.ifEmpty([]))
         }
     }
@@ -453,7 +457,7 @@ workflow DIRECTRNA{
             sort: true,
             newLine: true
         ).set { ch_collated_versions }
-}
+
 
     //
     // MODULE: MultiQC
@@ -500,6 +504,7 @@ workflow DIRECTRNA{
     multiqc_report = MULTIQC.out.report.toList() // channel: /path/to/multiqc_report.html
     versions       = ch_versions                 // channel: [ path(versions.yml) ]
 
+}
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     THE END
