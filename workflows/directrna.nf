@@ -181,12 +181,14 @@ workflow DIRECTRNA{
     if (!params.skip_qc || !params_bam_input) {
         if (!params.skip_nanoq) {
             NANOQ( ch_sample )
-            ch_multiqc_files = ch_multiqc_files.mix(NANOQ.out.stats.ifEmpty([]),)
+            ch_nanoq_stats = NANOQ.out.stats.collect{it[1]}.flatten()
+            ch_multiqc_files = ch_multiqc_files.mix(ch_nanoq_stats.ifEmpty([]))
             ch_versions = ch_versions.mix(NANOQ.out.versions.first())
         }
         if (!params.skip_sequali) {
             SEQUALI( ch_sample )
-            ch_multiqc_files = ch_multiqc_files.mix(SEQUALI.out.sequali_json.ifEmpty([]),)
+            ch_sequali_stats = SEQUALI.out.sequali_json.collect{it[1]}.flatten()
+            ch_multiqc_files = ch_multiqc_files.mix(ch_sequali_stats.ifEmpty([]),)
             ch_versions = ch_versions.mix(SEQUALI.out.versions.first())
         }
     }
@@ -256,12 +258,12 @@ workflow DIRECTRNA{
         ch_bam = MAPPING.out.bam
         ch_bam_index = MAPPING.out.bai
         ch_bam_index_path = MAPPING.out.bai.flatten().last()
-        ch_bam
-            .flatten()
-            .last()
-            .view()
+        //ch_bam
+        //    .flatten()
+        //    .last()
+        //    .view()
         ch_mixed_bam = ch_bam.combine(ch_bam_index_path)
-        ch_mixed_bam.view()
+        //ch_mixed_bam.view()
         ch_versions = ch_versions.mix(MAPPING.out.versions.first())
     } else {
         ch_bam = ch_sample
@@ -305,10 +307,12 @@ workflow DIRECTRNA{
             ch_cramino_min_length
             )
         if (!params.skip_ngs_bits){
-            ch_multiqc_files = ch_multiqc_files.mix(BAM_QC.out.ngs_bits_stats.ifEmpty([]))
+            ch_ngs_bits_stats = BAM_QC.out.ngs_bits_stats.collect{it[1]}.flatten()
+            ch_multiqc_files = ch_multiqc_files.mix(ch_ngs_bits_stats.ifEmpty([]))
         }
         if (!params.skip_samtools_flagstat){
-            ch_multiqc_files = ch_multiqc_files.mix(BAM_QC.out.flagstat.ifEmpty([]))
+            ch_samtools_flagstat_stats = BAM_QC.out.flagstat.collect{it[1]}.flatten()
+            ch_multiqc_files = ch_multiqc_files.mix(ch_samtools_flagstat_stats.ifEmpty([]))
         }
         ch_versions = ch_versions.mix(BAM_QC.out.versions)
     }
@@ -399,6 +403,7 @@ workflow DIRECTRNA{
     if (!params.skip_gffcompare) {
         if (params.run_flair) {
             GFFCOMPARE_FLAIR( ch_genome_fasta_with_index, ch_flair_collapsed_gtf, ch_annotation_gtf, 'flair' )
+            GFFCOMPARE_FLAIR.out.gffcompare_stats.collect{it[1]}.flatten().view()
             ch_multiqc_files = ch_multiqc_files.mix(GFFCOMPARE_FLAIR.out.gffcompare_stats.ifEmpty([]))
         }
         if (params.run_bambu) {
