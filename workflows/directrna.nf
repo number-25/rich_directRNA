@@ -188,7 +188,7 @@ workflow DIRECTRNA{
         if (!params.skip_sequali) {
             SEQUALI( ch_sample )
             ch_sequali_stats = SEQUALI.out.sequali_json.collect{it[1]}.flatten()
-            ch_multiqc_files = ch_multiqc_files.mix(ch_sequali_stats.ifEmpty([]),)
+            ch_multiqc_files = ch_multiqc_files.mix(ch_sequali_stats.ifEmpty([]))
             ch_versions = ch_versions.mix(SEQUALI.out.versions.first())
         }
     }
@@ -403,12 +403,13 @@ workflow DIRECTRNA{
     if (!params.skip_gffcompare) {
         if (params.run_flair) {
             GFFCOMPARE_FLAIR( ch_genome_fasta_with_index, ch_flair_collapsed_gtf, ch_annotation_gtf, 'flair' )
-            GFFCOMPARE_FLAIR.out.gffcompare_stats.collect{it[1]}.flatten().view()
-            ch_multiqc_files = ch_multiqc_files.mix(GFFCOMPARE_FLAIR.out.gffcompare_stats.ifEmpty([]))
+            ch_flair_gffcompare_stats = GFFCOMPARE_FLAIR.out.gffcompare_stats.collect{it[1]}.flatten()
+            ch_multiqc_files = ch_multiqc_files.mix(ch_flair_gffcompare_stats.ifEmpty([]))
         }
         if (params.run_bambu) {
             GFFCOMPARE_BAMBU( ch_genome_fasta_with_index, ch_bambu_gtf, ch_annotation_gtf, 'bambu' )
-            ch_multiqc_files = ch_multiqc_files.mix(GFFCOMPARE_BAMBU.out.gffcompare_stats.ifEmpty([]))
+            ch_bambu_gffcompare_stats = GFFCOMPARE_BAMBU.out.gffcompare_stats.collect{it[1]}.flatten()
+            ch_multiqc_files = ch_multiqc_files.mix(ch_bambu_gffcompare_stats.ifEmpty([]))
         }
       //  if (params.run_isoquant) {
       //      GFFCOMPARE_ISOQUANT( ch_isoquant_gtf, ch_annotation_gtf, ch_genome_fasta_with_index, 'isoquant' )
@@ -416,7 +417,8 @@ workflow DIRECTRNA{
        // }
         if (params.run_stringtie) {
             GFFCOMPARE_STRINGTIE( ch_genome_fasta_with_index, ch_stringtie_gtf, ch_annotation_gtf, 'stringtie' )
-            ch_multiqc_files = ch_multiqc_files.mix(GFFCOMPARE_STRINGTIE.out.gffcompare_stats.ifEmpty([]))
+            ch_stringtie_gffcompare_stats = GFFCOMPARE_STRINGTIE.out.gffcompare_stats.collect{it[1]}.flatten()
+            ch_multiqc_files = ch_multiqc_files.mix(ch_stringtie_gffcompare_stats.ifEmpty([]))
         }
     }
 
