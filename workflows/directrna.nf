@@ -131,7 +131,7 @@ include { GFFCOMPARE as GFFCOMPARE_STRINGTIE      } from '../modules/local/gffco
 //include { SQANTI_RESCUE as SQANTI_RESCUE_STRINGTIE  } from '../subworkflows/local/sqanti/sqanti_rescue'
 
 // transcript reconstruction
-//include { TRANSCRIPT_RECONSTRUCTION
+// include { TRANSCRIPT_RECONSTRUCTION
 
 
 /*
@@ -192,9 +192,6 @@ workflow DIRECTRNA{
             ch_versions = ch_versions.mix(SEQUALI.out.versions.first())
         }
     }
-
-    ///ch_multiqc_files = ch_multiqc_files.mix(FASTQC.out.zip.collect{it[1]})
-    ///ch_versions = ch_versions.mix(FASTQC.out.versions.first())
 
     // Prepare the reference files
     /// SUBWORKFLOW: PREPARE_REFERENCE
@@ -258,12 +255,7 @@ workflow DIRECTRNA{
         ch_bam = MAPPING.out.bam
         ch_bam_index = MAPPING.out.bai
         ch_bam_index_path = MAPPING.out.bai.flatten().last()
-        //ch_bam
-        //    .flatten()
-        //    .last()
-        //    .view()
         ch_mixed_bam = ch_bam.combine(ch_bam_index_path)
-        //ch_mixed_bam.view()
         ch_versions = ch_versions.mix(MAPPING.out.versions.first())
     } else {
         ch_bam = ch_sample
@@ -281,7 +273,6 @@ workflow DIRECTRNA{
         BEDGRAPH_BEDCLIP_BEDGRAPHTOBIGWIG_FW( ch_bedgraph_fw, ch_genome_fasta_sizes, '+' )
         BEDGRAPH_BEDCLIP_BEDGRAPHTOBIGWIG_REV( ch_bedgraph_rev, ch_genome_fasta_sizes, '-' )
     }
-
 
     // BAM QC
     // SUBWORKFLOW: BAM_QC
@@ -328,8 +319,6 @@ workflow DIRECTRNA{
             ch_mapped_bed = BAM_TO_BED12.out.bed
             FLAIR_CORRECT( ch_mapped_bed, ch_genome_fasta, ch_annotation_gtf )
             ch_flair_corrected_bed = FLAIR_CORRECT.out.flair_corrected_bed
-            //BED_TO_GTF?
-            //GFFREAD_FLAIR( ch_
             BEDTOOLS_JACCARD_FLAIR( ch_flair_corrected_bed, ch_mapped_bed, 'flair' )
         }
         if (!params.skip_flair_collapse) {
