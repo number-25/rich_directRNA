@@ -2,8 +2,8 @@
     label 'process_medium'
     conda "${moduleDir}/environment.yml"
     container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
-        'https://depot.galaxyproject.org/singularity/YOUR-TOOL-HERE':
-        'docker/number25/transigner:' }"
+        'docker://quay.io/number_25/transigner-alpine:1.1.3':
+        'number25/transigner-alpine:1.1.3' }"
 
     //TO-DO
     // Split the different chunks of the program into separate modules and wrap into a subworkflow?
