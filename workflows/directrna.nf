@@ -108,13 +108,15 @@ include { GFFREAD_GETFASTA as GFFREAD_GETFASTA_STRINGTIE} from '../modules/local
 //include { JAFFAL                  } from '../modules/local/jaffal'
 
 // transcriptome assessment
-// JACCARD
+// JACCARD for tools using read correction
 include { BEDTOOLS_JACCARD as BEDTOOLS_JACCARD_FLAIR    } from '../modules/local/bedtools/jaccard'
 include { BEDTOOLS_JACCARD as BEDTOOLS_JACCARD_ISOQUANT } from '../modules/local/bedtools/jaccard'
+// GFFCOMPARE
 include { GFFCOMPARE as GFFCOMPARE_FLAIR          } from '../modules/local/gffcompare/gffcompare'
 include { GFFCOMPARE as GFFCOMPARE_BAMBU          } from '../modules/local/gffcompare/gffcompare'
 include { GFFCOMPARE as GFFCOMPARE_ISOQUANT       } from '../modules/local/gffcompare/gffcompare'
 include { GFFCOMPARE as GFFCOMPARE_STRINGTIE      } from '../modules/local/gffcompare/gffcompare'
+
 // Going to be a bit of a long-think
 //include { SQANTI_PREPARE_REFERENCE                  } from '../subworkflows/local/sqanti/'
 //include { QC_SQANTI as SQANTI_QC_FLAIR              } from '../subworkflows/local/sqanti/sqanti_qc'
@@ -130,9 +132,8 @@ include { GFFCOMPARE as GFFCOMPARE_STRINGTIE      } from '../modules/local/gffco
 //include { SQANTI_RESCUE as SQANTI_RESCUE_ISOQUANT   } from '../subworkflows/local/sqanti/sqanti_rescue'
 //include { SQANTI_RESCUE as SQANTI_RESCUE_STRINGTIE  } from '../subworkflows/local/sqanti/sqanti_rescue'
 
-// transcript reconstruction
+// transcript reconstruction subworkflow?
 // include { TRANSCRIPT_RECONSTRUCTION
-
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -212,7 +213,7 @@ workflow DIRECTRNA{
             params.sqanti_qc_polyA_motif,   // boolean [default: true]
             params.sqanti_qc_intron_junctions, // boolean [default: true]
             params.skip_jaffal,             // boolean [default: false]
-            params.skip_jaffal_download    // boolean [default: true]
+            params.skip_jaffal_download    // boolean [default: false]
         )
         // initialize genome + transcriptome references
         ch_genome_fasta                 = PREPARE_REFERENCE.out.genome_fasta
@@ -221,6 +222,8 @@ workflow DIRECTRNA{
         ch_genome_minimap2_index        = PREPARE_REFERENCE.out.genome_minimap2_index
         ch_transcriptome_fasta          = PREPARE_REFERENCE.out.transcriptome_fasta
         ch_annotation_gtf               = PREPARE_REFERENCE.out.annotation_gtf
+        ch_jaffal_reference_dir         = PREPARE_REFERENCE.out.jaffal_reference
+
         // initialize sqanti qc references
         if (!params.skip_sqanti_qc) {
             if (params.sqanti_qc_cage) {
@@ -236,13 +239,8 @@ workflow DIRECTRNA{
                 ch_sqanti_qc_intron_junctions_bed = PREPARE_REFERENCE.out.sqanti_qc_intron_junctions_bed
             }
         }
-        // initialize jaffal reference
-        if (!params.skip_jaffal) {
-            ch_jaffal_reference = PREPARE_REFERENCE.out.jaffal_reference
-        }
-        ch_versions = ch_versions.mix(PREPARE_REFERENCE.out.versions)
-    }
 */
+
 
     // Combine genome fasta with genome fasta index into single channel
     ch_genome_fasta_with_index = ch_genome_fasta.combine(ch_genome_fasta_index)
@@ -370,24 +368,21 @@ workflow DIRECTRNA{
         ch_versions = ch_versions.mix(GFFREAD_GETFASTA_STRINGTIE.out.versions.first())
     }
 
-/*
-
     // TALON + TRANSCRIPT CLEAN may be added if it begins being maintained regularly https://github.com/mortazavilab/TranscriptClean
-    //
+
     // Fusion gene detection
     // MODULE: JAFFAL
-
     if (!params.skip_jaffal && !params.custom_genome) {
-        JAFFAL( ch_sample, ch_jaffal_ref )
+        JAFFAL( ch_sample, ch_jaffal_reference_dir )
         ch_jaffal_fasta = JAFFAL.out.jaffal_fasta
         ch_jaffal_csv = JAFFAL.out.jaffal_csv
         ch_versions = ch_versions.mix(JAFFAL.out.versions.first())
         }
-*/
+
     //
     // Transcriptome assessment
     // SQANTI, gffcompare
-
+    // TODO
     // Not done yet
     if (!params.skip_gffcompare) {
         if (params.run_flair) {

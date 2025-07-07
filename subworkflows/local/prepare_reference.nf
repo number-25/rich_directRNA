@@ -139,9 +139,14 @@ workflow PREPARE_REFERENCE{
     if (!skip_jaffal) {
         if (!skip_jaffal_download) {
             JAFFAL_PREPARE_REFERENCE()
-            ch_jaffal_reference = JAFFAL_PREPARE_REFERENCE.out.jaffal_reference
+            ch_jaffal_reference_dir = JAFFAL_PREPARE_REFERENCE.out.jaffal_reference_dir
         } else {
-            ch_jaffal_reference = Channel.value(file(jaffal_reference), checkIfExists: true)
+            // reference directory needs to be gzipped for this function to work
+            ch_jaffal_ref_dir = file(params.jaffal_reference, checkIfExists: true)
+            UNTAR ( ch_jaffal_reference_dir )
+            UNTAR.out.untar
+                .map { it  -> [ it[1] ]}
+                .set { ch_jaffal_reference_dir }
         }
     }
 
@@ -165,7 +170,7 @@ workflow PREPARE_REFERENCE{
     sqanti_qc_polyA_sites_bed = ch_sqanti_qc_polyA_sites_bed
     sqanti_qc_polyA_motif = ch_sqanti_qc_polyA_motif
     sqanti_qc_intron_junctions_bed = ch_sqanti_qc_intron_junctions_bed
-    jaffal_reference = ch_jaffal_reference
+    jaffal_reference = ch_jaffal_reference_dir
     //phylop_bed = ch_phylop_bed
     versions = ch_versions                     // channel: [ versions.yml ]
 }
