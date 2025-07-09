@@ -172,10 +172,6 @@ workflow DIRECTRNA{
     // INPUT_CHECK
     INPUT_CHECK ( ch_input )
         .set { ch_sample }
-    // playing around with channel transformations
-    ///ch_sample
-    ///.map { it -> [ it[0], it[1] ] } // take sample, replicate, reads
-    ///.set { ch_fastq }
 
     // QC of fastq files
     /// MODULES: NANOQ & SEQUALI
@@ -196,7 +192,7 @@ workflow DIRECTRNA{
 
     // Prepare the reference files
     /// SUBWORKFLOW: PREPARE_REFERENCE
-   /* if (!params.skip_prepare_reference) {
+    if (!params.skip_prepare_reference) {
         PREPARE_REFERENCE (
             params.genome_fasta,
             params.genome_fasta_index,
@@ -223,8 +219,11 @@ workflow DIRECTRNA{
         ch_transcriptome_fasta          = PREPARE_REFERENCE.out.transcriptome_fasta
         ch_annotation_gtf               = PREPARE_REFERENCE.out.annotation_gtf
         ch_jaffal_reference_dir         = PREPARE_REFERENCE.out.jaffal_reference
+        // Combine genome fasta with genome fasta index into single channel -
+        // some software expect both files in a single path/channel
+        ch_genome_fasta_with_index = ch_genome_fasta.combine(ch_genome_fasta_index)
 
-        // initialize sqanti qc references
+   /*     // initialize sqanti qc references
         if (!params.skip_sqanti_qc) {
             if (params.sqanti_qc_cage) {
                 ch_sqanti_qc_cage_bed = PREPARE_REFERENCE.out.sqanti_qc_cage_bed
@@ -241,9 +240,6 @@ workflow DIRECTRNA{
         }
 */
 
-
-    // Combine genome fasta with genome fasta index into single channel
-    ch_genome_fasta_with_index = ch_genome_fasta.combine(ch_genome_fasta_index)
 
     // Mapping and sorting
     // SUBWORKFLOW: MAPPING
@@ -347,6 +343,7 @@ workflow DIRECTRNA{
         ch_versions = ch_versions.mix(GFFREAD_GETFASTA.out.versions.first())
         }
 
+    // TODO
     // ISOQUANT
    // if (!params.skip_isoquant) {
    //     ISOQUANT( ch_mixed_bam, ch_annotation_gtf, ch_genome_fasta)
@@ -424,13 +421,12 @@ workflow DIRECTRNA{
         }
 
     //
-    // Transcript quantification
+    // Transcript quantification will be added in first update to pipeline
     // TransSigner
     //if (!params.skip_quantification && !params.skip_mapping)
     //    TRANSIGNER_MAP
     //    TRANSIGNER_
     //    TRANSIGNER_QUANT
-
 */
 
     //
