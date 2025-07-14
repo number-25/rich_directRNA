@@ -1,14 +1,17 @@
 /* Checks the input channel and creates channel map */
 
-include { CHECK_SAMPLESHEET } from '../../modules/local/check_samplesheet.nf'
+// can't use this until julia script is refined and fixed
+//include { CHECK_SAMPLESHEET } from '../../modules/local/check_samplesheet.nf'
 
 workflow INPUT_CHECK {
     take:
     samplesheet // file: /path/to/samplesheet
 
     main:
-    CHECK_SAMPLESHEET( samplesheet )
-        .csv
+    //CHECK_SAMPLESHEET( samplesheet )
+    //.csv  - access csv output from check_samplesheet module - not used at the moment
+    ch_samplesheet = Channel.fromPath(samplesheet, checkIfExists: true)
+    ch_samplesheet
         .splitCsv ( header:true, sep:',' )
         .map { get_sample_info(it) }
         .set { ch_sample }

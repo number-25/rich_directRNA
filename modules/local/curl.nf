@@ -4,8 +4,11 @@ process CURL {
 
     conda "${moduleDir}/environment.yml"
     container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
-        'alpine/curl:8.12.1' :
-        'docker://quay.io/curl/curl:8.12.1' }"
+        'docker://ricsanfre/docker-curl-jq:latest':
+         'docker://ricsanfre/docker-curl-jq:latest' }"
+   //     'curl/curl:8.14.1':
+   //     'alpine/curl:8.14.1'}"
+        //'docker://quay.io/curl/curl:8.14.1' }"
 
     input:
     val(prefix)
@@ -14,21 +17,23 @@ process CURL {
     //tuple val(meta), path(archive)
 
     output:
-    path(curl), emit: curl
+    path("*.zip"), emit: curl
     path "versions.yml", emit: versions
 
     when:
     task.ext.when == null || task.ext.when
 
     script:
-    def args        = task.ext.args ?: ''
-    def retry       = task.ext.args ?: '--retry 5'
+    def args            = task.ext.args ?: ''
+    def retry           = task.ext.retry ?: '--retry 5'
+    def mimic_browser   = task.ext.mimic_browser ?: '-A "Mozilla/5.0"'
     //def extension   = ( archive.toString() - '.gz' ).tokenize('.')[-1]
     //def name        = archive.toString() - '.gz' - ".$extension"
     //def prefix      = task.ext.prefix ?: name
     //gunzip          = prefix + ".$extension"
     """
     curl \\
+        $mimic_browser \\
         $retry \\
         -L $url \\
         -o ${prefix}.${suffix}

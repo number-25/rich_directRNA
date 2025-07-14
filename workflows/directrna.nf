@@ -201,15 +201,19 @@ workflow DIRECTRNA{
             params.bam_input,
             params.transcriptome_fasta,
             params.annotation_gtf,
+            params.skip_jaffal,             // boolean [default: false]
+            params.skip_jaffal_download,    // boolean [default: false]
             params.skip_sqanti_all,         // boolean [default: false]
             params.skip_sqanti_qc,          // boolean [defeault: false]
             params.sqanti_qc_reference,     // value: human, mouse or custom
             params.sqanti_qc_cage,          // boolean [default: true]
+            params.sqanti_qc_cage_path,          // boolean [default: path]
             params.sqanti_qc_polyA_sites,   // boolean [default: true]
+            params.sqanti_qc_polyA_sites_path,   // boolean [default: path]
             params.sqanti_qc_polyA_motif,   // boolean [default: true]
+            params.sqanti_qc_polyA_motif_path,   // boolean [default: path]
             params.sqanti_qc_intron_junctions, // boolean [default: true]
-            params.skip_jaffal,             // boolean [default: false]
-            params.skip_jaffal_download    // boolean [default: false]
+            params.sqanti_qc_intron_path // boolean [default: path]
         )
         // initialize genome + transcriptome references
         ch_genome_fasta                 = PREPARE_REFERENCE.out.genome_fasta
@@ -219,18 +223,12 @@ workflow DIRECTRNA{
         ch_transcriptome_fasta          = PREPARE_REFERENCE.out.transcriptome_fasta
         ch_annotation_gtf               = PREPARE_REFERENCE.out.annotation_gtf
         ch_jaffal_reference_dir         = PREPARE_REFERENCE.out.jaffal_reference
-<<<<<<< HEAD
-    }
-        // initialize sqanti qc references
-/*        if (!params.skip_sqanti_qc) {
-=======
         // Combine genome fasta with genome fasta index into single channel -
         // some software expect both files in a single path/channel
         ch_genome_fasta_with_index = ch_genome_fasta.combine(ch_genome_fasta_index)
 
-   /*     // initialize sqanti qc references
+        // initialize sqanti qc references
         if (!params.skip_sqanti_qc) {
->>>>>>> 2623fc015244134455b8922ec3a7e467dd543784
             if (params.sqanti_qc_cage) {
                 ch_sqanti_qc_cage_bed = PREPARE_REFERENCE.out.sqanti_qc_cage_bed
             }
@@ -244,9 +242,9 @@ workflow DIRECTRNA{
                 ch_sqanti_qc_intron_junctions_bed = PREPARE_REFERENCE.out.sqanti_qc_intron_junctions_bed
             }
         }
-*/
+    }
 
-
+/*
     // Mapping and sorting
     // SUBWORKFLOW: MAPPING
     //
@@ -455,7 +453,7 @@ workflow DIRECTRNA{
     //
     // MODULE: MultiQC
     //
-
+/*
     ch_multiqc_config        = Channel.fromPath(
         "$projectDir/assets/multiqc_config.yml", checkIfExists: true)
     ch_multiqc_custom_config = params.multiqc_config ?
@@ -485,7 +483,7 @@ workflow DIRECTRNA{
         )
     )
 */
-
+/*
     MULTIQC (
         ch_multiqc_files.collect(),
         ch_multiqc_config.toList(),
@@ -496,8 +494,9 @@ workflow DIRECTRNA{
     emit:
     multiqc_report = MULTIQC.out.report.toList() // channel: /path/to/multiqc_report.html
     versions       = ch_versions                 // channel: [ path(versions.yml) ]
-
+*/
 }
+
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     THE END

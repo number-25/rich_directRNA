@@ -1,6 +1,6 @@
 process MINIMAP2_INDEX {
     tag "$fasta"
-    label 'process_high'
+    label 'process_medium'
 
     // Note: the versions here need to match the versions used in minimap2/align
     conda "${moduleDir}/environment.yml"
@@ -12,9 +12,8 @@ process MINIMAP2_INDEX {
     path(genome_fasta)
 
     output:
-    //tuple path?
-    path ("*.mmi"), emit: index
-    path "versions.yml"           , emit: versions
+    path ("*.mmi"),         emit: index
+    path "versions.yml",    emit: versions
 
     when:
     task.ext.when == null || task.ext.when

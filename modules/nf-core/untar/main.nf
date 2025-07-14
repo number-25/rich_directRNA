@@ -8,7 +8,8 @@ process UNTAR {
         : 'community.wave.seqera.io/library/coreutils_grep_gzip_lbzip2_pruned:838ba80435a629f8'}"
 
     input:
-    tuple val(meta), path(archive)
+    path archive
+    val reference_name 
 
     output:
     tuple val(meta), path("${prefix}"), emit: untar
@@ -20,7 +21,9 @@ process UNTAR {
     script:
     def args = task.ext.args ?: ''
     def args2 = task.ext.args2 ?: ''
-    prefix = task.ext.prefix ?: (meta.id ? "${meta.id}" : archive.baseName.toString().replaceFirst(/\.tar$/, ""))
+    prefix = task.ext.prefix ?: "$reference_name"
+    //prefix = task.ext.prefix ?: (meta.id ? "${meta.id}" : archive.baseName.toString().replaceFirst(/\.tar$/, ""))
+
 
     """
     mkdir ${prefix}
