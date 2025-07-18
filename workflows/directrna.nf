@@ -53,7 +53,7 @@ if (params.transcriptome_fasta) {
 if (params.skip_prepare_reference){
     ch_genome_minimap2_index = Channel.fromPath(params.genome_minimap2_index, checkIfExists: true)
     ch_genome_fasta_index    = Channel.fromPath(params.genome_fasta_index, checkIfExists: true)
-    ch_genome_fasta_sizes    = Channel.fromPath(params.genome_fasta_sizes, checkIfExists: true)
+    ch_genome_sizes          = Channel.fromPath(params.genome_fasta_sizes, checkIfExists: true)
 }
 
 // Function to check if running offline
@@ -244,7 +244,6 @@ workflow DIRECTRNA{
         }
     }
 
-/*
     // Mapping and sorting
     // SUBWORKFLOW: MAPPING
     //
@@ -259,17 +258,19 @@ workflow DIRECTRNA{
         ch_bam = ch_sample
         SAMTOOLS_INDEX( ch_bam )
         ch_bam_index = SAMTOOLS_INDEX.out.bai
+        ch_bam_index_path = MAPPING.out.bai.flatten().last()
+        ch_mixed_bam = ch_bam.combine(ch_bam_index_path)
     }
 
     // BAM TO BIGWIG for visualisation
     // uses SUBWORKFLOW: BEDGRAPH_BEDCLIP_BEDGRAPHTOBIGWIG
     if (!params.skip_bam_to_bigwig) {
-        BAM_TO_BEDGRAPH_FW( ch_bam, ch_genome_fasta_sizes, '+' )
-        BAM_TO_BEDGRAPH_REV( ch_bam, ch_genome_fasta_sizes, '-' )
+        BAM_TO_BEDGRAPH_FW( ch_bam, ch_genome_sizes, '+' )
+        BAM_TO_BEDGRAPH_REV( ch_bam, ch_genome_sizes, '-' )
         ch_bedgraph_fw = BAM_TO_BEDGRAPH_FW.out.bedgraph
         ch_bedgraph_rev = BAM_TO_BEDGRAPH_REV.out.bedgraph
-        BEDGRAPH_BEDCLIP_BEDGRAPHTOBIGWIG_FW( ch_bedgraph_fw, ch_genome_fasta_sizes, '+' )
-        BEDGRAPH_BEDCLIP_BEDGRAPHTOBIGWIG_REV( ch_bedgraph_rev, ch_genome_fasta_sizes, '-' )
+        BEDGRAPH_BEDCLIP_BEDGRAPHTOBIGWIG_FW( ch_bedgraph_fw, ch_genome_sizes, '+' )
+        BEDGRAPH_BEDCLIP_BEDGRAPHTOBIGWIG_REV( ch_bedgraph_rev, ch_genome_sizes, '-' )
     }
 
     // BAM QC
@@ -292,6 +293,7 @@ workflow DIRECTRNA{
             ch_ngs_bits_build,
             ch_ngs_bits_skip_contamination,
             ch_bam,
+            ch_mixed_bam,
             ch_genome_fasta,
             ch_cramino_min_length
             )
@@ -305,6 +307,7 @@ workflow DIRECTRNA{
         }
         ch_versions = ch_versions.mix(BAM_QC.out.versions)
     }
+
 
     // Stand alone read correction tools? Which ones....
 
@@ -344,19 +347,19 @@ workflow DIRECTRNA{
         // MIX genome fasta with fasta index as this will improve GFFREADs speed
         GFFREAD_GETFASTA_BAMBU( ch_bambu_gtf, ch_genome_fasta_with_index, 'bambu' )
         ch_bambu_transcripts = GFFREAD_GETFASTA_BAMBU.out.transcripts_fa
-        ch_versions = ch_versions.mix(GFFREAD_GETFASTA.out.versions.first())
+        ch_versions = ch_versions.mix(GFFREAD_GETFASTA_BAMBU.out.versions.first())
         }
 
     // TODO
     // ISOQUANT
-    if (params.run_isoquant) {
-        ISOQUANT( ch_mixed_bam, ch_annotation_gtf, ch_genome_fasta)
-        ch_isoquant_gtf = ISOQUANT.out.isoquant_transcript_gtf
-        ch_versions = ch_versions.mix(ISOQUANT.out.versions.first())
-        GFFREAD_GETFASTA_ISOQUANT( ch_isoquant_gtf, ch_genome_fasta_with_index, 'isoquant' )
-        ch_isoquant_transcripts = GFFREAD_GETFASTA_ISOQUANT.out.transcripts_fa
-        ch_versions = ch_versions.mix(GFFREAD_GETFASTA_ISOQUANT.out.versions.first())
-    }
+//    if (params.run_isoquant) {
+//        ISOQUANT( ch_mixed_bam, ch_annotation_gtf, ch_genome_fasta)
+//        ch_isoquant_gtf = ISOQUANT.out.isoquant_transcript_gtf
+//        ch_versions = ch_versions.mix(ISOQUANT.out.versions.first())
+//        GFFREAD_GETFASTA_ISOQUANT( ch_isoquant_gtf, ch_genome_fasta_with_index, 'isoquant' )
+//        ch_isoquant_transcripts = GFFREAD_GETFASTA_ISOQUANT.out.transcripts_fa
+//        ch_versions = ch_versions.mix(GFFREAD_GETFASTA_ISOQUANT.out.versions.first())
+//    }
 
 
     // STRINGTIE
@@ -371,6 +374,7 @@ workflow DIRECTRNA{
 
     // TALON + TRANSCRIPT CLEAN may be added if it begins being maintained regularly https://github.com/mortazavilab/TranscriptClean
 
+/*
     // Fusion gene detection
     // MODULE: JAFFAL
     if (!params.skip_jaffal && !params.custom_genome) {

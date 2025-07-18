@@ -8,7 +8,7 @@ process NGS_BITS {
         'benekenobi/ngs-bits:2025_01' }"
 
     input:
-    tuple val(meta), path(bam)
+    tuple val(meta), path(bam), path(index)
     path genome_fasta
     val build
     val contamination
@@ -34,7 +34,7 @@ process NGS_BITS {
         -rna \\
         -ref $genome_fasta \\
         -long_read \\
-        $contamination \\
+        $contamination
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":

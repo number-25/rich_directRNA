@@ -3,8 +3,8 @@ process FLAIR_CORRECT {
     label 'process_medium'
     conda "${moduleDir}/environment.yml"
     container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
-        'https://depot.galaxyproject.org/singularity/flair:2.0.0--pyhdfd78af_1':
-        'brookslab/flair:2.0.0' }"
+        'https://depot.galaxyproject.org/singularity/flair:2.2.0--pyhdfd78af_0':
+        'brookslab/flair:2.2.0' }"
 
     input:
     tuple val(meta), path(bed)

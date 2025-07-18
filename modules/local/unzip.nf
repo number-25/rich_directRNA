@@ -13,7 +13,7 @@ process UNZIP {
     val reference_name
 
     output:
-    tuple val(meta), path("${prefix}/"), emit: unzipped_archive
+    path("${prefix}/"), emit: unzipped_archive
     path "versions.yml"                , emit: versions
 
     when:

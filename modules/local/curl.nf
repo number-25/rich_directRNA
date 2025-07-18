@@ -25,8 +25,8 @@ process CURL {
 
     script:
     def args            = task.ext.args ?: ''
-    def retry           = task.ext.retry ?: '--retry 5'
-    def mimic_browser   = task.ext.mimic_browser ?: '-A "Mozilla/5.0"'
+    //def retry           = task.ext.retry ?: '--retry 5'
+    def mimic_browser   = task.ext.mimic_browser ?: '-A "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36"'
     //def extension   = ( archive.toString() - '.gz' ).tokenize('.')[-1]
     //def name        = archive.toString() - '.gz' - ".$extension"
     //def prefix      = task.ext.prefix ?: name
@@ -34,7 +34,6 @@ process CURL {
     """
     curl \\
         $mimic_browser \\
-        $retry \\
         -L $url \\
         -o ${prefix}.${suffix}
 
@@ -46,7 +45,8 @@ process CURL {
 
     stub:
     def args        = task.ext.args ?: ''
-    def retry       = task.ext.args ?: '--retry 5'
+    //def retry       = task.ext.args ?: '--retry 5'
+    def mimic_browser   = task.ext.mimic_browser ?: '-A "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36"'
     //def extension   = ( archive.toString() - '.gz' ).tokenize('.')[-1]
     //def name        = archive.toString() - '.gz' - ".$extension"
     //def prefix      = task.ext.prefix ?: name

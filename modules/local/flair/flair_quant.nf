@@ -25,8 +25,8 @@ process FLAIRCORRECT {
     // TODO nf-core: See section in main README for further information regarding finding and adding container addresses to the section below.
     conda "${moduleDir}/environment.yml"
     container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
-        'https://depot.galaxyproject.org/singularity/flair:2.0.0--pyhdfd78af_1':
-        'biocontainers/flair:2.0.0--pyhdfd78af_1' }"
+        'https://depot.galaxyproject.org/singularity/flair:2.2.0--pyhdfd78af_0':
+        'brookslab/flair:2.2.0' }"
 
     input:
     // TODO nf-core: Where applicable all sample-specific information e.g. "id", "single_end", "read_group"
