@@ -1,6 +1,6 @@
 process JAFFAL {
     echo true
-    label 'process_medium'
+    label 'process_high'
 
     conda "bioconda::jaffa=2.3.0"
     container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
@@ -19,12 +19,16 @@ process JAFFAL {
     when:
     task.ext.when == null || task.ext.when
 
+    //refBase=$jaffal_ref_dir \\
+    //-p genome=Masked_hg38 \\
+    //-p annotation=hg38_genCode37 \\
     script:
     """
     bpipe \\
-        run -p \\
-        refBase=$jaffal_ref_dir \\
-        $jaffal_ref_dir/JAFFAL.groovy \\
+        run \\
+        JAFFAL.groovy \\
+        -p refBase=$jaffal_ref_dir \\
+        -n $task.cpus \\
         $fastq
 
     cat <<-END_VERSIONS > versions.yml

@@ -17,14 +17,20 @@ process BAMBU {
     tuple val(meta), path(bam)
 
     output:
-    tuple val(meta), path("*_extended_annotations.gtf"),        emit: bambu_extended_gtf
+    path "counts_gene.txt"         , emit: ch_gene_counts
+    path "counts_transcript.txt"   , emit: ch_transcript_counts
+    tuple val(meta), path("extended_annotations.gtf"), emit: bambu_extended_gtf
+    path "versions.yml"            , emit: versions
+
+/*
+    tuple val(meta), path("extendedAnnotations.gtf"),        emit: bambu_extended_gtf
     //tuple val(meta), path("*_counts_gene.txt")         , emit: bambu_gene_counts
     //tuple val(meta), path("*_counts_transcript.txt")   , emit: bambu_transcript_counts
-    tuple val(meta), path("*_all_transcript_models.gtf"),       emit: bambu_transcript_models
-    tuple val(meta), path("*_supported_transcript_models.gtf"), emit: bambu_supported_transcript_models
-    tuple val(meta), path("*_novel_transcript_models.gtf"),     emit: bambu_novel_transcript_models
+    tuple val(meta), path("allTranscriptModels.gtf"),       emit: bambu_transcript_models
+    tuple val(meta), path("supportedTranscriptModels.gtf"), emit: bambu_supported_transcript_models
+    tuple val(meta), path("novelTranscripts.gtf"),     emit: bambu_novel_transcript_models
     path "versions.yml",                                        emit: versions
-
+*/
     when:
     task.ext.when == null || task.ext.when
     //def prefix = task.ext.prefix ?: "${meta.id}_${meta.replicate}_bambu"

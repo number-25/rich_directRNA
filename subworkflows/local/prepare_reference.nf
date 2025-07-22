@@ -10,6 +10,7 @@ include { GUNZIP as GUNZIP_TRANSCRIPTOME    } from '../../modules/nf-core/gunzip
 include { GUNZIP as GUNZIP_ANNOTATION_GTF   } from '../../modules/nf-core/gunzip'
 include { SQANTI_PREPARE_REFERENCE          } from '../local/sqanti/sqanti_prepare_reference'
 include { JAFFAL_PREPARE_REFERENCE          } from '../local/jaffal_prepare_reference'
+include { UNZIP                             } from '../../modules/local/unzip'
 
 // prepare additional files
 //TO-DO make these modules
@@ -33,6 +34,7 @@ workflow PREPARE_REFERENCE{
     //mane_clinical_bed?
     skip_jaffal                     // boolean: skip jaffal fusion gene detection [default: false]
     skip_jaffal_download            // boolean: skip jaffal fusion gene detection [default: false]
+    jaffal_reference                // file: /path/to/jaffal_reference
     skip_sqanti_all                 // boolean: skip all of sqanti [default: false]
     skip_sqanti_qc                  // boolean: skip sqanti qc [default: false]
     sqanti_qc_reference             // boolean: three values options [mouse, human, custom]
@@ -149,13 +151,14 @@ workflow PREPARE_REFERENCE{
         if (!skip_jaffal_download) {
             JAFFAL_PREPARE_REFERENCE()
             ch_jaffal_reference_dir = JAFFAL_PREPARE_REFERENCE.out.jaffal_reference_dir
+         } else if (params.jaffal_reference.endsWith('.zip')) {
+        //} else {
+        // reference directory needs to be gzipped for this function to work
+            ch_jaffal_reference = file(params.jaffal_reference, checkIfExists: true)
+            UNZIP( ch_jaffal_ref_dir, "jaffal_reference" )
+            ch_jaffal_reference_dir = UNZIP.out.unzipped_archive
         } else {
-            // reference directory needs to be gzipped for this function to work
-            ch_jaffal_ref_dir = file(params.jaffal_reference, checkIfExists: true)
-            UNTAR ( ch_jaffal_reference_dir )
-            UNTAR.out.untar
-                .map { it  -> [ it[1] ]}
-                .set { ch_jaffal_reference_dir }
+            ch_jaffal_reference_dir = file(params.jaffal_reference, checkIfExists: true)
         }
     }
 

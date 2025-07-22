@@ -105,7 +105,7 @@ include { GFFREAD_GETFASTA as GFFREAD_GETFASTA_ISOQUANT } from '../modules/local
 include { GFFREAD_GETFASTA as GFFREAD_GETFASTA_STRINGTIE} from '../modules/local/gffread'
 
 // fusion gene detection
-//include { JAFFAL                  } from '../modules/local/jaffal'
+include { JAFFAL                  } from '../modules/local/jaffal'
 
 // transcriptome assessment
 // JACCARD for tools using read correction
@@ -203,6 +203,7 @@ workflow DIRECTRNA{
             params.annotation_gtf,
             params.skip_jaffal,             // boolean [default: false]
             params.skip_jaffal_download,    // boolean [default: false]
+            params.jaffal_reference,        // path
             params.skip_sqanti_all,         // boolean [default: false]
             params.skip_sqanti_qc,          // boolean [defeault: false]
             params.sqanti_qc_reference,     // value: human, mouse or custom
@@ -223,6 +224,7 @@ workflow DIRECTRNA{
         ch_transcriptome_fasta          = PREPARE_REFERENCE.out.transcriptome_fasta
         ch_annotation_gtf               = PREPARE_REFERENCE.out.annotation_gtf
         ch_jaffal_reference_dir         = PREPARE_REFERENCE.out.jaffal_reference
+        ch_jaffal_reference_dir.view()
         // Combine genome fasta with genome fasta index into single channel -
         // some software expect both files in a single path/channel
         ch_genome_fasta_with_index = ch_genome_fasta.combine(ch_genome_fasta_index)
@@ -374,16 +376,17 @@ workflow DIRECTRNA{
 
     // TALON + TRANSCRIPT CLEAN may be added if it begins being maintained regularly https://github.com/mortazavilab/TranscriptClean
 
-/*
+
     // Fusion gene detection
     // MODULE: JAFFAL
     if (!params.skip_jaffal && !params.custom_genome) {
+        ch_jaffal_reference_dir.view()
         JAFFAL( ch_sample, ch_jaffal_reference_dir )
         ch_jaffal_fasta = JAFFAL.out.jaffal_fasta
-        ch_jaffal_csv = JAFFAL.out.jaffal_csv
+        ch_jaffal_csv = JAFFAL.out.jaffal_results
         ch_versions = ch_versions.mix(JAFFAL.out.versions.first())
         }
-
+/*
     //
     // Transcriptome assessment
     // SQANTI, gffcompare
@@ -457,7 +460,7 @@ workflow DIRECTRNA{
     //
     // MODULE: MultiQC
     //
-/*
+
     ch_multiqc_config        = Channel.fromPath(
         "$projectDir/assets/multiqc_config.yml", checkIfExists: true)
     ch_multiqc_custom_config = params.multiqc_config ?
@@ -478,7 +481,7 @@ workflow DIRECTRNA{
     //    methodsDescriptionText(ch_multiqc_custom_methods_description))
 
     ch_multiqc_files = ch_multiqc_files.mix(
-        ch_workflow_summary.collectFile(name: 'workflow_summary_mqc.yaml'))
+    ch_workflow_summary.collectFile(name: 'workflow_summary_mqc.yaml'))
     ch_multiqc_files = ch_multiqc_files.mix(ch_collated_versions)
     ch_multiqc_files = ch_multiqc_files.mix(
         ch_methods_description.collectFile(
@@ -487,7 +490,7 @@ workflow DIRECTRNA{
         )
     )
 */
-/*
+
     MULTIQC (
         ch_multiqc_files.collect(),
         ch_multiqc_config.toList(),
@@ -498,7 +501,7 @@ workflow DIRECTRNA{
     emit:
     multiqc_report = MULTIQC.out.report.toList() // channel: /path/to/multiqc_report.html
     versions       = ch_versions                 // channel: [ path(versions.yml) ]
-*/
+
 }
 
 /*
