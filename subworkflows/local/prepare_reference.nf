@@ -2,15 +2,16 @@
 // Uncompress and prepare reference files
 //
 
-include { GUNZIP as GUNZIP_FASTA            } from '../../modules/nf-core/gunzip'
-include { GUNZIP as GUNZIP_TRANSCRIPT_FASTA } from '../../modules/nf-core/gunzip'
-include { CUSTOM_GETCHROMSIZES              } from '../../modules/nf-core/custom/getchromsizes'
-include { MINIMAP2_INDEX                    } from '../../modules/local/minimap2_index'
-include { GUNZIP as GUNZIP_TRANSCRIPTOME    } from '../../modules/nf-core/gunzip'
-include { GUNZIP as GUNZIP_ANNOTATION_GTF   } from '../../modules/nf-core/gunzip'
-include { SQANTI_PREPARE_REFERENCE          } from '../local/sqanti/sqanti_prepare_reference'
-include { JAFFAL_PREPARE_REFERENCE          } from '../local/jaffal_prepare_reference'
-include { UNZIP                             } from '../../modules/local/unzip'
+include { GUNZIP as GUNZIP_FASTA                    } from '../../modules/nf-core/gunzip'
+include { GUNZIP as GUNZIP_TRANSCRIPT_FASTA         } from '../../modules/nf-core/gunzip'
+include { CUSTOM_GETCHROMSIZES                      } from '../../modules/nf-core/custom/getchromsizes'
+include { MINIMAP2_INDEX as MINIMAP2_GENOME_INDEX   } from '../../modules/local/minimap2_index'
+include { MINIMAP2_INDEX as MINIMAP2_TXOME_INDEX    } from '../../modules/local/minimap2_index'
+include { GUNZIP as GUNZIP_TRANSCRIPTOME            } from '../../modules/nf-core/gunzip'
+include { GUNZIP as GUNZIP_ANNOTATION_GTF           } from '../../modules/nf-core/gunzip'
+include { SQANTI_PREPARE_REFERENCE                  } from '../local/sqanti/sqanti_prepare_reference'
+include { JAFFAL_PREPARE_REFERENCE                  } from '../local/jaffal_prepare_reference'
+include { UNZIP                                     } from '../../modules/local/unzip'
 
 // prepare additional files
 //TO-DO make these modules
@@ -28,6 +29,7 @@ workflow PREPARE_REFERENCE{
     genome_minimap2_index           // file: /path/to/minimap2_genome_index.fa.mmi
     bam_input                       // boolean: false [default: false]
     transcriptome_fasta             // file: /path/to/genome_fasta.sizes
+    transcriptome_minimap2_index    // file: /path/to/minimap2_transcriptome_index.fa.mmi
     annotation_gtf                  // file: /path/to/annotation.gtf
     //appris_bed?
     //mane_select_bed?
@@ -35,6 +37,7 @@ workflow PREPARE_REFERENCE{
     skip_jaffal                     // boolean: skip jaffal fusion gene detection [default: false]
     skip_jaffal_download            // boolean: skip jaffal fusion gene detection [default: false]
     jaffal_reference                // file: /path/to/jaffal_reference
+    skip_transcript_quantification  // boolean: skip all transcript quantification
     skip_sqanti_all                 // boolean: skip all of sqanti [default: false]
     skip_sqanti_qc                  // boolean: skip sqanti qc [default: false]
     sqanti_qc_reference             // boolean: three values options [mouse, human, custom]
@@ -107,18 +110,36 @@ workflow PREPARE_REFERENCE{
         }
     }
 
-    // Initialise minimap2 index if provided
+    // Initialise genome minimap2 index if provided
     // If bam input is provided, skip minimap2 genome indexing
     if (!bam_input) {
         //if (genome_minimap2_index == null) {
         if (!genome_minimap2_index) {
-            MINIMAP2_INDEX( ch_genome_fasta )
-            ch_genome_minimap2_index = MINIMAP2_INDEX.out.index
-            ch_versions = ch_versions.mix(MINIMAP2_INDEX.out.versions)
+            MINIMAP2_GENOME_INDEX( ch_genome_fasta )
+            ch_genome_minimap2_index = MINIMAP2_GENOME_INDEX.out.index
+            ch_versions = ch_versions.mix(MINIMAP2_GENOME_INDEX.out.versions)
         } else {
             //ch_genome_minimap2_index = Channel.value(file(genome_minimap2_index), checkIfExists: true)
             ch_genome_minimap2_index = Channel.fromPath(params.genome_minimap2_index, checkIfExists: true)
         }
+    } else {
+        ch_genome_minimap2_index = null
+    }
+
+    // Initialise transcriptome minimap2 index if provided
+    // If bam input is provided, skip minimap2 transcriptome indexing
+    if (!bam_input && !skip_transcript_quantification) {
+        //if (genome_minimap2_index == null) {
+        if (!transcriptome_minimap2_index) {
+            MINIMAP2_TRANSCRIPTOME_INDEX( ch_transcriptome_fasta )
+            ch_transcriptome_minimap2_index = MINIMAP2_TRANSCRIPTOME_INDEX.out.index
+            ch_versions = ch_versions.mix(MINIMAP2_TRANSCRIPTOME_INDEX.out.versions)
+        } else {
+            //ch_genome_minimap2_index = Channel.value(file(genome_minimap2_index), checkIfExists: true)
+            ch_transcriptome_minimap2_index = Channel.fromPath(params.transcriptome_minimap2_index, checkIfExists: true)
+        }
+    } else {
+        ch_transcriptome_minimap2_index = null
     }
 
     // Prepare references for SQANTI QC
@@ -160,21 +181,24 @@ workflow PREPARE_REFERENCE{
         } else {
             ch_jaffal_reference_dir = file(params.jaffal_reference, checkIfExists: true)
         }
+    } else {
+        ch_jaffal_reference_dir = null
     }
 
 
     emit:
-    genome_fasta = ch_genome_fasta
-    genome_fasta_index = ch_genome_fasta_index
-    genome_fasta_sizes = ch_genome_fasta_sizes
-    genome_minimap2_index = ch_genome_minimap2_index
-    transcriptome_fasta = ch_transcriptome_fasta
-    annotation_gtf = ch_annotation_gtf
-    sqanti_qc_cage_bed = ch_sqanti_qc_cage_bed
-    sqanti_qc_polyA_sites_bed = ch_sqanti_qc_polyA_sites_bed
-    sqanti_qc_polyA_motif = ch_sqanti_qc_polyA_motif
-    sqanti_qc_intron_junctions_bed = ch_sqanti_qc_intron_junctions_bed
-    jaffal_reference = ch_jaffal_reference_dir
+    genome_fasta                    = ch_genome_fasta
+    genome_fasta_index              = ch_genome_fasta_index
+    genome_fasta_sizes              = ch_genome_fasta_sizes
+    genome_minimap2_index           = ch_genome_minimap2_index
+    transcriptome_fasta             = ch_transcriptome_fasta
+    transcriptome_minimap2_index    = ch_transcriptome_minimap2_index
+    annotation_gtf                  = ch_annotation_gtf
+    sqanti_qc_cage_bed              = ch_sqanti_qc_cage_bed
+    sqanti_qc_polyA_sites_bed       = ch_sqanti_qc_polyA_sites_bed
+    sqanti_qc_polyA_motif           = ch_sqanti_qc_polyA_motif
+    sqanti_qc_intron_junctions_bed  = ch_sqanti_qc_intron_junctions_bed
+    jaffal_reference                = ch_jaffal_reference_dir
     //phylop_bed = ch_phylop_bed
     versions = ch_versions                     // channel: [ versions.yml ]
 }

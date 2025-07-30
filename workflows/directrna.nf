@@ -105,7 +105,14 @@ include { GFFREAD_GETFASTA as GFFREAD_GETFASTA_ISOQUANT } from '../modules/local
 include { GFFREAD_GETFASTA as GFFREAD_GETFASTA_STRINGTIE} from '../modules/local/gffread'
 
 // fusion gene detection
-include { JAFFAL                  } from '../modules/local/jaffal'
+//include { JAFFAL                  } from '../modules/local/jaffal'
+
+// transcript quantification
+// OARFISH
+include { OARFISH as OARFISH_FLAIR      } from '../modules/local/oarfish'
+include { OARFISH as OARFISH_BAMBU      } from '../modules/local/oarfish'
+include { OARFISH as OARFISH_ISOQUANT   } from '../modules/local/oarfish'
+include { OARFISH as OARFISH_STRINGTIE  } from '../modules/local/oarfish'
 
 // transcriptome assessment
 // JACCARD for tools using read correction
@@ -173,6 +180,9 @@ workflow DIRECTRNA{
     INPUT_CHECK ( ch_input )
         .set { ch_sample }
 
+    ch_sequencing_type = params.sequencing_type
+    ch_sequencing_type.view()
+
     // QC of fastq files
     /// MODULES: NANOQ & SEQUALI
     if (!params.skip_qc || !params_bam_input) {
@@ -200,10 +210,12 @@ workflow DIRECTRNA{
             params.genome_minimap2_index,
             params.bam_input,
             params.transcriptome_fasta,
+            params.transcriptome_minimap2_index,
             params.annotation_gtf,
             params.skip_jaffal,             // boolean [default: false]
             params.skip_jaffal_download,    // boolean [default: false]
             params.jaffal_reference,        // path
+            params.skip_transcript_quanitification,
             params.skip_sqanti_all,         // boolean [default: false]
             params.skip_sqanti_qc,          // boolean [defeault: false]
             params.sqanti_qc_reference,     // value: human, mouse or custom
@@ -222,9 +234,9 @@ workflow DIRECTRNA{
         ch_genome_sizes                 = PREPARE_REFERENCE.out.genome_fasta_sizes
         ch_genome_minimap2_index        = PREPARE_REFERENCE.out.genome_minimap2_index
         ch_transcriptome_fasta          = PREPARE_REFERENCE.out.transcriptome_fasta
+        ch_transcriptome_minimap2_index = PREPARE_REFERENCE.out.genome_minimap2_index
         ch_annotation_gtf               = PREPARE_REFERENCE.out.annotation_gtf
         ch_jaffal_reference_dir         = PREPARE_REFERENCE.out.jaffal_reference
-        ch_jaffal_reference_dir.view()
         // Combine genome fasta with genome fasta index into single channel -
         // some software expect both files in a single path/channel
         ch_genome_fasta_with_index = ch_genome_fasta.combine(ch_genome_fasta_index)
@@ -380,7 +392,6 @@ workflow DIRECTRNA{
     // Fusion gene detection
     // MODULE: JAFFAL
     if (!params.skip_jaffal && !params.custom_genome) {
-        ch_jaffal_reference_dir.view()
         JAFFAL( ch_sample, ch_jaffal_reference_dir )
         ch_jaffal_fasta = JAFFAL.out.jaffal_fasta
         ch_jaffal_csv = JAFFAL.out.jaffal_results
@@ -432,13 +443,22 @@ workflow DIRECTRNA{
         }
 
     //
-    // Transcript quantification will be added in first update to pipeline
+    // Transcript quantification
     // TransSigner
     //if (!params.skip_quantification && !params.skip_mapping)
-    //    TRANSIGNER_MAP
-    //    TRANSIGNER_
-    //    TRANSIGNER_QUANT
-*/
+    //    TRANSIGNER
+
+    // Oarfish
+    if (!params.skip_quantification && !params.skip_mapping && params.!skip_oarfish)
+*/      if (!skip_flair) {
+            OARFISH_FLAIR( ch_flair_collapsed_fa, ch_transcriptome_minimap2_index, ch_sequencing_type )
+        }
+        if (!skip_bambu) {
+            OARFISH_BAMBU( ch_flair_collapsed_fa, ch_transcriptome_minimap2_index, ch_sequencing_type )
+        }
+        if (!skip_isoquant) {
+            ch_flair_collapsed_fa, ch_transcriptome_minimap2_index, ch_sequencing_type
+    }
 
     //
     // Collate statistics
