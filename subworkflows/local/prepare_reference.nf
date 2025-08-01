@@ -37,7 +37,7 @@ workflow PREPARE_REFERENCE{
     skip_jaffal                     // boolean: skip jaffal fusion gene detection [default: false]
     skip_jaffal_download            // boolean: skip jaffal fusion gene detection [default: false]
     jaffal_reference                // file: /path/to/jaffal_reference
-    skip_transcript_quantification  // boolean: skip all transcript quantification
+    skip_transcript_quantification  // boolean: skip all transcript quantification [default: false]
     skip_sqanti_all                 // boolean: skip all of sqanti [default: false]
     skip_sqanti_qc                  // boolean: skip sqanti qc [default: false]
     sqanti_qc_reference             // boolean: three values options [mouse, human, custom]
@@ -128,12 +128,12 @@ workflow PREPARE_REFERENCE{
 
     // Initialise transcriptome minimap2 index if provided
     // If bam input is provided, skip minimap2 transcriptome indexing
-    if (!bam_input && !skip_transcript_quantification) {
+    if (!skip_transcript_quantification) {
         //if (genome_minimap2_index == null) {
         if (!transcriptome_minimap2_index) {
-            MINIMAP2_TRANSCRIPTOME_INDEX( ch_transcriptome_fasta )
-            ch_transcriptome_minimap2_index = MINIMAP2_TRANSCRIPTOME_INDEX.out.index
-            ch_versions = ch_versions.mix(MINIMAP2_TRANSCRIPTOME_INDEX.out.versions)
+            MINIMAP2_TXOME_INDEX( ch_transcriptome_fasta )
+            ch_transcriptome_minimap2_index = MINIMAP2_TXOME_INDEX.out.index
+            ch_versions = ch_versions.mix(MINIMAP2_TXOME_INDEX.out.versions)
         } else {
             //ch_genome_minimap2_index = Channel.value(file(genome_minimap2_index), checkIfExists: true)
             ch_transcriptome_minimap2_index = Channel.fromPath(params.transcriptome_minimap2_index, checkIfExists: true)

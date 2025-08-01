@@ -109,10 +109,14 @@ include { GFFREAD_GETFASTA as GFFREAD_GETFASTA_STRINGTIE} from '../modules/local
 
 // transcript quantification
 // OARFISH
-include { OARFISH as OARFISH_FLAIR      } from '../modules/local/oarfish'
-include { OARFISH as OARFISH_BAMBU      } from '../modules/local/oarfish'
-include { OARFISH as OARFISH_ISOQUANT   } from '../modules/local/oarfish'
-include { OARFISH as OARFISH_STRINGTIE  } from '../modules/local/oarfish'
+//include { MINIMAP2_TXOME_ALIGN as MINIMAP2_FLAIR        } from '../modules/local/minimap2_txome_align
+//include { MINIMAP2_TXOME_ALIGN as MINIMAP2_BAMBU        } from '../modules/local/minimap2_txome_align
+//include { MINIMAP2_TXOME_ALIGN as MINIMAP2_ISOQUANT     } from '../modules/local/minimap2_txome_align
+//include { MINIMAP2_TXOME_ALIGN as MINIMAP2_STRINGTIE    } from '../modules/local/minimap2_txome_align
+include { OARFISH as OARFISH_FLAIR                      } from '../modules/local/oarfish'
+include { OARFISH as OARFISH_BAMBU                      } from '../modules/local/oarfish'
+include { OARFISH as OARFISH_ISOQUANT                   } from '../modules/local/oarfish'
+include { OARFISH as OARFISH_STRINGTIE                  } from '../modules/local/oarfish'
 
 // transcriptome assessment
 // JACCARD for tools using read correction
@@ -180,7 +184,7 @@ workflow DIRECTRNA{
     INPUT_CHECK ( ch_input )
         .set { ch_sample }
 
-    ch_sequencing_type = params.sequencing_type
+    ch_sequencing_type = channel.value(params.sequencing_type)
     ch_sequencing_type.view()
 
     // QC of fastq files
@@ -215,7 +219,7 @@ workflow DIRECTRNA{
             params.skip_jaffal,             // boolean [default: false]
             params.skip_jaffal_download,    // boolean [default: false]
             params.jaffal_reference,        // path
-            params.skip_transcript_quanitification,
+            params.skip_transcript_quanitification, // boolean [default: false]
             params.skip_sqanti_all,         // boolean [default: false]
             params.skip_sqanti_qc,          // boolean [defeault: false]
             params.sqanti_qc_reference,     // value: human, mouse or custom
@@ -328,7 +332,7 @@ workflow DIRECTRNA{
     // TRANSCRIPT RECONSTRUCTION
     //
     // FLAIR
-    if (params.run_flair) {
+    if (!params.skip_flair) {
         if (!params.skip_flair_correct) {
             BAM_TO_BED12( ch_bam, ch_bam_index )
             ch_mapped_bed = BAM_TO_BED12.out.bed
@@ -354,7 +358,7 @@ workflow DIRECTRNA{
     }
 
     // BAMBU
-    if (params.run_bambu) {
+    if (!params.skip_bambu) {
         BAMBU( ch_genome_fasta, ch_annotation_gtf, ch_bam )
         ch_bambu_gtf = BAMBU.out.bambu_extended_gtf
         ch_versions = ch_versions.mix(BAMBU.out.versions.first())
@@ -366,7 +370,7 @@ workflow DIRECTRNA{
 
     // TODO
     // ISOQUANT
-//    if (params.run_isoquant) {
+//    if (!params.skip_isoquant) {
 //        ISOQUANT( ch_mixed_bam, ch_annotation_gtf, ch_genome_fasta)
 //        ch_isoquant_gtf = ISOQUANT.out.isoquant_transcript_gtf
 //        ch_versions = ch_versions.mix(ISOQUANT.out.versions.first())
@@ -377,7 +381,7 @@ workflow DIRECTRNA{
 
 
     // STRINGTIE
-    if (params.run_stringtie) {
+    if (!params.skip_stringtie) {
         STRINGTIE( ch_bam, ch_annotation_gtf )
         ch_stringtie_gtf = STRINGTIE.out.stringtie_gtf
         ch_versions = ch_versions.mix(STRINGTIE.out.versions.first())
@@ -404,21 +408,21 @@ workflow DIRECTRNA{
     // TODO
     // Not done yet
     if (!params.skip_gffcompare) {
-        if (params.run_flair) {
+        if (!params.skip_flair) {
             GFFCOMPARE_FLAIR( ch_genome_fasta_with_index, ch_flair_collapsed_gtf, ch_annotation_gtf, 'flair' )
             ch_flair_gffcompare_stats = GFFCOMPARE_FLAIR.out.gffcompare_stats.collect{it[1]}.flatten()
             ch_multiqc_files = ch_multiqc_files.mix(ch_flair_gffcompare_stats.ifEmpty([]))
         }
-        if (params.run_bambu) {
+        if (!params.skip_bambu) {
             GFFCOMPARE_BAMBU( ch_genome_fasta_with_index, ch_bambu_gtf, ch_annotation_gtf, 'bambu' )
             ch_bambu_gffcompare_stats = GFFCOMPARE_BAMBU.out.gffcompare_stats.collect{it[1]}.flatten()
             ch_multiqc_files = ch_multiqc_files.mix(ch_bambu_gffcompare_stats.ifEmpty([]))
         }
-      //  if (params.run_isoquant) {
+      //  if (!params.skip_isoquant) {
       //      GFFCOMPARE_ISOQUANT( ch_isoquant_gtf, ch_annotation_gtf, ch_genome_fasta_with_index, 'isoquant' )
        //     ch_multiqc_files = ch_multiqc_files.mix(GFFCOMPARE_ISOQUANT.out.gffcompare_stats.ifEmpty([]))
        // }
-        if (params.run_stringtie) {
+        if (!params.skip_stringtie) {
             GFFCOMPARE_STRINGTIE( ch_genome_fasta_with_index, ch_stringtie_gtf, ch_annotation_gtf, 'stringtie' )
             ch_stringtie_gffcompare_stats = GFFCOMPARE_STRINGTIE.out.gffcompare_stats.collect{it[1]}.flatten()
             ch_multiqc_files = ch_multiqc_files.mix(ch_stringtie_gffcompare_stats.ifEmpty([]))
@@ -450,14 +454,20 @@ workflow DIRECTRNA{
 
     // Oarfish
     if (!params.skip_quantification && !params.skip_mapping && params.!skip_oarfish)
-*/      if (!skip_flair) {
-            OARFISH_FLAIR( ch_flair_collapsed_fa, ch_transcriptome_minimap2_index, ch_sequencing_type )
+*/
+    if (!params.skip_oarfish) {
+        if (!params.skip_flair) {
+            OARFISH_FLAIR( ch_flair_collapsed_fa, ch_transcriptome_minimap2_index, ch_sequencing_type)
         }
-        if (!skip_bambu) {
-            OARFISH_BAMBU( ch_flair_collapsed_fa, ch_transcriptome_minimap2_index, ch_sequencing_type )
+        if (!params.skip_bambu) {
+            OARFISH_BAMBU( ch_bambu_transcripts, ch_transcriptome_minimap2_index, ch_sequencing_type )
         }
-        if (!skip_isoquant) {
-            ch_flair_collapsed_fa, ch_transcriptome_minimap2_index, ch_sequencing_type
+        if (!params.skip_isoquant) {
+            OARFISH_ISOQUANT( ch_isoquant_transcripts, ch_transcriptome_minimap2_index, ch_sequencing_type )
+        }
+        if (!params.skip_stringtie) {
+            OARFISH_STRINGTIE( ch_stringtie_transcripts, ch_transcriptome_minimap2_index, ch_sequencing_type )
+        }
     }
 
     //
