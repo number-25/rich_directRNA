@@ -1,29 +1,45 @@
-[![GitHub Actions CI Status](https://github.com/medgen/directrna/actions/workflows/ci.yml/badge.svg)](https://github.com/medgen/directrna/actions/workflows/ci.yml)
-[![GitHub Actions Linting Status](https://github.com/medgen/directrna/actions/workflows/linting.yml/badge.svg)](https://github.com/medgen/directrna/actions/workflows/linting.yml)[![Cite with Zenodo](http://img.shields.io/badge/DOI-10.5281/zenodo.XXXXXXX-1073c8?labelColor=000000)](https://doi.org/10.5281/zenodo.XXXXXXX)
+[![GitHub Actions CI Status](https://github.com/number_25/rich_directRNA/actions/workflows/ci.yml/badge.svg)](https://github.com/medgen/directrna/actions/workflows/ci.yml)
+[![GitHub Actions Linting Status](https://github.com/number_25/rich_directRNA/actions/workflows/linting.yml/badge.svg)](https://github.com/number_25/rich_directRNA/actions/workflows/linting.yml)[![Cite with Zenodo](http://img.shields.io/badge/DOI-10.5281/zenodo.XXXXXXX-1073c8?labelColor=000000)](https://doi.org/10.5281/zenodo.XXXXXXX)
 [![nf-test](https://img.shields.io/badge/unit_tests-nf--test-337ab7.svg)](https://www.nf-test.com)
 
 [![Nextflow](https://img.shields.io/badge/nextflow%20DSL2-%E2%89%A523.04.0-23aa62.svg)](https://www.nextflow.io/)
 [![run with conda](http://img.shields.io/badge/run%20with-conda-3EB049?labelColor=000000&logo=anaconda)](https://docs.conda.io/en/latest/)
 [![run with docker](https://img.shields.io/badge/run%20with-docker-0db7ed?labelColor=000000&logo=docker)](https://www.docker.com/)
 [![run with singularity](https://img.shields.io/badge/run%20with-singularity-1d355c.svg?labelColor=000000)](https://sylabs.io/docs/)
-[![Launch on Seqera Platform](https://img.shields.io/badge/Launch%20%F0%9F%9A%80-Seqera%20Platform-%234256e7)](https://cloud.seqera.io/launch?pipeline=https://github.com/medgen/directrna)
+[![Launch on Seqera Platform](https://img.shields.io/badge/Launch%20%F0%9F%9A%80-Seqera%20Platform-%234256e7)](https://cloud.seqera.io/launch?pipeline=https://github.com/number-25/rich_directrna)
 
 ## Introduction
 
-**medgen/directrna** is a bioinformatics pipeline that is still in the works........ everyting below here is part of the TEMPLATE scaffold
+**rich_directRNA** is a bioinformatics pipeline that is still in the works… It
+is a nextflow pipeline that is used for the processing of direct RNA nanopore sequencing data, providing multiple transcript reconstruction, and quantification
+options with the use of a reference genome, and transcriptome annotation. Additionally, it performs post transcriptome reconstruction assessment, and recovery.
 
-<!-- TODO nf-core:
-   Complete this sentence with a 2-3 sentence summary of what types of data the pipeline ingests, a brief overview of the
-   major pipeline sections and the types of output it produces. You're giving an overview to someone new
-   to nf-core here, in 15-20 seconds. For an example, see https://github.com/nf-core/rnaseq/blob/master/README.md#introduction
--->
+The pipeline currently *only* accepts sequencing data from directRNA Oxford
+Nanopore Technologies (ONT) libraries. It is recommended to provide raw FASTQ
+files to the pipeline, however, it will also accept already mapped sequencing
+reads in BAM format. These are provided to the samplesheet as input.
 
 <!-- TODO nf-core: Include a figure that guides the user through the major workflow steps. Many nf-core
      workflows use the "tube map" design for that. See https://nf-co.re/docs/contributing/design_guidelines#examples for examples.   -->
-<!-- TODO nf-core: Fill in short bullet-pointed list of the default steps in the pipeline -->
 
-1. Read QC ([`FastQC`](https://www.bioinformatics.babraham.ac.uk/projects/fastqc/))
-2. Present QC for raw reads ([`MultiQC`](http://multiqc.info/))
+1. QC of FASTQ input files ( [NANOQ](https://github.com/esteinig/nanoq), [SEQUALI](https://github.com/rhpvorderman/sequali) )
+2. Mapping to reference genome ( [minimap2](github.com/lh3/minimap2) )
+3. Sort and index alignments ( [samtools](https://sourceforge.net/projects/samtools/files/samtools/) )
+4. Create bigWig coverage files ( [bedtools](https://github.com/arq5x/bedtools2/), [bedGraphToBigWig](https://hgdownload.soe.ucsc.edu/admin/exe/) )
+5. Extensive QC of alignments
+  i.    [samtools](https://sourceforge.net/projects/samtools/files/samtools/)
+  ii.   [cramino](https://github.com/wdecoster/cramino)
+  iii.  [alfred](https://www.gear-genomics.com/docs/alfred/)
+  iv.   [ngs-bits](https://github.com/imgag/ngs-bits/tree/master)
+6. Multiple transcriptome reconstruction options, with read correction options.
+  i.    [FLAIR](github.com/BrooksLabUCSC/flair) - allows read correction
+  ii.   [bambu](github.com/GoekeLab/bambu) - very minor read correction
+  iii.  [IsoQuant](https://ablab.github.io/IsoQuant/) - allows read correction
+  iv.   [StringTie](https://github.com/skovaka/stringtie2)
+7. Fusion gene detection [JAFFA](github.com/Oshlack/JAFFA)
+8. Transcriptome assessment [gffutils](https://ccb.jhu.edu/software/stringtie/gff.shtml)
+9. Transcript quantification ( [TranSigner](https://github.com/haydenji0731/TranSigner), [oarfish](https://github.com/COMBINE-lab/oarfish) )
+
 
 Official nextflow sample test data for directRNA is
 [here](https://github.com/nf-core/test-datasets/tree/nanoseq). Sequencing

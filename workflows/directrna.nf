@@ -51,9 +51,10 @@ if (params.transcriptome_fasta) {
 }
 
 if (params.skip_prepare_reference){
-    ch_genome_minimap2_index = Channel.fromPath(params.genome_minimap2_index, checkIfExists: true)
-    ch_genome_fasta_index    = Channel.fromPath(params.genome_fasta_index, checkIfExists: true)
-    ch_genome_sizes          = Channel.fromPath(params.genome_fasta_sizes, checkIfExists: true)
+    ch_genome_minimap2_index        = Channel.fromPath(params.genome_minimap2_index, checkIfExists: true)
+    ch_transcriptome_minimap2_index = Channel.fromPath(params.transcriptome_minimap2_index, checkIfExists: true)
+    ch_genome_fasta_index           = Channel.fromPath(params.genome_fasta_index, checkIfExists: true)
+    ch_genome_sizes                 = Channel.fromPath(params.genome_fasta_sizes, checkIfExists: true)
 }
 
 // Function to check if running offline
@@ -241,7 +242,7 @@ workflow DIRECTRNA{
         ch_genome_sizes                 = PREPARE_REFERENCE.out.genome_fasta_sizes
         ch_genome_minimap2_index        = PREPARE_REFERENCE.out.genome_minimap2_index
         ch_transcriptome_fasta          = PREPARE_REFERENCE.out.transcriptome_fasta
-        ch_transcriptome_minimap2_index = PREPARE_REFERENCE.out.genome_minimap2_index
+        ch_transcriptome_minimap2_index = PREPARE_REFERENCE.out.transcriptome_minimap2_index
         ch_annotation_gtf               = PREPARE_REFERENCE.out.annotation_gtf
         ch_jaffal_reference_dir         = PREPARE_REFERENCE.out.jaffal_reference
         // Combine genome fasta with genome fasta index into single channel -

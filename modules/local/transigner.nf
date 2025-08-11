@@ -1,3 +1,4 @@
+process TRANSIGNER {
     tag "$meta.id"
     label 'process_medium'
     conda "${moduleDir}/environment.yml"
@@ -13,10 +14,10 @@
     //val sequencing_type
 
     output:
-    tuple val(meta), path("*.bam", temporary: true),    emit: bam
-    tuple val(meta), path("*.assignments.tsv"),         emit: assignments
-    tuple val(meta), path("*.abundances.tsv"),          emit: quant
-    path "versions.yml",                                emit: versions
+    tuple val(meta), path("*.bam"),             emit: bam
+    tuple val(meta), path("*.assignments.tsv"), emit: assignments
+    tuple val(meta), path("*.abundances.tsv"),  emit: quant
+    path "versions.yml",                        emit: versions
 
     when:
     task.ext.when == null || task.ext.when
