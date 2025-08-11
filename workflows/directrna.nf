@@ -113,10 +113,13 @@ include { GFFREAD_GETFASTA as GFFREAD_GETFASTA_STRINGTIE} from '../modules/local
 //include { MINIMAP2_TXOME_ALIGN as MINIMAP2_BAMBU        } from '../modules/local/minimap2_txome_align
 //include { MINIMAP2_TXOME_ALIGN as MINIMAP2_ISOQUANT     } from '../modules/local/minimap2_txome_align
 //include { MINIMAP2_TXOME_ALIGN as MINIMAP2_STRINGTIE    } from '../modules/local/minimap2_txome_align
+// OARFISH
 include { OARFISH as OARFISH_FLAIR                      } from '../modules/local/oarfish'
 include { OARFISH as OARFISH_BAMBU                      } from '../modules/local/oarfish'
 include { OARFISH as OARFISH_ISOQUANT                   } from '../modules/local/oarfish'
 include { OARFISH as OARFISH_STRINGTIE                  } from '../modules/local/oarfish'
+// TRANSIGNER
+include { TRANSIGNER as TRANSIGNER_FLAIR                } from '../modules/local/transigner'
 
 // transcriptome assessment
 // JACCARD for tools using read correction
@@ -390,9 +393,6 @@ workflow DIRECTRNA{
         ch_versions = ch_versions.mix(GFFREAD_GETFASTA_STRINGTIE.out.versions.first())
     }
 
-    // TALON + TRANSCRIPT CLEAN may be added if it begins being maintained regularly https://github.com/mortazavilab/TranscriptClean
-
-
     // Fusion gene detection
     // MODULE: JAFFAL
     if (!params.skip_jaffal && !params.custom_genome) {
@@ -445,16 +445,21 @@ workflow DIRECTRNA{
                 SQANTI_QC_STRINGTIE( ch_stringtie_gtf, ch_annotation_gtf, ch_genome_fasta_with_index, 'stringtie' )
             }
         }
+*/
 
     //
     // Transcript quantification
     // TransSigner
     //if (!params.skip_quantification && !params.skip_mapping)
     //    TRANSIGNER
-
+    if (!params.skip_transigner) {
+        if (!params.skip_flair) {
+            TRANSIGNER_FLAIR( ch_flair_collapsed_fa, ch_transcriptome_minimap2_index, 'flair')
+        }
+    }
     // Oarfish
-    if (!params.skip_quantification && !params.skip_mapping && params.!skip_oarfish)
-*/
+   // if (!params.skip_quantification && !params.skip_mapping && params.!skip_oarfish)
+
     if (!params.skip_oarfish) {
         if (!params.skip_flair) {
             OARFISH_FLAIR( ch_flair_collapsed_fa, ch_transcriptome_minimap2_index, ch_sequencing_type)
