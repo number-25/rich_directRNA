@@ -453,11 +453,11 @@ workflow DIRECTRNA{
     // TransSigner
     //if (!params.skip_quantification && !params.skip_mapping)
     //    TRANSIGNER
-    if (!params.skip_transigner) {
-        if (!params.skip_flair) {
-            TRANSIGNER_FLAIR( ch_flair_collapsed_fa, ch_transcriptome_minimap2_index, 'flair')
-        }
-    }
+//    if (!params.skip_transigner) {
+//        if (!params.skip_flair) {
+//            TRANSIGNER_FLAIR( ch_flair_collapsed_fa, ch_transcriptome_minimap2_index, 'flair')
+//        }
+//    }
     // Oarfish
    // if (!params.skip_quantification && !params.skip_mapping && params.!skip_oarfish)
 

@@ -22,29 +22,25 @@ reads in BAM format. These are provided to the samplesheet as input.
 <!-- TODO nf-core: Include a figure that guides the user through the major workflow steps. Many nf-core
      workflows use the "tube map" design for that. See https://nf-co.re/docs/contributing/design_guidelines#examples for examples.   -->
 
-1. QC of FASTQ input files ( [NANOQ](https://github.com/esteinig/nanoq), [SEQUALI](https://github.com/rhpvorderman/sequali) )
-2. Mapping to reference genome ( [minimap2](github.com/lh3/minimap2) )
-3. Sort and index alignments ( [samtools](https://sourceforge.net/projects/samtools/files/samtools/) )
-4. Create bigWig coverage files ( [bedtools](https://github.com/arq5x/bedtools2/), [bedGraphToBigWig](https://hgdownload.soe.ucsc.edu/admin/exe/) )
+1. QC of FASTQ input files ( [`NANOQ`](https://github.com/esteinig/nanoq), [`SEQUALI`](https://github.com/rhpvorderman/sequali) )
+2. Mapping to reference genome ( [`minimap2`](github.com/lh3/minimap2) )
+3. Sort and index alignments ( [`samtools`](https://sourceforge.net/projects/samtools/files/samtools/) )
+4. Create bigWig coverage files ( [`bedtools`](https://github.com/arq5x/bedtools2/), [bedGraphToBigWig](https://hgdownload.soe.ucsc.edu/admin/exe/) )
 5. Extensive QC of alignments
-  i.    [samtools](https://sourceforge.net/projects/samtools/files/samtools/)
-  ii.   [cramino](https://github.com/wdecoster/cramino)
-  iii.  [alfred](https://www.gear-genomics.com/docs/alfred/)
-  iv.   [ngs-bits](https://github.com/imgag/ngs-bits/tree/master)
+  1. [`samtools`](https://sourceforge.net/projects/samtools/files/samtools/)
+  2. [`cramino`](https://github.com/wdecoster/cramino)
+  3. [`alfred`](https://www.gear-genomics.com/docs/alfred/)
+  4. [`ngs-bits`](https://github.com/imgag/ngs-bits/tree/master)
 6. Multiple transcriptome reconstruction options, with read correction options.
-  i.    [FLAIR](github.com/BrooksLabUCSC/flair) - allows read correction
-  ii.   [bambu](github.com/GoekeLab/bambu) - very minor read correction
-  iii.  [IsoQuant](https://ablab.github.io/IsoQuant/) - allows read correction
-  iv.   [StringTie](https://github.com/skovaka/stringtie2)
-7. Fusion gene detection [JAFFA](github.com/Oshlack/JAFFA)
-8. Transcriptome assessment [gffutils](https://ccb.jhu.edu/software/stringtie/gff.shtml)
-9. Transcript quantification ( [TranSigner](https://github.com/haydenji0731/TranSigner), [oarfish](https://github.com/COMBINE-lab/oarfish) )
+  1. [`FLAIR`](github.com/BrooksLabUCSC/flair) - allows read correction
+  2. [`bambu`](github.com/GoekeLab/bambu) - very minor read correction
+  3. [`IsoQuant`](https://ablab.github.io/IsoQuant/) - allows read correction
+  4. [`StringTie`](https://github.com/skovaka/stringtie2)
+7. Fusion gene detection [`JAFFA`](github.com/Oshlack/JAFFA)
+8. Transcriptome assessment [`gffutils`](https://ccb.jhu.edu/software/stringtie/gff.shtml)
+9. Transcript quantification ( [`TranSigner`](https://github.com/haydenji0731/TranSigner), [oarfish](https://github.com/COMBINE-lab/oarfish) )
 
-
-Official nextflow sample test data for directRNA is
-[here](https://github.com/nf-core/test-datasets/tree/nanoseq). Sequencing
-summary files, bams, fast5's even! Unfortunately there aren't enough dRNA data,
-so additional datasets will be included.
+Small test datasets for the pipeline are included in the [assets directory](https://github.com/number-25/rich_directRNA/assets/test_data).
 
 ## Usage
 
@@ -78,10 +74,20 @@ Now, you can run the pipeline using:
 <!-- TODO nf-core: update the following command to include all required parameters for a minimal example -->
 
 ```bash
-nextflow run medgen/directrna \
+nextflow run . \
    -profile <docker/singularity/.../institute> \
    --input samplesheet.csv \
    --outdir <OUTDIR>
+```
+
+To run a minimal, quick test dataset, use:
+```bash
+mkdir testing_dir
+
+nextflow run . \
+    -profile test,singularity \
+    --outdir testing_dir \
+    -c conf/test.config`
 ```
 
 > [!WARNING]
