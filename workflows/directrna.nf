@@ -375,7 +375,7 @@ workflow DIRECTRNA{
     // TODO
     // ISOQUANT
 //    if (!params.skip_isoquant) {
-//        ISOQUANT( ch_mixed_bam, ch_annotation_gtf, ch_genome_fasta)
+//        ISOQUANT( ch_mixed_bam, ch_annotation_gtf, ch_genome_fasta_index)
 //        ch_isoquant_gtf = ISOQUANT.out.isoquant_transcript_gtf
 //        ch_versions = ch_versions.mix(ISOQUANT.out.versions.first())
 //        GFFREAD_GETFASTA_ISOQUANT( ch_isoquant_gtf, ch_genome_fasta_with_index, 'isoquant' )
