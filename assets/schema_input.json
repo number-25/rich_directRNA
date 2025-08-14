@@ -1,7 +1,7 @@
 {
     "$schema": "http://json-schema.org/draft/2020-12/schema",
-    "$id": "https://raw.githubusercontent.com/medgen/directrna/master/assets/schema_input.json",
-    "title": "medgen/directrna pipeline - params.input schema",
+    "$id": "https://raw.githubusercontent.com/number-25/rich_directRNA/dev/assets/schema_input.json",
+    "title": "number-25/rich_directRNA pipeline - params.input schema",
     "description": "Schema for the file provided with params.input",
     "type": "array",
     "items": {
@@ -34,6 +34,6 @@
                 "errorMessage": "FastQ file must be provided, cannot contain spaces and must have extension '.fq.gz' or '.fastq.gz'"
             }
         },
-        "required": ["sample", "fastq"]
+        "required": ["sample", "sequencing_summary", "fastq"]
     }
 }

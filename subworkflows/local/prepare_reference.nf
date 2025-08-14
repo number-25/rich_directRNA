@@ -172,7 +172,7 @@ workflow PREPARE_REFERENCE{
         if (!skip_jaffal_download) {
             JAFFAL_PREPARE_REFERENCE()
             ch_jaffal_reference_dir = JAFFAL_PREPARE_REFERENCE.out.jaffal_reference_dir
-         } else if (params.jaffal_reference.endsWith('.zip')) {
+        } else if (params.jaffal_reference.endsWith('.zip')) {
         //} else {
         // reference directory needs to be gzipped for this function to work
             ch_jaffal_reference = file(params.jaffal_reference, checkIfExists: true)
@@ -200,5 +200,5 @@ workflow PREPARE_REFERENCE{
     sqanti_qc_intron_junctions_bed  = ch_sqanti_qc_intron_junctions_bed
     jaffal_reference                = ch_jaffal_reference_dir
     //phylop_bed = ch_phylop_bed
-    versions = ch_versions                     // channel: [ versions.yml ]
+    versions                        = ch_versions // channel: [ versions.yml ]
 }

@@ -16,7 +16,7 @@
 
     // Print summary to stdout of supplied parameters that differ from defaults
 
-   // log.info paramsSummaryLog(workflow)
+    // log.info paramsSummaryLog(workflow)
 
     // Create a new channel of metadata from a sample sheet passed to the pipeline through the --input parameter
     //ch_input = Channel.fromList(samplesheetToList(params.input, "assets/schema_input.json"))
@@ -100,6 +100,7 @@ include { FLAIR_COLLAPSE            } from '../modules/local/flair/flair_collaps
 include { BED_TO_BAM                } from '../modules/local/bedtools/bed_to_bam'
 include { BAMBU                     } from '../modules/local/bambu'
 include { ISOQUANT                  } from '../modules/local/isoquant'
+include { GTF2DB                    } from '../modules/local/gtf2db'
 include { STRINGTIE                 } from '../modules/local/stringtie'
 include { GFFREAD_GETFASTA as GFFREAD_GETFASTA_BAMBU    } from '../modules/local/gffread'
 include { GFFREAD_GETFASTA as GFFREAD_GETFASTA_ISOQUANT } from '../modules/local/gffread'
@@ -374,15 +375,16 @@ workflow DIRECTRNA{
 
     // TODO
     // ISOQUANT
-//    if (!params.skip_isoquant) {
-//        ISOQUANT( ch_mixed_bam, ch_annotation_gtf, ch_genome_fasta_index)
-//        ch_isoquant_gtf = ISOQUANT.out.isoquant_transcript_gtf
-//        ch_versions = ch_versions.mix(ISOQUANT.out.versions.first())
-//        GFFREAD_GETFASTA_ISOQUANT( ch_isoquant_gtf, ch_genome_fasta_with_index, 'isoquant' )
-//        ch_isoquant_transcripts = GFFREAD_GETFASTA_ISOQUANT.out.transcripts_fa
-//        ch_versions = ch_versions.mix(GFFREAD_GETFASTA_ISOQUANT.out.versions.first())
-//    }
-
+    if (!params.skip_isoquant) {
+        GTF2DB( ch_annotation_gtf )
+        ch_isoquant_database = GTF2DB.out.isoquant_database
+        ISOQUANT( ch_mixed_bam, ch_isoquant_database, ch_genome_fasta_index)
+        ch_isoquant_gtf = ISOQUANT.out.isoquant_transcript_gtf
+        ch_versions = ch_versions.mix(ISOQUANT.out.versions.first())
+        GFFREAD_GETFASTA_ISOQUANT( ch_isoquant_gtf, ch_genome_fasta_with_index, 'isoquant' )
+        ch_isoquant_transcripts = GFFREAD_GETFASTA_ISOQUANT.out.transcripts_fa
+        ch_versions = ch_versions.mix(GFFREAD_GETFASTA_ISOQUANT.out.versions.first())
+    }
 
     // STRINGTIE
     if (!params.skip_stringtie) {
@@ -419,10 +421,10 @@ workflow DIRECTRNA{
             ch_bambu_gffcompare_stats = GFFCOMPARE_BAMBU.out.gffcompare_stats.collect{it[1]}.flatten()
             ch_multiqc_files = ch_multiqc_files.mix(ch_bambu_gffcompare_stats.ifEmpty([]))
         }
-      //  if (!params.skip_isoquant) {
-      //      GFFCOMPARE_ISOQUANT( ch_isoquant_gtf, ch_annotation_gtf, ch_genome_fasta_with_index, 'isoquant' )
-       //     ch_multiqc_files = ch_multiqc_files.mix(GFFCOMPARE_ISOQUANT.out.gffcompare_stats.ifEmpty([]))
-       // }
+        //  if (!params.skip_isoquant) {
+        //      GFFCOMPARE_ISOQUANT( ch_isoquant_gtf, ch_annotation_gtf, ch_genome_fasta_with_index, 'isoquant' )
+        //     ch_multiqc_files = ch_multiqc_files.mix(GFFCOMPARE_ISOQUANT.out.gffcompare_stats.ifEmpty([]))
+        // }
         if (!params.skip_stringtie) {
             GFFCOMPARE_STRINGTIE( ch_genome_fasta_with_index, ch_stringtie_gtf, ch_annotation_gtf, 'stringtie' )
             ch_stringtie_gffcompare_stats = GFFCOMPARE_STRINGTIE.out.gffcompare_stats.collect{it[1]}.flatten()
@@ -431,7 +433,7 @@ workflow DIRECTRNA{
     }
 
 /*
-   // if (!skip_sqanti_all) {
+    // if (!skip_sqanti_all) {
         if (!skip_sqanti_qc) {
             if (run_flair){
                 SQANTI_QC_FLAIR( ch_flair_collapsed_gtf, ch_annotation_gtf, ch_genome_fasta_with_index, 'flair' )
@@ -457,7 +459,7 @@ workflow DIRECTRNA{
 //        if (!params.skip_flair) {
 //            TRANSIGNER_FLAIR( ch_flair_collapsed_fa, ch_transcriptome_minimap2_index, 'flair')
 //        }
-//    }
+        //}
     // Oarfish
    // if (!params.skip_quantification && !params.skip_mapping && params.!skip_oarfish)
 

@@ -14,19 +14,19 @@ process NGS_BITS {
     val contamination
 
     output:
-    tuple val(meta), path("*.qcML"), emit: qcML
-    path "versions.yml"           , emit: versions
+    tuple val(meta), path("*.qcML"),    emit: qcML
+    path "versions.yml",                emit: versions
 
     when:
     task.ext.when == null || task.ext.when
 
     script:
-    def args = task.ext.args ?: ''
-    def contamination = task.ext.contamination ? "-no_cont" : ""
-    def genome_build = task.ext.build ?: "$build"
-    def prefix = task.ext.prefix ?: "${meta.id}_${meta.replicate}_ngsbits"
+    def args            = task.ext.args ?: ''
+    def contamination   = task.ext.contamination ?: "-no_cont"
+    def genome_build    = task.ext.build ?: "$build"
+    def prefix          = task.ext.prefix ?: "${meta.id}_${meta.replicate}_ngsbits"
 
-       // -build $genome_build
+    // -build $genome_build
     """
     MappingQC \\
         -in $bam \\

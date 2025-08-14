@@ -5,9 +5,9 @@ process CURL {
     conda "${moduleDir}/environment.yml"
     container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
         'docker://ricsanfre/docker-curl-jq:latest':
-         'docker://ricsanfre/docker-curl-jq:latest' }"
-   //     'curl/curl:8.14.1':
-   //     'alpine/curl:8.14.1'}"
+        'docker://ricsanfre/docker-curl-jq:latest' }"
+        //'curl/curl:8.14.1':
+        //'alpine/curl:8.14.1'}"
         //'docker://quay.io/curl/curl:8.14.1' }"
 
     input:
