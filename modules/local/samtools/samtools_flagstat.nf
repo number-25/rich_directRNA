@@ -16,14 +16,14 @@ process SAMTOOLS_FLAGSTAT {
     //tuple val(meta), path("*.cram"),    emit: cram, optional: true
     //tuple val(meta), path("*.crai"),    emit: crai, optional: true
     //tuple val(meta), path("*.csi"),     emit: csi,  optional: true
-    path  "versions.yml"          , emit: versions
+    path "versions.yml",                emit: versions
 
     when:
     task.ext.when == null || task.ext.when
 
     script:
-    def args = task.ext.args ?: ''
-    def prefix = task.ext.prefix ?: "${meta.id}_${meta.replicate}.flagstat"
+    def args      = task.ext.args ?: ''
+    def prefix    = task.ext.prefix ?: "${meta.id}_${meta.replicate}.flagstat"
     def extension = task.ext.extension ?: "tsv"
     /*def extension = args.contains("--output-fmt sam") ? "sam" :
                     args.contains("--output-fmt cram") ? "cram" :
@@ -46,8 +46,9 @@ process SAMTOOLS_FLAGSTAT {
     """
 
     stub:
-    def args = task.ext.args ?: ''
-    def prefix = task.ext.prefix ?: "${meta.id}_${meta.replicate}.flagstat"
+    def args      = task.ext.args ?: ''
+    def prefix    = task.ext.prefix ?: "${meta.id}_${meta.replicate}.flagstat"
+    def extension = task.ext.extension ?: "tsv"
     """
     touch ${prefix}.tsv
     cat <<-END_VERSIONS > versions.yml

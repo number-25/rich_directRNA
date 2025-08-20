@@ -6,32 +6,28 @@ process ISOQUANT {
         'https://depot.galaxyproject.org/singularity/isoquant:3.7.0--hdfd78af_0' :
         'biocontainers/isoquant:3.7.0--hdfd78af_0' }"
 
-///    container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
-//        'https://depot.galaxyproject.org/singularity/isoquant:3.6.3--hdfd78af_0':
-//        'biocontainers/isoquant:3.6.3--hdfd78af_0' }"
-
     input:
     tuple val(meta), path(bam), path(bam_bai)
     path annotation_gtf
     path genome_fasta_index
 
     output:
-    tuple val(meta), path("*/*.corrected_reads.bed.gz"), optional: true
-    tuple val(meta), path("*/*.discovered_gene_counts.tsv"), optional: true
-    tuple val(meta), path("*/*.discovered_gene_tpm.tsv"), optional: true
-    tuple val(meta), path("*/*.discovered_transcript_counts.tsv"), optional: true
-    tuple val(meta), path("*/*.discovered_transcript_tpm.tsv"), optional: true
-    tuple val(meta), path("*/*.extended_annotation.gtf"), emit: isoquant_new_reference_transcriptome_gtf, optional: true
+    tuple val(meta), path("*/*.corrected_reads.bed.gz")           , optional: true
+    tuple val(meta), path("*/*.discovered_gene_counts.tsv")       , optional: true
+    tuple val(meta), path("*/*.discovered_gene_tpm.tsv")          , optional: true
+    tuple val(meta), path("*/*.discovered_transcript_counts.tsv") , optional: true
+    tuple val(meta), path("*/*.discovered_transcript_tpm.tsv")    , optional: true
+    tuple val(meta), path("*/*.extended_annotation.gtf")          , emit: isoquant_new_reference_transcriptome_gtf , optional: true
     tuple val(meta), path("*/*.gene_counts.tsv")
-    tuple val(meta), path("*/*.gene_tpm.tsv"), optional: true
-    tuple val(meta), path("*/*.read_assignments.tsv.gz"), optional: true
+    tuple val(meta), path("*/*.gene_tpm.tsv")                     , optional: true
+    tuple val(meta), path("*/*.read_assignments.tsv.gz")          , optional: true
     tuple val(meta), path("*/*.transcript_counts.tsv")
-    tuple val(meta), path("*/*.transcript_model_reads.tsv.gz"), emit: isoquant_transcript_models
-    tuple val(meta), path("*/*.transcript_models.gtf"), emit: isoquant_transcript_gtf
-    tuple val(meta), path("*/*.transcript_tpm.tsv"), optional: true
-    //tuple val(meta), path("*/*.transcript_model_tpm.tsv"), optional: true
-    //tuple val(meta), path("*/*.transcript_model_counts.tsv"), optional: true
-    path "versions.yml"           , emit: versions
+    tuple val(meta), path("*/*.transcript_model_reads.tsv.gz")    , emit: isoquant_transcript_models
+    tuple val(meta), path("*/*.transcript_models.gtf")            , emit: isoquant_transcript_gtf
+    tuple val(meta), path("*/*.transcript_tpm.tsv")               , optional: true
+    //tuple val(meta)   , path("*/*.transcript_model_tpm.tsv")         , optional: true
+    //tuple val(meta)   , path("*/*.transcript_model_counts.tsv")      , optional: true
+    path "versions.yml", emit: versions
 
     when:
     task.ext.when == null || task.ext.when

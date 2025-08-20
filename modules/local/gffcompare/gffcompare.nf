@@ -13,12 +13,12 @@ process GFFCOMPARE {
     val origin
 
     output:
-    tuple val(meta), path("*.stats"), emit: gffcompare_stats
+    tuple val(meta), path("*.stats"),   emit: gffcompare_stats
     path "*.annotated.gtf"
     path "*.tracking"
     path "*.refmap"
     path "*.tmap"
-    path "versions.yml"          , emit: versions
+    path "versions.yml",                emit: versions
 
     when:
     task.ext.when == null || task.ext.when

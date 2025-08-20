@@ -18,8 +18,8 @@ process BAM_TO_BED12 {
     task.ext.when == null || task.ext.when
 
     script:
-    def args = task.ext.args ?: ''
-    def prefix = task.ext.prefix ?: "${meta.id}_${meta.replicate}"
+    def args    = task.ext.args ?: ''
+    def prefix  = task.ext.prefix ?: "${meta.id}_${meta.replicate}"
     """
     bam2Bed12 \\
         -i ${mapped_bam} \\
@@ -34,8 +34,8 @@ process BAM_TO_BED12 {
     """
 
     stub:
-    def args = task.ext.args ?: ''
-    def prefix = task.ext.prefix ?: "${meta.id}_${meta.replicate}"
+    def args    = task.ext.args ?: ''
+    def prefix  = task.ext.prefix ?: "${meta.id}_${meta.replicate}"
     """
     touch ${prefix}.bed
 

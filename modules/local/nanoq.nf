@@ -16,17 +16,17 @@ process NANOQ {
     tuple val(meta), path("*_stats.verbose")    , emit: verbose_stats
     tuple val(meta), path("*.json")             , emit: json_stats
     //tuple val(meta), path("*_filtered.${output_format}")                              , emit: reads
-    path "versions.yml"                                                               , emit: versions
+    path "versions.yml"                         , emit: versions
 
     when:
     task.ext.when == null || task.ext.when
 
     script:
-    def args = task.ext.args ?: ''
+    def args    = task.ext.args ?: ''
+    def prefix  = task.ext.prefix ?: "${meta.id}_${meta.replicate}_nanoq" // get the sample ID from the meta mapping
     //if ( "${meta.replicate}" ?: '' )
     //    def prefix = task.ext.prefix ?: "${meta.id}_nanoq" // get the sample ID from the meta mapping
     //else
-    def prefix = task.ext.prefix ?: "${meta.id}_${meta.replicate}_nanoq" // get the sample ID from the meta mapping
     """
     nanoq \\
         -H \\
@@ -53,8 +53,8 @@ process NANOQ {
     """
 
     stub:
-    def args = task.ext.args ?: ''
-    def prefix = task.ext.prefix ?: "${meta.id}_${meta.replicate}_nanoq"
+    def args    = task.ext.args ?: ''
+    def prefix  = task.ext.prefix ?: "${meta.id}_${meta.replicate}_nanoq"
     """
     touch ${prefix}.stats
     touch ${prefix}_stats.verbose

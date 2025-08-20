@@ -1,8 +1,6 @@
 process MINIMAP2_INDEX {
     tag "$fasta"
     label 'process_medium'
-
-    // Note: the versions here need to match the versions used in minimap2/align
     conda "${moduleDir}/environment.yml"
     container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
         'https://depot.galaxyproject.org/singularity/minimap2:2.28--he4a0461_0' :
@@ -19,9 +17,9 @@ process MINIMAP2_INDEX {
     task.ext.when == null || task.ext.when
 
     script:
-    def args = task.ext.args ?: ''
+    def args        = task.ext.args ?: ''
     def dRNA_preset = task.ext.dRNA_preset ?: "-ax splice -uf"
-    def kmer = task.ext.kmer ?: "-k 14"
+    def kmer        = task.ext.kmer ?: "-k 14"
     """
     minimap2 \\
         ${dRNA_preset} \\

@@ -10,16 +10,16 @@ process SEQUALI {
     tuple val(meta), path(fastq)
 
     output:
-    tuple val(meta), path("*.json"), emit: sequali_json
-    tuple val(meta), path("*.html"), emit: sequali_html
-    path "versions.yml"           , emit: versions
+    tuple val(meta), path("*.json"),    emit: sequali_json
+    tuple val(meta), path("*.html"),    emit: sequali_html
+    path "versions.yml",                emit: versions
 
     when:
     task.ext.when == null || task.ext.when
 
     script:
-    def args = task.ext.args ?: ''
-    def prefix = task.ext.prefix ?: "${meta.id}_${meta.replicate}_sequali"
+    def args        = task.ext.args ?: ''
+    def prefix      = task.ext.prefix ?: "${meta.id}_${meta.replicate}_sequali"
     def html_output = task.ext.html_output ?: "--html ${prefix}.html"
     def json_output = task.ext.json_output ?: "--json ${prefix}.json"
 
@@ -37,8 +37,8 @@ process SEQUALI {
     """
 
     stub:
-    def args = task.ext.args ?: ''
-    def prefix = task.ext.prefix ?: "${meta.id}_${meta.replicate}_sequali"
+    def args        = task.ext.args ?: ''
+    def prefix      = task.ext.prefix ?: "${meta.id}_${meta.replicate}_sequali"
     def html_output = task.ext.html_output ?: "--html ${prefix}.html"
     def json_output = task.ext.json_output ?: "--json ${prefix}.json"
     """

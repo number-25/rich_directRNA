@@ -8,22 +8,22 @@ process FLAIR_CORRECT {
 
     input:
     tuple val(meta), path(bed)
-    path (genome_fasta)
-    path (annotation_gtf)
+    path genome_fasta
+    path annotation_gtf
 
     // FLAIR correct has many outputs
     output:
-    tuple val(meta), path("*_corrected.bed"), emit: flair_corrected_bed
-    tuple val(meta), path("*_inconsistent.bed"), emit: flair_inconsistent_bed
-    tuple val(meta), path("*_verify.bed"), emit: flair_unverified_bed
-    path "versions.yml"           , emit: versions
+    tuple val(meta), path("*_corrected.bed"),       emit: flair_corrected_bed
+    tuple val(meta), path("*_inconsistent.bed"),    emit: flair_inconsistent_bed
+    tuple val(meta), path("*_verify.bed"),          emit: flair_unverified_bed
+    path "versions.yml",                            emit: versions
 
     when:
     task.ext.when == null || task.ext.when
 
     script:
-    def args = task.ext.args ?: ''
-    def prefix = task.ext.prefix ?: "${meta.id}_${meta.replicate}_flair_correct"
+    def args    = task.ext.args ?: ''
+    def prefix  = task.ext.prefix ?: "${meta.id}_${meta.replicate}_flair_correct"
     """
     flair \\
         correct \\
@@ -40,8 +40,8 @@ process FLAIR_CORRECT {
     """
 
     stub:
-    def args = task.ext.args ?: ''
-    def prefix = task.ext.prefix ?: "${meta.id}_${meta.replicate}_flair_correct"
+    def args    = task.ext.args ?: ''
+    def prefix  = task.ext.prefix ?: "${meta.id}_${meta.replicate}_flair_correct"
     """
     touch ${prefix}_all_corrected.bed
     touch ${prefix}_all_inconsistent.bed

@@ -21,8 +21,8 @@ process UCSC_BEDGRAPHTOBIGWIG {
     task.ext.when == null || task.ext.when
 
     script:
-    def args = task.ext.args ?: ''
-    def prefix = task.ext.prefix ?: "${meta.id}_${meta.replicate}_${strand}"
+    def args    = task.ext.args ?: ''
+    def prefix  = task.ext.prefix ?: "${meta.id}_${meta.replicate}_${strand}"
     def VERSION = '469' // WARN: Version information not provided by tool on CLI. Please update this string when bumping container versions.
     """
     bedGraphToBigWig \\
@@ -37,7 +37,8 @@ process UCSC_BEDGRAPHTOBIGWIG {
     """
 
     stub:
-    def prefix = task.ext.prefix ?: "${meta.id}_${meta.replicate}_${strand}"
+    def args    = task.ext.args ?: ''
+    def prefix  = task.ext.prefix ?: "${meta.id}_${meta.replicate}_${strand}"
     def VERSION = '469' // WARN: Version information not provided by tool on CLI. Please update this string when bumping container versions.
     """
     touch ${prefix}.bigWig

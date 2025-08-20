@@ -1,8 +1,6 @@
 process MINIMAP2_ALIGN {
     tag "$meta.id"
     label 'process_high'
-
-    // Note: the versions here need to match the versions used in the mulled container below and minimap2/index
     conda "${moduleDir}/environment.yml"
     container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
         'https://depot.galaxyproject.org/singularity/mulled-v2-66534bcbb7031a148b13e2ad42583020b9cd25c4:3161f532a5ea6f1dec9be5667c9efc2afdac6104-0' :
@@ -28,10 +26,10 @@ process MINIMAP2_ALIGN {
 
     script:
     // This can be expanded eventually to allow cDNA mapping, etc.
-    def args  = task.ext.args ?: ''
-    def prefix = task.ext.prefix ?: "${meta.id}_${meta.replicate}_minimap2"
+    def args        = task.ext.args ?: ''
+    def prefix      = task.ext.prefix ?: "${meta.id}_${meta.replicate}_minimap2"
     def dRNA_preset = task.ext.dRNA_preset ?: "-ax splice -uf"
-    def kmer = task.ext.kmer ?: "-k 14"
+    def kmer        = task.ext.kmer ?: "-k 14"
     //def mismatch_tag = (params.talon ) ? "--MD"
     /*
     def args2 = task.ext.args2 ?: ''
@@ -67,7 +65,9 @@ process MINIMAP2_ALIGN {
     //samtools: \$(echo \$(samtools --version 2>&1) | sed 's/^.*samtools //; s/Using.*\$//')
 
     stub:
-    def prefix = task.ext.prefix ?: "${meta.id}_${meta.replicate}_minimap2"
+    def prefix      = task.ext.prefix ?: "${meta.id}_${meta.replicate}_minimap2"
+    def dRNA_preset = task.ext.dRNA_preset ?: "-ax splice -uf"
+    def kmer        = task.ext.kmer ?: "-k 14"
     //def output_file = bam_format ? "${prefix}.bam" : "${prefix}.paf"
     //def bam_index = bam_index_extension ? "touch ${prefix}.bam.${bam_index_extension}" : ""
     //def bam_input = "${reads.extension}".matches('sam|bam|cram')

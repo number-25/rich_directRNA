@@ -20,8 +20,8 @@ process UCSC_BEDCLIP {
     task.ext.when == null || task.ext.when
 
     script:
-    def args = task.ext.args ?: ''
-    def prefix = task.ext.prefix ?: "${meta.id}_${meta.replicate}_${strand}"
+    def args    = task.ext.args ?: ''
+    def prefix  = task.ext.prefix ?: "${meta.id}_${meta.replicate}_${strand}"
     def VERSION = '377' // WARN: Version information not provided by tool on CLI. Please update this string when bumping container versions.
     """
     bedClip \\
@@ -36,7 +36,8 @@ process UCSC_BEDCLIP {
     """
 
     stub:
-    def prefix = task.ext.prefix ?: "${meta.id}_${meta.replicate}_${strand}"
+    def prefix  = task.ext.prefix ?: "${meta.id}_${meta.replicate}_${strand}"
+    def args    = task.ext.args ?: ''
     def VERSION = '377' // WARN: Version information not provided by tool on CLI. Please update this string when bumping container versions.
     """
     touch ${prefix}.bedGraph

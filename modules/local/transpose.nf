@@ -10,15 +10,15 @@ process TRANSPOSE {
     tuple val(meta), path(alfred_stats)
 
     output:
-    tuple val(meta), path("*.transposed.stats"), emit: alfred_stats_transposed
-    path "versions.yml"           , emit: versions
+    tuple val(meta), path("*.transposed.stats"),    emit: alfred_stats_transposed
+    path "versions.yml",                            emit: versions
 
     when:
     task.ext.when == null || task.ext.when
 
     script:
-    def args = task.ext.args ?: ''
-    def prefix = task.ext.prefix ?: "${meta.id}_${meta.replicate}_alfred"
+    def args    = task.ext.args ?: ''
+    def prefix  = task.ext.prefix ?: "${meta.id}_${meta.replicate}_alfred"
 
     """
     zgrep ^ME ${alfred_stats} \\
@@ -37,8 +37,8 @@ process TRANSPOSE {
     """
 
     stub:
-    def args = task.ext.args ?: ''
-    def prefix = task.ext.prefix ?: "${meta.id}_${meta.replicate}_alfred"
+    def args    = task.ext.args ?: ''
+    def prefix  = task.ext.prefix ?: "${meta.id}_${meta.replicate}_alfred"
     """
     touch ${prefix}.transposed.stats
 

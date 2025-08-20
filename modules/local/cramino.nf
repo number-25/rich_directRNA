@@ -7,22 +7,20 @@ process CRAMINO {
         'quay.io/biocontainers/cramino:0.15.0--h2e7e638_0' }"
 
     input:
-    // TODO nf-core: Where applicable please provide/convert compressed files as input/output
-    //               e.g. "*.fastq.gz" and NOT "*.fastq", "*.bam" and NOT "*.sam" etc.
     tuple val(meta), path(bam)
-    val(read_length)
+    val read_length
 
     output:
-    tuple val(meta), path("*.stats"), emit: cramino_stats
-    path "versions.yml"           , emit: versions
+    tuple val(meta) , path("*.stats"), emit: cramino_stats
+    path "versions.yml",               emit: versions
 
     when:
     task.ext.when == null || task.ext.when
 
     script:
-    def args = task.ext.args ?: '--spliced'
+    def args        = task.ext.args ?: '--spliced'
     def read_length = task.ext.read_length ?: "--min-read-len ${read_length}"
-    def prefix = task.ext.prefix ?: "${meta.id}_${meta.replicate}_cramino"
+    def prefix      = task.ext.prefix ?: "${meta.id}_${meta.replicate}_cramino"
     """
     cramino \\
         -t $task.cpus \\
@@ -38,7 +36,7 @@ process CRAMINO {
     """
 
     stub:
-    def args = task.ext.args ?: '--spliced'
+    def args   = task.ext.args ?: '--spliced'
     def prefix = task.ext.prefix ?: "${meta.id}"
     """
     touch ${prefix}.bam

@@ -12,10 +12,10 @@ process SAMTOOLS_FAIDX {
     //tuple val(meta2), path(fai)
 
     output:
-    tuple val(meta), path ("*.fa") , emit: fa , optional: true
-    tuple val(meta), path ("*.fai")        , emit: index, optional: true
+    tuple val(meta), path ("*.fa") ,    emit: fa , optional: true
+    tuple val(meta), path ("*.fai"),    emit: index, optional: true
     //tuple val(meta), path ("*.gzi")        , emit: gzi, optional: true
-    path "versions.yml"                    , emit: versions
+    path "versions.yml",                emit: versions
 
     when:
     task.ext.when == null || task.ext.when
@@ -34,8 +34,8 @@ process SAMTOOLS_FAIDX {
     """
 
     stub:
-    def match = (task.ext.args =~ /-o(?:utput)?\s(.*)\s?/).findAll()
-    def fastacmd = match[0] ? "touch ${match[0][1]}" : ''
+    def match       = (task.ext.args =~ /-o(?:utput)?\s(.*)\s?/).findAll()
+    def fastacmd    = match[0] ? "touch ${match[0][1]}" : ''
     """
     ${fastacmd}
     touch ${genome_fasta}.fai

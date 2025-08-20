@@ -12,16 +12,16 @@ process GFFREAD_GETFASTA {
     val origin
 
     output:
-    tuple val(meta), path("*.fa"), emit: transcripts_fa
-    path "versions.yml"           , emit: versions
+    tuple val(meta), path("*.fa"),  emit: transcripts_fa
+    path "versions.yml",            emit: versions
 
     when:
     task.ext.when == null || task.ext.when
 
     script:
-    def args = task.ext.args ?: ''
+    def args          = task.ext.args ?: ''
     def show_warnings = task.ext.show_warnings ?: '-E'
-    def prefix = task.ext.prefix ?: "${meta.id}_${meta.replicate}_${origin}_transcripts"
+    def prefix        = task.ext.prefix ?: "${meta.id}_${meta.replicate}_${origin}_transcripts"
     """
     gffread \\
     -w ${prefix}.fa \\
@@ -35,8 +35,9 @@ process GFFREAD_GETFASTA {
     """
 
     stub:
-    def args = task.ext.args ?: ''
-    def prefix = task.ext.prefix ?: "${meta.id}_${meta.replicate}_${origin}_transcripts"
+    def args            = task.ext.args ?: ''
+    def show_warnings   = task.ext.show_warnings ?: '-E'
+    def prefix          = task.ext.prefix ?: "${meta.id}_${meta.replicate}_${origin}_transcripts"
     """
     touch ${prefix}.fa
 

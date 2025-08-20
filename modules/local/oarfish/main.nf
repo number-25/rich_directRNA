@@ -13,7 +13,7 @@ process OARFISH {
     val sequencing_type
 
     output:
-    tuple val(meta), path("*.quant.gz"),           emit: quant
+    tuple val(meta), path("*.quant.gz"),        emit: quant
     tuple val(meta), path("*.meta_info.json"),  emit: meta_info
     path "versions.yml",                        emit: versions
 

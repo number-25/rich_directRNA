@@ -43,10 +43,10 @@ process NGS_BITS {
     """
 
     stub:
-    def args = task.ext.args ?: ''
+    def args          = task.ext.args ?: ''
     def contamination = task.ext.contamination ? "-no_cont" : ""
-    def build = task.ext.build ?: "$build"
-    def prefix = task.ext.prefix ?: "${meta.id}_${meta.replicate}_ngsbits"
+    def build         = task.ext.build ?: "$build"
+    def prefix        = task.ext.prefix ?: "${meta.id}_${meta.replicate}_ngsbits"
 
     """
     touch ${prefix}.qcML

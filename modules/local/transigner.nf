@@ -24,8 +24,8 @@ process TRANSIGNER {
 
 
     script:
-    def args = task.ext.args ?: ''
-    def prefix = task.ext.prefix ?: "${meta.id}_${meta.replicate}_${reconstruction_program}"
+    def args    = task.ext.args ?: ''
+    def prefix  = task.ext.prefix ?: "${meta.id}_${meta.replicate}_${reconstruction_program}"
     """
     transigner \\
         -t $transcriptome_index \\
@@ -39,8 +39,8 @@ process TRANSIGNER {
     END_VERSIONS
     """
     stub:
-    def args = task.ext.args ?: ''
-    def prefix = task.ext.prefix ?: "${meta.id}_${meta.replicate}_${reconstruction_program}"
+    def args    = task.ext.args ?: ''
+    def prefix  = task.ext.prefix ?: "${meta.id}_${meta.replicate}_${reconstruction_program}"
 
     """
     touch ${prefix}.bam

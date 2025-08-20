@@ -13,8 +13,8 @@ process UNZIP {
     val reference_name
 
     output:
-    path("${prefix}/"), emit: unzipped_archive
-    path "versions.yml"                , emit: versions
+    path("${prefix}/"),     emit: unzipped_archive
+    path "versions.yml",    emit: versions
 
     when:
     task.ext.when == null || task.ext.when

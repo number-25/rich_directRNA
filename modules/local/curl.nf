@@ -1,7 +1,6 @@
 process CURL {
     tag "$download"
     label 'process_single'
-
     conda "${moduleDir}/environment.yml"
     container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
         'docker://ricsanfre/docker-curl-jq:latest':
@@ -11,14 +10,14 @@ process CURL {
         //'docker://quay.io/curl/curl:8.14.1' }"
 
     input:
-    val(prefix)
-    val(suffix)
-    val(url)
+    val prefix
+    val suffix
+    val url
     //tuple val(meta), path(archive)
 
     output:
-    path("*.zip"), emit: curl
-    path "versions.yml", emit: versions
+    path("*.zip"),          emit: curl
+    path "versions.yml",    emit: versions
 
     when:
     task.ext.when == null || task.ext.when

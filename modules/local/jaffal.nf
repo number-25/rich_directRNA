@@ -20,6 +20,7 @@ process JAFFAL {
 
     when:
     task.ext.when == null || task.ext.when
+    // prefix??
 
     //refBase=$jaffal_ref_dir \\
     //-p genome=Masked_hg38 \\

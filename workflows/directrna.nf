@@ -224,7 +224,7 @@ workflow DIRECTRNA{
             params.skip_jaffal,             // boolean [default: false]
             params.skip_jaffal_download,    // boolean [default: false]
             params.jaffal_reference,        // path
-            params.skip_transcript_quanitification, // boolean [default: false]
+            params.skip_transcript_quantification, // boolean [default: false]
             params.skip_sqanti_all,         // boolean [default: false]
             params.skip_sqanti_qc,          // boolean [defeault: false]
             params.sqanti_qc_reference,     // value: human, mouse or custom
