@@ -11,6 +11,7 @@ process OARFISH {
     tuple val(meta), path(transcripts_fasta)
     path transcriptome_index
     val sequencing_type
+    val program
 
     output:
     tuple val(meta), path("*.quant.gz"),        emit: quant
@@ -22,7 +23,7 @@ process OARFISH {
 
     script:
     def args                = task.ext.args ?: ''
-    def prefix              = task.ext.prefix ?: "${meta.id}_${meta.replicate}_$sequencing_type"
+    def prefix              = task.ext.prefix ?: "${meta.id}_${meta.replicate}_$program"
     def technology          = task.ext.technology ?: "--seq-tech $sequencing_type"
     def secondary_mappings  = task.ext.secondary_mappings ?: "--best-n 180"
     def filters             = task.ext.filters ?: "--filter-group no-filters"

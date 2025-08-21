@@ -378,7 +378,7 @@ workflow DIRECTRNA{
     if (!params.skip_isoquant) {
         GTF2DB( ch_annotation_gtf )
         ch_isoquant_database = GTF2DB.out.isoquant_database
-        ISOQUANT( ch_mixed_bam, ch_isoquant_database, ch_genome_fasta_index)
+        ISOQUANT( ch_mixed_bam, ch_isoquant_database, ch_genome_fasta)
         ch_isoquant_gtf = ISOQUANT.out.isoquant_transcript_gtf
         ch_versions = ch_versions.mix(ISOQUANT.out.versions.first())
         GFFREAD_GETFASTA_ISOQUANT( ch_isoquant_gtf, ch_genome_fasta_with_index, 'isoquant' )
@@ -465,16 +465,16 @@ workflow DIRECTRNA{
 
     if (!params.skip_oarfish) {
         if (!params.skip_flair) {
-            OARFISH_FLAIR( ch_flair_collapsed_fa, ch_transcriptome_minimap2_index, ch_sequencing_type)
+            OARFISH_FLAIR( ch_flair_collapsed_fa, ch_transcriptome_minimap2_index, ch_sequencing_type, 'flair' )
         }
         if (!params.skip_bambu) {
-            OARFISH_BAMBU( ch_bambu_transcripts, ch_transcriptome_minimap2_index, ch_sequencing_type )
+            OARFISH_BAMBU( ch_bambu_transcripts, ch_transcriptome_minimap2_index, ch_sequencing_type, 'bambu' )
         }
         if (!params.skip_isoquant) {
-            OARFISH_ISOQUANT( ch_isoquant_transcripts, ch_transcriptome_minimap2_index, ch_sequencing_type )
+            OARFISH_ISOQUANT( ch_isoquant_transcripts, ch_transcriptome_minimap2_index, ch_sequencing_type, 'isoquant' )
         }
         if (!params.skip_stringtie) {
-            OARFISH_STRINGTIE( ch_stringtie_transcripts, ch_transcriptome_minimap2_index, ch_sequencing_type )
+            OARFISH_STRINGTIE( ch_stringtie_transcripts, ch_transcriptome_minimap2_index, ch_sequencing_type, 'stringtie' )
         }
     }
 

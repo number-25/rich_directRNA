@@ -19,7 +19,7 @@ process GTF2DB {
     script:
     def args = task.ext.args ?: ''
     """
-    python3 gtf2db.py \\
+    gtf2db.py \\
         -i $transcriptome_annotation \\
         --complete_genedb \\
         -o ${transcriptome_annotation.baseName}.db
