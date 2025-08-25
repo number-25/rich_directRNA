@@ -1,16 +1,66 @@
 {
     "$schema": "https://json-schema.org/draft/2020-12/schema",
-    "$id": "https://raw.githubusercontent.com/medgen/directrna//nextflow_schema.json",
-    "title": "medgen/directrna pipeline parameters",
+    "$id": "https://raw.githubusercontent.com/number-25/rich_directRNA/nextflow_schema.json",
+    "title": "number-25/rich_directRNA pipeline parameters",
     "description": "Analysis pipeline for ONT directRNA sequencing data",
     "type": "object",
     "$defs": {
+        "reference_genome_options": {
+            "title": "Reference genome options",
+            "type": "object",
+            "description": "Options for reference genome and transcriptome files and indices.",
+            "default": "",
+            "properties": {
+                "genome_fasta": {
+                    "type": "string",
+                    "description": "Path to reference genome fasta."
+                },
+                "genome_fasta_index": {
+                    "type": "string",
+                    "description": "Path to reference genome index."
+                },
+                "genome_fasta_sizes": {
+                    "type": "string",
+                    "description": "Path to reference genome sizes."
+                },
+                "genome_minimap2_index": {
+                    "type": "string",
+                    "description": "Path to reference genome minimap2 index."
+                },
+                "transcriptome_fasta": {
+                    "type": "string",
+                    "description": "Path to transcriptome fasta sequence."
+                },
+                "transcriptome_minimap2_index": {
+                    "type": "string",
+                    "description": "Path to transcriptome minimap2 index."
+                },
+                "annotation_gtf": {
+                    "type": "string",
+                    "description": "Path to reference transcriptome annotation."
+                },
+                "skip_prepare_reference": {
+                    "type": "boolean",
+                    "description": "Skip the preparation of the reference files."
+                }
+            },
+            "required": [
+                "genome_fasta",
+                "transcriptome_fasta",
+                "annotation_gtf"
+            ],
+            "fa_icon": "fas fa-book-open"
+        },
         "input_output_options": {
             "title": "Input/output options",
             "type": "object",
             "fa_icon": "fas fa-terminal",
             "description": "Define where the pipeline should find input data and save output data.",
-            "required": ["input", "outdir"],
+            "required": [
+                "input",
+                "outdir",
+                "sequencing_type"
+            ],
             "properties": {
                 "input": {
                     "type": "string",
@@ -29,6 +79,33 @@
                     "format": "directory-path",
                     "description": "The output directory where the results will be saved. You have to use absolute paths to storage on Cloud infrastructure.",
                     "fa_icon": "fas fa-folder-open"
+                },
+                "sequencing_type": {
+                    "type": "string",
+                    "default": "ont-drna",
+                    "description": "Type of Oxford Nanopore library.",
+                    "help_text": "Type of Oxford nanopore library. Either 'ont-drna' or 'ont-cdna'",
+                    "fa_icon": "fas fa-font"
+                }
+            }
+        },
+        "multiqc_options": {
+            "title": "MultiQC options",
+            "type": "object",
+            "description": "",
+            "default": "",
+            "properties": {
+                "multiqc_config": {
+                    "type": "string"
+                },
+                "multiqc_logo": {
+                    "type": "string"
+                },
+                "multiqc_methods_description": {
+                    "type": "string"
+                },
+                "multiqc_title": {
+                    "type": "string"
                 }
             }
         },
@@ -44,263 +121,276 @@
                     "description": "Display version and exit.",
                     "fa_icon": "fas fa-question-circle",
                     "hidden": true
+                },
+                "email": {
+                    "type": "string",
+                    "fa_icon": "fas fa-envelope",
+                    "description": "Email address for completion summary."
+                },
+                "plaintext_email": {
+                    "type": "boolean",
+                    "description": "Send plain-text email instead of HTML.",
+                    "fa_icon": "fas fa-remove-format"
+                },
+                "monochrome_logs": {
+                    "type": "boolean",
+                    "description": "Do not use coloured log outputs.",
+                    "fa_icon": "fas fa-palette"
+                },
+                "publish_dir_mode": {
+                    "type": "string",
+                    "default": "copy",
+                    "fa_icon": "fas fa-copy",
+                    "description": "Method used to save pipeline results to output directory."
+                },
+                "hook_url": {
+                    "type": "string"
+                },
+                "config_profile_description": {
+                    "type": "string"
+                },
+                "config_profile_name": {
+                    "type": "string"
+                },
+                "custom_config_version": {
+                    "type": "string",
+                    "default": "dev"
+                },
+                "custom_config_base": {
+                    "type": "string"
+                },
+                "config_profile_contact": {
+                    "type": "string"
+                },
+                "config_profile_url": {
+                    "type": "string"
+                }
+            }
+        },
+        "module_specific_options": {
+            "title": "Module specific options",
+            "type": "object",
+            "description": "",
+            "default": "",
+            "properties": {
+                "bam_input": {
+                    "type": "boolean",
+                    "description": "Input files are prealigned in BAM format."
+                },
+                "skip_qc": {
+                    "type": "boolean",
+                    "description": "Skip initial fastq QC.",
+                    "help_text": "This skips all of the initial fastq QC, and is typically not recommended to skip."
+                },
+                "skip_nanoq": {
+                    "type": "boolean",
+                    "description": "Skip nano fastq QC."
+                },
+                "skip_sequali": {
+                    "type": "boolean",
+                    "description": "Skip sequali fastq QC."
+                },
+                "skip_bam_qc": {
+                    "type": "boolean",
+                    "description": "Skip alignment QC."
+                },
+                "skip_alfred": {
+                    "type": "boolean",
+                    "description": "Skip alred alignment QC."
+                },
+                "skip_samtools_flagstat": {
+                    "type": "boolean",
+                    "description": "Skip samtools alignment QC."
+                },
+                "skip_cramino": {
+                    "type": "boolean",
+                    "description": "Skip cramino alignment QC."
+                },
+                "cramino_min_length": {
+                    "type": "integer",
+                    "default": 0,
+                    "description": "Minimum length of alignments considered by cramino."
+                },
+                "skip_ngs_bits": {
+                    "type": "boolean",
+                    "description": "Skip ngs bits alignment QC."
+                },
+                "ngs_bits_skip_contamination": {
+                    "type": "boolean",
+                    "description": "Skip ngs bit contamination detection."
+                },
+                "ngs_bits_build": {
+                    "type": "string",
+                    "default": "hg38",
+                    "description": "Ngs bits genome build (hg38)."
+                },
+                "skip_mapping": {
+                    "type": "boolean",
+                    "description": "Skip mapping to reference genome."
+                },
+                "skip_bam_to_bigwig": {
+                    "type": "boolean",
+                    "description": "Skip creation of bigWig alignment files for viewing in genome browsers."
+                },
+                "skip_flair": {
+                    "type": "boolean",
+                    "description": "Skip FLAIR transcript reconstruction."
+                },
+                "skip_flair_correct": {
+                    "type": "boolean",
+                    "description": "Skip FLAIR correct module."
+                },
+                "extra_flair_correct_options": {
+                    "type": "string",
+                    "description": "Additional options for FLAIR correct."
+                },
+                "skip_flair_collapse": {
+                    "type": "boolean",
+                    "description": "Skip FLAIR collapse module."
+                },
+                "extra_flair_collapse_options": {
+                    "type": "string",
+                    "description": "Additional options for FLAIR collapse."
+                },
+                "skip_bambu": {
+                    "type": "boolean",
+                    "default": true,
+                    "description": "Skip bambu transcript reconstruction."
+                },
+                "extra_bambu_options": {
+                    "type": "string",
+                    "description": "Additional options for bambu."
+                },
+                "skip_stringtie": {
+                    "type": "boolean",
+                    "description": "Skip StringTie transcript reconstruction."
+                },
+                "extra_stringtie_options": {
+                    "type": "string",
+                    "description": "Additional options for StringTie."
+                },
+                "skip_isoquant": {
+                    "type": "boolean",
+                    "default": true,
+                    "description": "Skip IsoQuant transcript reconstruction."
+                },
+                "skip_isoquant_correction": {
+                    "type": "boolean",
+                    "description": "Skip IsoQuant read correction."
+                },
+                "extra_isoquant_options": {
+                    "type": "string",
+                    "description": "Additional options for IsoQuant."
+                },
+                "skip_jaccard": {
+                    "type": "boolean",
+                    "description": "Skip calculation of jaccard statistic."
+                },
+                "skip_gffcompare": {
+                    "type": "boolean",
+                    "description": "Skip gffcompare transcirptome assessment."
+                },
+                "extra_gffcompare_options": {
+                    "type": "string",
+                    "description": "Additional gffcompare options."
+                },
+                "skip_sqanti_all": {
+                    "type": "boolean",
+                    "description": "Skip all of SQANTI modules."
+                },
+                "skip_sqanti_qc": {
+                    "type": "boolean",
+                    "description": "Skip SQANTI QC module."
+                },
+                "sqanti_qc_reference": {
+                    "type": "string",
+                    "default": "human",
+                    "description": "Reference genome name for SQANTI QC.",
+                    "help_text": "Only supports 'human' currently."
+                },
+                "sqanti_qc_cage": {
+                    "type": "boolean",
+                    "default": true,
+                    "description": "Use CAGE data with SQANTI QC."
+                },
+                "sqanti_qc_cage_path": {
+                    "type": "string",
+                    "description": "Path to SQANTI QC CAGE data."
+                },
+                "sqanti_qc_polyA_sites": {
+                    "type": "boolean",
+                    "default": true,
+                    "description": "Use polyA sites data with SQANTI QC."
+                },
+                "sqanti_qc_polyA_sites_path": {
+                    "type": "string",
+                    "description": "Path to SQANTI QC polyA sites data."
+                },
+                "sqanti_qc_polyA_motif": {
+                    "type": "boolean",
+                    "default": true,
+                    "description": "Use polyA motif data with SQANTI QC."
+                },
+                "sqanti_qc_polyA_motif_path": {
+                    "type": "string",
+                    "description": "Path to SQANTI QC polyA motif data."
+                },
+                "sqanti_qc_intron_junctions": {
+                    "type": "boolean",
+                    "default": true,
+                    "description": "Use intron junction data with SQANTI QC."
+                },
+                "sqanti_qc_intron_path": {
+                    "type": "string",
+                    "description": "Path to SQANTI QC intron site data."
+                },
+                "extra_sqanti_qc_options": {
+                    "type": "string",
+                    "description": "Additional options for SQANTI QC."
+                },
+                "skip_jaffal": {
+                    "type": "boolean",
+                    "description": "Skip JAFFAL fusion gene detection."
+                },
+                "skip_jaffal_download": {
+                    "type": "boolean",
+                    "description": "Skip download of JAFFAL reference (recommended).",
+                    "default": true
+                },
+                "jaffal_reference": {
+                    "type": "string",
+                    "description": "Path to JAFFAL reference directory."
+                },
+                "skip_transcript_quantification": {
+                    "type": "boolean",
+                    "description": "Skip all transcript quantification."
+                },
+                "skip_oarfish": {
+                    "type": "boolean",
+                    "description": "Skip OARFISH transcript quantification."
+                },
+                "skip_transigner": {
+                    "type": "boolean",
+                    "description": "Skip TranSigner transcript quantification."
                 }
             }
         }
     },
     "allOf": [
         {
+            "$ref": "#/$defs/reference_genome_options"
+        },
+        {
             "$ref": "#/$defs/input_output_options"
         },
         {
+            "$ref": "#/$defs/multiqc_options"
+        },
+        {
             "$ref": "#/$defs/generic_options"
+        },
+        {
+            "$ref": "#/$defs/module_specific_options"
         }
-    ],
-    "properties": {
-        "sequencing_type": {
-            "type": "string",
-            "default": "ont-drna"
-        },
-        "bam_input": {
-            "type": "boolean"
-        },
-        "genome_fasta": {
-            "type": "string"
-        },
-        "genome_fasta_index": {
-            "type": "string"
-        },
-        "genome_fasta_sizes": {
-            "type": "string"
-        },
-        "skip_prepare_reference": {
-            "type": "boolean"
-        },
-        "genome_minimap2_index": {
-            "type": "string"
-        },
-        "transcriptome_fasta": {
-            "type": "string"
-        },
-        "transcriptome_minimap2_index": {
-            "type": "string"
-        },
-        "annotation_gtf": {
-            "type": "string"
-        },
-        "multiqc_config": {
-            "type": "string"
-        },
-        "multiqc_title": {
-            "type": "string"
-        },
-        "multiqc_logo": {
-            "type": "string"
-        },
-        "multiqc_methods_description": {
-            "type": "string"
-        },
-        "skip_qc": {
-            "type": "boolean"
-        },
-        "skip_bam_qc": {
-            "type": "boolean"
-        },
-        "skip_alfred": {
-            "type": "boolean"
-        },
-        "skip_samtools_flagstat": {
-            "type": "boolean"
-        },
-        "skip_nanoq": {
-            "type": "boolean"
-        },
-        "skip_sequali": {
-            "type": "boolean"
-        },
-        "skip_cramino": {
-            "type": "boolean"
-        },
-        "cramino_min_length": {
-            "type": "integer",
-            "default": 0
-        },
-        "skip_ngs_bits": {
-            "type": "boolean"
-        },
-        "ngs_bits_skip_contamination": {
-            "type": "boolean"
-        },
-        "ngs_bits_build": {
-            "type": "string",
-            "default": "hg38"
-        },
-        "skip_mapping": {
-            "type": "boolean"
-        },
-        "skip_bam_to_bigwig": {
-            "type": "boolean"
-        },
-        "skip_flair": {
-            "type": "boolean"
-        },
-        "skip_flair_correct": {
-            "type": "boolean"
-        },
-        "extra_flair_correct_options": {
-            "type": "string"
-        },
-        "skip_flair_collapse": {
-            "type": "boolean"
-        },
-        "extra_flair_collapse_options": {
-            "type": "string"
-        },
-        "skip_bambu": {
-            "type": "boolean",
-            "default": true
-        },
-        "extra_bambu_options": {
-            "type": "string"
-        },
-        "skip_stringtie": {
-            "type": "boolean"
-        },
-        "extra_stringtie_options": {
-            "type": "string"
-        },
-        "skip_isoquant": {
-            "type": "boolean",
-            "default": true
-        },
-        "skip_isoquant_correction": {
-            "type": "boolean"
-        },
-        "extra_isoquant_options": {
-            "type": "string"
-        },
-        "skip_jaccard": {
-            "type": "boolean"
-        },
-        "skip_gffcompare": {
-            "type": "boolean"
-        },
-        "extra_gffcompare_options": {
-            "type": "string"
-        },
-        "skip_sqanti_all": {
-            "type": "boolean"
-        },
-        "skip_sqanti_qc": {
-            "type": "boolean"
-        },
-        "sqanti_qc_reference": {
-            "type": "string",
-            "default": "human"
-        },
-        "sqanti_qc_cage": {
-            "type": "boolean",
-            "default": true
-        },
-        "sqanti_qc_cage_path": {
-            "type": "string",
-            "default": "/path/to/cage"
-        },
-        "sqanti_qc_polyA_sites": {
-            "type": "boolean",
-            "default": true
-        },
-        "sqanti_qc_polyA_sites_path": {
-            "type": "string",
-            "default": "path/to/polyA"
-        },
-        "sqanti_qc_polyA_motif": {
-            "type": "boolean",
-            "default": true
-        },
-        "sqanti_qc_polyA_motif_path": {
-            "type": "string",
-            "default": "path/to/polyA/path"
-        },
-        "sqanti_qc_intron_junctions": {
-            "type": "boolean",
-            "default": true
-        },
-        "sqanti_qc_intron_path": {
-            "type": "string",
-            "default": "path/to/intro/path"
-        },
-        "extra_sqanti_qc_options": {
-            "type": "string"
-        },
-        "skip_jaffal": {
-            "type": "boolean"
-        },
-        "skip_jaffal_download": {
-            "type": "boolean"
-        },
-        "jaffal_reference": {
-            "type": "string"
-        },
-        "skip_transcript_quantification": {
-            "type": "boolean"
-        },
-        "skip_oarfish": {
-            "type": "boolean"
-        },
-        "skip_transigner": {
-            "type": "boolean"
-        },
-        "publish_dir_mode": {
-            "type": "string",
-            "default": "copy"
-        },
-        "email": {
-            "type": "string"
-        },
-        "email_on_fail": {
-            "type": "string"
-        },
-        "plaintext_email": {
-            "type": "boolean"
-        },
-        "monochrome_logs": {
-            "type": "boolean"
-        },
-        "hook_url": {
-            "type": "string"
-        },
-        "config_profile_name": {
-            "type": "string"
-        },
-        "config_profile_description": {
-            "type": "string"
-        },
-        "custom_config_version": {
-            "type": "string",
-            "default": "dev"
-        },
-        "custom_config_base": {
-            "type": "string"
-        },
-        "config_profile_contact": {
-            "type": "string",
-            "default": "deancombio@pm.me"
-        },
-        "config_profile_url": {
-            "type": "string"
-        },
-        "max_memory": {
-            "type": "string",
-            "default": "32.GB"
-        },
-        "max_cpus": {
-            "type": "integer",
-            "default": 10
-        },
-        "max_time": {
-            "type": "string",
-            "default": "48.h"
-        }
-    }
+    ]
 }

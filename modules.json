@@ -1,6 +1,6 @@
 {
-    "name": "medgen/directrna",
-    "homePage": "https://github.com/medgen/directrna",
+    "name": "number-25/rich_directRNA",
+    "homePage": "https://github.com/number-25/rich_directRNA",
     "repos": {
         "https://github.com/nf-core/modules.git": {
             "modules": {

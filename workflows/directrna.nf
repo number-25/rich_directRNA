@@ -107,7 +107,7 @@ include { GFFREAD_GETFASTA as GFFREAD_GETFASTA_ISOQUANT } from '../modules/local
 include { GFFREAD_GETFASTA as GFFREAD_GETFASTA_STRINGTIE} from '../modules/local/gffread'
 
 // fusion gene detection
-//include { JAFFAL                  } from '../modules/local/jaffal'
+include { JAFFAL                    } from '../modules/local/jaffal'
 
 // transcript quantification
 // OARFISH
@@ -460,21 +460,23 @@ workflow DIRECTRNA{
 //            TRANSIGNER_FLAIR( ch_flair_collapsed_fa, ch_transcriptome_minimap2_index, 'flair')
 //        }
         //}
+
     // Oarfish
    // if (!params.skip_quantification && !params.skip_mapping && params.!skip_oarfish)
-
-    if (!params.skip_oarfish) {
-        if (!params.skip_flair) {
-            OARFISH_FLAIR( ch_flair_collapsed_fa, ch_transcriptome_minimap2_index, ch_sequencing_type, 'flair' )
-        }
-        if (!params.skip_bambu) {
-            OARFISH_BAMBU( ch_bambu_transcripts, ch_transcriptome_minimap2_index, ch_sequencing_type, 'bambu' )
-        }
-        if (!params.skip_isoquant) {
-            OARFISH_ISOQUANT( ch_isoquant_transcripts, ch_transcriptome_minimap2_index, ch_sequencing_type, 'isoquant' )
-        }
-        if (!params.skip_stringtie) {
-            OARFISH_STRINGTIE( ch_stringtie_transcripts, ch_transcriptome_minimap2_index, ch_sequencing_type, 'stringtie' )
+    if (!params.skip_quantification) {
+        if (!params.skip_oarfish) {
+            if (!params.skip_flair) {
+                OARFISH_FLAIR( ch_flair_collapsed_fa, ch_transcriptome_minimap2_index, ch_sequencing_type, 'flair' )
+            }
+            if (!params.skip_bambu) {
+                OARFISH_BAMBU( ch_bambu_transcripts, ch_transcriptome_minimap2_index, ch_sequencing_type, 'bambu' )
+            }
+            if (!params.skip_isoquant) {
+                OARFISH_ISOQUANT( ch_isoquant_transcripts, ch_transcriptome_minimap2_index, ch_sequencing_type, 'isoquant' )
+            }
+            if (!params.skip_stringtie) {
+                OARFISH_STRINGTIE( ch_stringtie_transcripts, ch_transcriptome_minimap2_index, ch_sequencing_type, 'stringtie' )
+            }
         }
     }
 
