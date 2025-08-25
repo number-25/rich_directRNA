@@ -1,4 +1,4 @@
-[![GitHub Actions CI Status](https://github.com/number_25/rich_directRNA/actions/workflows/ci.yml/badge.svg)](https://github.com/medgen/directrna/actions/workflows/ci.yml)
+[![GitHub Actions CI Status](https://github.com/number_25/rich_directRNA/actions/workflows/ci.yml/badge.svg)](https://github.com/number-25/rich_directRNA/actions/workflows/ci.yml)
 [![GitHub Actions Linting Status](https://github.com/number_25/rich_directRNA/actions/workflows/linting.yml/badge.svg)](https://github.com/number_25/rich_directRNA/actions/workflows/linting.yml)[![Cite with Zenodo](http://img.shields.io/badge/DOI-10.5281/zenodo.XXXXXXX-1073c8?labelColor=000000)](https://doi.org/10.5281/zenodo.XXXXXXX)
 [![nf-test](https://img.shields.io/badge/unit_tests-nf--test-337ab7.svg)](https://www.nf-test.com)
 
@@ -96,7 +96,7 @@ nextflow run . \
 
 ## Credits
 
-medgen/directrna was originally written by Dean Bašić.
+number-25/rich_directRNA was originally written by Dean Bašić.
 
 We thank the following people for their extensive assistance in the development of this pipeline:
 
@@ -105,7 +105,7 @@ We thank the following people for their extensive assistance in the development 
 ## Citations
 
 <!-- TODO nf-core: Add citation for pipeline after first release. Uncomment lines below and update Zenodo doi and badge at the top of this file. -->
-<!-- If you use medgen/directrna for your analysis, please cite it using the following doi: [10.5281/zenodo.XXXXXX](https://doi.org/10.5281/zenodo.XXXXXX) -->
+<!-- If you use number-25/rich_directRNA for your analysis, please cite it using the following doi: [10.5281/zenodo.XXXXXX](https://doi.org/10.5281/zenodo.XXXXXX) -->
 
 <!-- TODO nf-core: Add bibliography of tools and data used in your pipeline -->
 

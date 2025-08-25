@@ -1,10 +1,10 @@
 Run Name: $runName
 
 <% if (success){
-    out << "## medgen/directrna execution completed successfully! ##"
+    out << "## number-25/rich_directRNA execution completed successfully! ##"
 } else {
     out << """####################################################
-## medgen/directrna execution completed unsuccessfully! ##
+## number-25/rich_directRNA execution completed unsuccessfully! ##
 ####################################################
 The exit status of the task that caused the workflow execution to fail was: $exitStatus.
 The full error message was:
@@ -27,5 +27,5 @@ Pipeline Configuration:
 <% out << summary.collect{ k,v -> " - $k: $v" }.join("\n") %>
 
 --
-medgen/directrna
-https://github.com/medgen/directrna
+number-25/rich_directRNA
+https://github.com/number-25/rich_directRNA
