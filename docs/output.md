@@ -1,4 +1,4 @@
-# medgen/directrna: Output
+# number-25/rich_directRNA: Output
 
 ## Introduction
 

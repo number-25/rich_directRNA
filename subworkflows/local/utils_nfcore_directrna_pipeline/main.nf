@@ -1,5 +1,5 @@
 //
-// Subworkflow with functionality specific to the medgen/directrna pipeline
+// Subworkflow with functionality specific to the number-25/rich_directRNA pipeline
 //
 
 /*

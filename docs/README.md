@@ -1,6 +1,6 @@
-# medgen/directrna: Documentation
+# number-25/rich_directRNA: Documentation
 
-The medgen/directrna documentation is split into the following pages:
+The number-25/rich_directRNA documentation is split into the following pages:
 
 - [Usage](usage.md)
   - An overview of how the pipeline works, how to run it and a description of all of the different command-line flags.
