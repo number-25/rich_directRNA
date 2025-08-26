@@ -77,13 +77,13 @@ include { INPUT_CHECK               } from '../subworkflows/local/input_check'
 // Prepare reference files
 include { PREPARE_REFERENCE         } from '../subworkflows/local/prepare_reference'
 // fastq QC
-include { NANOQ                     } from '../modules/local/nanoq'
-include { SEQUALI                   } from '../modules/local/sequali'
+include { NANOQ                     } from '../modules/local/nanoq/nanoq'
+include { SEQUALI                   } from '../modules/local/sequali/sequali'
 include { MULTIQC                   } from '../modules/nf-core/multiqc/main'
 
 // fastq mapping
 include { MAPPING                   } from '../subworkflows/local/mapping'
-include { SAMTOOLS_FAIDX            } from '../modules/local/samtools/samtools_faidx'
+include { SAMTOOLS_FAIDX            } from '../modules/local/samtools/faidx'
 include { BAM_TO_BEDGRAPH as BAM_TO_BEDGRAPH_FW } from '../modules/local/bedtools/bam_to_bedgraph'
 include { BAM_TO_BEDGRAPH as BAM_TO_BEDGRAPH_REV } from '../modules/local/bedtools/bam_to_bedgraph'
 include { BEDGRAPH_BEDCLIP_BEDGRAPHTOBIGWIG as BEDGRAPH_BEDCLIP_BEDGRAPHTOBIGWIG_FW } from '../subworkflows/local/bedgraph_bedclip_bedgraphtobigwig'
@@ -91,23 +91,23 @@ include { BEDGRAPH_BEDCLIP_BEDGRAPHTOBIGWIG as BEDGRAPH_BEDCLIP_BEDGRAPHTOBIGWIG
 
 // bam QC
 include { BAM_QC                    } from '../subworkflows/local/bam_qc'
-include { SAMTOOLS_INDEX            } from '../modules/local/samtools/samtools_index'
+include { SAMTOOLS_INDEX            } from '../modules/local/samtools/index'
 
 // transcript reconstruction
 include { BAM_TO_BED12              } from '../modules/local/flair/bam_to_bed12'
-include { FLAIR_CORRECT             } from '../modules/local/flair/flair_correct'
-include { FLAIR_COLLAPSE            } from '../modules/local/flair/flair_collapse'
+include { FLAIR_CORRECT             } from '../modules/local/flair/correct'
+include { FLAIR_COLLAPSE            } from '../modules/local/flair/collapse'
 include { BED_TO_BAM                } from '../modules/local/bedtools/bed_to_bam'
-include { BAMBU                     } from '../modules/local/bambu'
-include { ISOQUANT                  } from '../modules/local/isoquant'
-include { GTF2DB                    } from '../modules/local/gtf2db'
-include { STRINGTIE                 } from '../modules/local/stringtie'
-include { GFFREAD_GETFASTA as GFFREAD_GETFASTA_BAMBU    } from '../modules/local/gffread'
-include { GFFREAD_GETFASTA as GFFREAD_GETFASTA_ISOQUANT } from '../modules/local/gffread'
-include { GFFREAD_GETFASTA as GFFREAD_GETFASTA_STRINGTIE} from '../modules/local/gffread'
+include { BAMBU                     } from '../modules/local/bambu/bambu'
+include { ISOQUANT                  } from '../modules/local/isoquant/isoquant'
+include { GTF2DB                    } from '../modules/local/isoquant/gtf2db'
+include { STRINGTIE                 } from '../modules/local/stringtie/stringtie'
+include { GFFREAD_GETFASTA as GFFREAD_GETFASTA_BAMBU    } from '../modules/local/gffread/gffread'
+include { GFFREAD_GETFASTA as GFFREAD_GETFASTA_ISOQUANT } from '../modules/local/gffread/gffread'
+include { GFFREAD_GETFASTA as GFFREAD_GETFASTA_STRINGTIE} from '../modules/local/gffread/gffread'
 
 // fusion gene detection
-include { JAFFAL                    } from '../modules/local/jaffal'
+include { JAFFAL                    } from '../modules/local/jaffal/bpipe'
 
 // transcript quantification
 // OARFISH
@@ -116,12 +116,12 @@ include { JAFFAL                    } from '../modules/local/jaffal'
 //include { MINIMAP2_TXOME_ALIGN as MINIMAP2_ISOQUANT     } from '../modules/local/minimap2_txome_align
 //include { MINIMAP2_TXOME_ALIGN as MINIMAP2_STRINGTIE    } from '../modules/local/minimap2_txome_align
 // OARFISH
-include { OARFISH as OARFISH_FLAIR                      } from '../modules/local/oarfish'
-include { OARFISH as OARFISH_BAMBU                      } from '../modules/local/oarfish'
-include { OARFISH as OARFISH_ISOQUANT                   } from '../modules/local/oarfish'
-include { OARFISH as OARFISH_STRINGTIE                  } from '../modules/local/oarfish'
+include { OARFISH as OARFISH_FLAIR                      } from '../modules/local/oarfish/raw_read'
+include { OARFISH as OARFISH_BAMBU                      } from '../modules/local/oarfish/raw_read'
+include { OARFISH as OARFISH_ISOQUANT                   } from '../modules/local/oarfish/raw_read'
+include { OARFISH as OARFISH_STRINGTIE                  } from '../modules/local/oarfish/raw_read'
 // TRANSIGNER
-include { TRANSIGNER as TRANSIGNER_FLAIR                } from '../modules/local/transigner'
+include { TRANSIGNER as TRANSIGNER_FLAIR                } from '../modules/local/transigner/align'
 
 // transcriptome assessment
 // JACCARD for tools using read correction
@@ -135,18 +135,18 @@ include { GFFCOMPARE as GFFCOMPARE_STRINGTIE      } from '../modules/local/gffco
 
 // Going to be a bit of a long-think
 //include { SQANTI_PREPARE_REFERENCE                  } from '../subworkflows/local/sqanti/'
-//include { QC_SQANTI as SQANTI_QC_FLAIR              } from '../subworkflows/local/sqanti/sqanti_qc'
-//include { QC_SQANTI as SQANTI_QC_BAMBU              } from '../subworkflows/local/sqanti/sqanti_qc'
-//include { QC_SQANTI as SQANTI_QC_ISOQUANT           } from '../subworkflows/local/sqanti/sqanti_qc'
-//include { QC_SQANTI as SQANTI_QC_STRINGTIE          } from '../subworkflows/local/sqanti/sqanti_qc'
-//include { SQANTI_FILTER as SQANTI_FILTER_FLAIR      } from '../subworkflows/local/sqanti/sqanti_filter'
-//include { SQANTI_FILTER as SQANTI_FILTER_BAMBU      } from '../subworkflows/local/sqanti/sqanti_filter'
-//include { SQANTI_FILTER as SQANTI_FILTER_ISOQUANT   } from '../subworkflows/local/sqanti/sqanti_filter'
-//include { SQANTI_FILTER as SQANTI_FILTER_STRINGTIE  } from '../subworkflows/local/sqanti/sqanti_filter'
-//include { SQANTI_RESCUE as SQANTI_RESCUE_FLAIR      } from '../subworkflows/local/sqanti/sqanti_rescue'
-//include { SQANTI_RESCUE as SQANTI_RESCUE_BAMBU      } from '../subworkflows/local/sqanti/sqanti_rescue'
-//include { SQANTI_RESCUE as SQANTI_RESCUE_ISOQUANT   } from '../subworkflows/local/sqanti/sqanti_rescue'
-//include { SQANTI_RESCUE as SQANTI_RESCUE_STRINGTIE  } from '../subworkflows/local/sqanti/sqanti_rescue'
+//include { QC_SQANTI as SQANTI_QC_FLAIR              } from '../subworkflows/local/sqanti/qc'
+//include { QC_SQANTI as SQANTI_QC_BAMBU              } from '../subworkflows/local/sqanti/qc'
+//include { QC_SQANTI as SQANTI_QC_ISOQUANT           } from '../subworkflows/local/sqanti/qc'
+//include { QC_SQANTI as SQANTI_QC_STRINGTIE          } from '../subworkflows/local/sqanti/qc'
+//include { SQANTI_FILTER as SQANTI_FILTER_FLAIR      } from '../subworkflows/local/sqanti/filter'
+//include { SQANTI_FILTER as SQANTI_FILTER_BAMBU      } from '../subworkflows/local/sqanti/filter'
+//include { SQANTI_FILTER as SQANTI_FILTER_ISOQUANT   } from '../subworkflows/local/sqanti/filter'
+//include { SQANTI_FILTER as SQANTI_FILTER_STRINGTIE  } from '../subworkflows/local/sqanti/filter'
+//include { SQANTI_RESCUE as SQANTI_RESCUE_FLAIR      } from '../subworkflows/local/sqanti/rescue'
+//include { SQANTI_RESCUE as SQANTI_RESCUE_BAMBU      } from '../subworkflows/local/sqanti/rescue'
+//include { SQANTI_RESCUE as SQANTI_RESCUE_ISOQUANT   } from '../subworkflows/local/sqanti/rescue'
+//include { SQANTI_RESCUE as SQANTI_RESCUE_STRINGTIE  } from '../subworkflows/local/sqanti/rescue'
 
 // transcript reconstruction subworkflow?
 // include { TRANSCRIPT_RECONSTRUCTION
