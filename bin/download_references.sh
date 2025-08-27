@@ -82,5 +82,3 @@ fi
 #fi
 #gunzip hg38.phyloP7way.wigFix.gz
 #rm hg38.phyloP7way.wigFix.gz
-
-

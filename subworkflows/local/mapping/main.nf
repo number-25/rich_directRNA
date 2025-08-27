@@ -49,4 +49,3 @@ workflow MAPPING {
 
     versions = ch_versions                     // channel: [ versions.yml ]
 }
-

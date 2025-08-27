@@ -50,4 +50,3 @@ process UNZIP {
     END_VERSIONS
     """
 }
-

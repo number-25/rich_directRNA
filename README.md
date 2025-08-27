@@ -14,7 +14,7 @@
 is a nextflow pipeline that is used for the processing of direct RNA nanopore sequencing data, providing multiple transcript reconstruction, and quantification
 options with the use of a reference genome, and transcriptome annotation. Additionally, it performs post transcriptome reconstruction assessment, and recovery.
 
-The pipeline currently *only* accepts sequencing data from directRNA Oxford
+The pipeline currently _only_ accepts sequencing data from directRNA Oxford
 Nanopore Technologies (ONT) libraries. It is recommended to provide raw FASTQ
 files to the pipeline, however, it will also accept already mapped sequencing
 reads in BAM format. These are provided to the samplesheet as input.
@@ -27,15 +27,15 @@ reads in BAM format. These are provided to the samplesheet as input.
 3. Sort and index alignments ( [`samtools`](https://sourceforge.net/projects/samtools/files/samtools/) )
 4. Create bigWig coverage files ( [`bedtools`](https://github.com/arq5x/bedtools2/), [bedGraphToBigWig](https://hgdownload.soe.ucsc.edu/admin/exe/) )
 5. Extensive QC of alignments
-    1. [`samtools`](https://sourceforge.net/projects/samtools/files/samtools/)
-    2. [`cramino`](https://github.com/wdecoster/cramino)
-    3. [`alfred`](https://www.gear-genomics.com/docs/alfred/)
-    4. [`ngs-bits`](https://github.com/imgag/ngs-bits/tree/master)
+   1. [`samtools`](https://sourceforge.net/projects/samtools/files/samtools/)
+   2. [`cramino`](https://github.com/wdecoster/cramino)
+   3. [`alfred`](https://www.gear-genomics.com/docs/alfred/)
+   4. [`ngs-bits`](https://github.com/imgag/ngs-bits/tree/master)
 6. Multiple transcriptome reconstruction options, with read correction options.
-    1. [`FLAIR`](github.com/BrooksLabUCSC/flair) - allows read correction
-    2. [`bambu`](github.com/GoekeLab/bambu) - very minor read correction
-    3. [`IsoQuant`](https://ablab.github.io/IsoQuant/) - allows read correction
-    4. [`StringTie`](https://github.com/skovaka/stringtie2)
+   1. [`FLAIR`](github.com/BrooksLabUCSC/flair) - allows read correction
+   2. [`bambu`](github.com/GoekeLab/bambu) - very minor read correction
+   3. [`IsoQuant`](https://ablab.github.io/IsoQuant/) - allows read correction
+   4. [`StringTie`](https://github.com/skovaka/stringtie2)
 7. Fusion gene detection [`JAFFA`](github.com/Oshlack/JAFFA)
 8. Transcriptome assessment [`gffutils`](https://ccb.jhu.edu/software/stringtie/gff.shtml)
 9. Transcript quantification ( [`TranSigner`](https://github.com/haydenji0731/TranSigner), [oarfish](https://github.com/COMBINE-lab/oarfish) )
@@ -81,6 +81,7 @@ nextflow run . \
 ```
 
 To run a minimal, quick test dataset, use:
+
 ```bash
 mkdir testing_dir
 

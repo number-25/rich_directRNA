@@ -40,4 +40,3 @@ process JAFFAL {
     END_VERSIONS
     """
 }
-

@@ -48,4 +48,3 @@ print(readlist)
 grlist <- prepareAnnotations(annot_gtf)
 se     <- bambu(reads = readlist, annotations = grlist, genome = genomeSequence, ncore = ncore, verbose = TRUE)
 writeBambuOutput(se, output_tag)
-
