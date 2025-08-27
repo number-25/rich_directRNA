@@ -96,16 +96,20 @@
             "default": "",
             "properties": {
                 "multiqc_config": {
-                    "type": "string"
+                    "type": "string",
+                    "description": "Custom config file to supply to MultiQC."
                 },
                 "multiqc_logo": {
-                    "type": "string"
+                    "type": "string",
+                    "description": "Custom logo file to supply to MultiQC. File name must also be set in the MultiQC config file."
                 },
                 "multiqc_methods_description": {
-                    "type": "string"
+                    "type": "string",
+                    "description": "Custom MultiQC yaml file containing HTML including a methods description."
                 },
                 "multiqc_title": {
-                    "type": "string"
+                    "type": "string",
+                    "description": "MultiQC report title. Printed as page header, used for filename if not otherwise specified."
                 }
             }
         },
@@ -144,26 +148,33 @@
                     "description": "Method used to save pipeline results to output directory."
                 },
                 "hook_url": {
-                    "type": "string"
+                    "type": "string",
+                    "description": "Incoming Webhook URL for messaging service."
                 },
                 "config_profile_description": {
-                    "type": "string"
+                    "type": "string",
+                    "description": "Institutional config description."
                 },
                 "config_profile_name": {
-                    "type": "string"
+                    "type": "string",
+                    "description": "Institutional config name."
                 },
                 "custom_config_version": {
                     "type": "string",
-                    "default": "dev"
+                    "default": "dev",
+                    "description": "Git commit id for Institutional configs"
                 },
                 "custom_config_base": {
-                    "type": "string"
+                    "type": "string",
+                    "description": "Base directory for Institutional configs."
                 },
                 "config_profile_contact": {
-                    "type": "string"
+                    "type": "string",
+                    "description": "Institutional config contact information."
                 },
                 "config_profile_url": {
-                    "type": "string"
+                    "type": "string",
+                    "description": "Institutional config URL link."
                 }
             }
         },

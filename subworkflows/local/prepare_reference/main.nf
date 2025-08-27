@@ -2,16 +2,15 @@
 // Uncompress and prepare reference files
 //
 
-include { GUNZIP as GUNZIP_FASTA                    } from '../../modules/nf-core/gunzip'
-include { GUNZIP as GUNZIP_TRANSCRIPT_FASTA         } from '../../modules/nf-core/gunzip'
-include { CUSTOM_GETCHROMSIZES                      } from '../../modules/nf-core/custom/getchromsizes'
-include { MINIMAP2_INDEX as MINIMAP2_GENOME_INDEX   } from '../../modules/local/minimap2/index'
-include { MINIMAP2_INDEX as MINIMAP2_TXOME_INDEX    } from '../../modules/local/minimap2/index'
-include { GUNZIP as GUNZIP_TRANSCRIPTOME            } from '../../modules/nf-core/gunzip'
-include { GUNZIP as GUNZIP_ANNOTATION_GTF           } from '../../modules/nf-core/gunzip'
-include { SQANTI_PREPARE_REFERENCE                  } from '../local/sqanti/sqanti_prepare_reference'
-include { JAFFAL_PREPARE_REFERENCE                  } from '../local/jaffal/jaffal_prepare_reference'
-include { UNZIP                                     } from '../../modules/local/unzip/unzip'
+include { GUNZIP as GUNZIP_FASTA                    } from '../../../modules/nf-core/gunzip'
+include { CUSTOM_GETCHROMSIZES                      } from '../../../modules/nf-core/custom/getchromsizes'
+include { MINIMAP2_INDEX as MINIMAP2_GENOME_INDEX   } from '../../../modules/local/minimap2/index'
+include { MINIMAP2_INDEX as MINIMAP2_TXOME_INDEX    } from '../../../modules/local/minimap2/index'
+include { GUNZIP as GUNZIP_TRANSCRIPTOME            } from '../../../modules/nf-core/gunzip'
+include { GUNZIP as GUNZIP_ANNOTATION_GTF           } from '../../../modules/nf-core/gunzip'
+include { SQANTI_PREPARE_REFERENCE                  } from '../../local/sqanti/sqanti_prepare_reference'
+include { JAFFAL_PREPARE_REFERENCE                  } from '../../local/jaffal_prepare_reference'
+include { UNZIP                                     } from '../../../modules/local/unzip/unzip'
 
 // prepare additional files
 //TO-DO make these modules
@@ -92,6 +91,7 @@ workflow PREPARE_REFERENCE{
         file(transcriptome_fasta, checkIfExists: true)
         if (transcriptome_fasta.endsWith('.gz')) {
             ch_transcriptome_fasta = GUNZIP_TRANSCRIPTOME( [ [:], transcriptome_fasta ] ).gunzip.map { it[1] }
+            ch_versions = ch_versions.mix(GUNZIP_TRANSCRIPTOME.out.versions)
 } else {
             //ch_transcriptome_fasta = Channel.value(file(transcriptome_fasta), checkIfExists: true)
             ch_transcriptome_fasta = Channel.fromPath(params.transcriptome_fasta, checkIfExists: true)
@@ -104,6 +104,7 @@ workflow PREPARE_REFERENCE{
         file(annotation_gtf, checkIfExists:true)
         if (annotation_gtf.endsWith('.gz')) {
             ch_annotation_gtf = GUNZIP_ANNOTATION_GTF( [ [:], annotation_gtf ] ).gunzip.map { it[1] }
+            ch_versions = ch_versions.mix(GUNZIP_ANNOTATION_GTF.out.versions)
         } else {
 //            ch_annotation_gtf = Channel.value(file(annotation_gtf), checkIfExists: true)
             ch_annotation_gtf = Channel.fromPath(params.annotation_gtf, checkIfExists: true)
@@ -178,6 +179,7 @@ workflow PREPARE_REFERENCE{
             ch_jaffal_reference = file(params.jaffal_reference, checkIfExists: true)
             UNZIP( ch_jaffal_ref_dir, "jaffal_reference" )
             ch_jaffal_reference_dir = UNZIP.out.unzipped_archive
+            ch_versions = ch_versions.mix(UNZIP.out.versions)
         } else {
             ch_jaffal_reference_dir = file(params.jaffal_reference, checkIfExists: true)
         }

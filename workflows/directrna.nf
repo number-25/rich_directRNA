@@ -265,6 +265,8 @@ workflow DIRECTRNA{
                 ch_sqanti_qc_intron_junctions_bed = PREPARE_REFERENCE.out.sqanti_qc_intron_junctions_bed
             }
         }
+    } else {
+        ch_genome_fasta_with_index = ch_genome_fasta.combine(ch_genome_fasta_index)
     }
 
     // Mapping and sorting
@@ -306,7 +308,7 @@ workflow DIRECTRNA{
         ch_cramino_min_length = params.cramino_min_length
         ch_skip_ngs_bits = params.skip_ngs_bits
         ch_ngs_bits_build = params.ngs_bits_build
-        //TODO NEED TO ADD THIS CONTAMINATION TO A CUSTOM CONFIG
+        //TO-DO NEED TO ADD THIS CONTAMINATION TO A CUSTOM CONFIG
         ch_ngs_bits_skip_contamination = params.ngs_bits_skip_contamination
         BAM_QC(
             ch_skip_cramino,

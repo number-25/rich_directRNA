@@ -2,8 +2,8 @@
 // Download and prepare reference files for JAFFAL
 //
 
-include { UNZIP                 } from '../../modules/local/unzip/unzip'
-include { CURL  as CURL_JAFFAL  } from '../../modules/local/curl/curl'
+include { UNZIP                 } from '../../../modules/local/unzip/unzip'
+include { CURL  as CURL_JAFFAL  } from '../../../modules/local/curl/curl'
 //include { UNTAR as UNTAR        } from '../../modules/nf-core/untar/main'
 
 workflow JAFFAL_PREPARE_REFERENCE {
