@@ -160,7 +160,7 @@ workflow PREPARE_REFERENCE{
         ch_sqanti_qc_polyA_sites_bed        = SQANTI_PREPARE_REFERENCE.out.sqanti_qc_polyA_sites_bed
         ch_sqanti_qc_polyA_motif            = SQANTI_PREPARE_REFERENCE.out.sqanti_qc_polyA_motif
         ch_sqanti_qc_intron_junctions_bed   = SQANTI_PREPARE_REFERENCE.out.sqanti_qc_intron_junctions_bed
-        ch_versions                         = ch.versions.mix(SQANTI_PREPARE_REFERENCE.out.versions)
+
     } else {
         ch_sqanti_qc_cage_bed               = null
         ch_sqanti_qc_polyA_sites_bed        = null

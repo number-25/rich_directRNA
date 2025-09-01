@@ -5,6 +5,7 @@ process BAMBU {
     container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
         'https://depot.galaxyproject.org/singularity/bioconductor-bambu:3.0.8--r42hc247a5b_0' :
         'docker://quay.io/biocontainers/bioconductor-bambu:3.0.8--r42hc247a5b_0' }"
+   //containerOptions = '-u $(id -u):$(id -g)'
         //'number25/bambu:3.8.0':
         //'docker://quay.io/number_25/bambu:latest' }"
         // 'https://depot.galaxyproject.org/singularity/bioconductor-bambu:3.4.0--r43hf17093f_1' :

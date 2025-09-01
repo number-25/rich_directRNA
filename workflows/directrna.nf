@@ -465,7 +465,7 @@ workflow DIRECTRNA{
 
     // Oarfish
    // if (!params.skip_quantification && !params.skip_mapping && params.!skip_oarfish)
-    if (!params.skip_quantification) {
+    if (!params.skip_transcript_quantification) {
         if (!params.skip_oarfish) {
             if (!params.skip_flair) {
                 OARFISH_FLAIR( ch_flair_collapsed_fa, ch_transcriptome_minimap2_index, ch_sequencing_type, 'flair' )
