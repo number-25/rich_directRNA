@@ -20,20 +20,8 @@
                         "git_sha": "b7ebe95761cd389603f9cc0e0dc384c0f663815a",
                         "installed_by": ["modules"]
                     },
-                    "ucsc/bedclip": {
-                        "branch": "master",
-                        "git_sha": "81880787133db07d9b4c1febd152c090eb8325dc",
-                        "installed_by": ["bedgraph_bedclip_bedgraphtobigwig"]
                     },
-                    "ucsc/bedgraphtobigwig": {
-                        "branch": "master",
-                        "git_sha": "81880787133db07d9b4c1febd152c090eb8325dc",
-                        "installed_by": ["bedgraph_bedclip_bedgraphtobigwig"]
                     },
-                    "untar": {
-                        "branch": "master",
-                        "git_sha": "05954dab2ff481bcb999f24455da29a5828af08d",
-                        "installed_by": ["modules"]
                     }
                 }
             },

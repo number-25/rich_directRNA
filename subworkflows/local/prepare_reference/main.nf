@@ -201,6 +201,5 @@ workflow PREPARE_REFERENCE{
     sqanti_qc_polyA_motif           = ch_sqanti_qc_polyA_motif
     sqanti_qc_intron_junctions_bed  = ch_sqanti_qc_intron_junctions_bed
     jaffal_reference                = ch_jaffal_reference_dir
-    //phylop_bed = ch_phylop_bed
     versions                        = ch_versions // channel: [ versions.yml ]
 }

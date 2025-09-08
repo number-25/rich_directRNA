@@ -83,9 +83,9 @@ include { MULTIQC                   } from '../modules/nf-core/multiqc/main'
 
 // fastq mapping
 include { MAPPING                   } from '../subworkflows/local/mapping'
-include { SAMTOOLS_FAIDX            } from '../modules/local/samtools/faidx'
-include { BAM_TO_BEDGRAPH as BAM_TO_BEDGRAPH_FW } from '../modules/local/bedtools/bam_to_bedgraph'
-include { BAM_TO_BEDGRAPH as BAM_TO_BEDGRAPH_REV } from '../modules/local/bedtools/bam_to_bedgraph'
+// mapping visualisation
+include { BAM_TO_BEDGRAPH as BAM_TO_BEDGRAPH_FW     } from '../modules/local/bedtools/bam_to_bedgraph'
+include { BAM_TO_BEDGRAPH as BAM_TO_BEDGRAPH_REV    } from '../modules/local/bedtools/bam_to_bedgraph'
 include { BEDGRAPH_BEDCLIP_BEDGRAPHTOBIGWIG as BEDGRAPH_BEDCLIP_BEDGRAPHTOBIGWIG_FW } from '../subworkflows/local/bedgraph_bedclip_bedgraphtobigwig'
 include { BEDGRAPH_BEDCLIP_BEDGRAPHTOBIGWIG as BEDGRAPH_BEDCLIP_BEDGRAPHTOBIGWIG_REV } from '../subworkflows/local/bedgraph_bedclip_bedgraphtobigwig'
 
@@ -97,7 +97,6 @@ include { SAMTOOLS_INDEX            } from '../modules/local/samtools/index'
 include { BAM_TO_BED12              } from '../modules/local/flair/bam_to_bed12'
 include { FLAIR_CORRECT             } from '../modules/local/flair/correct'
 include { FLAIR_COLLAPSE            } from '../modules/local/flair/collapse'
-include { BED_TO_BAM                } from '../modules/local/bedtools/bed_to_bam'
 include { BAMBU                     } from '../modules/local/bambu/bambu'
 include { ISOQUANT                  } from '../modules/local/isoquant/isoquant'
 include { GTF2DB                    } from '../modules/local/isoquant/gtf2db'
@@ -110,7 +109,6 @@ include { GFFREAD_GETFASTA as GFFREAD_GETFASTA_STRINGTIE} from '../modules/local
 include { JAFFAL                    } from '../modules/local/jaffal/bpipe'
 
 // transcript quantification
-// OARFISH
 //include { MINIMAP2_TXOME_ALIGN as MINIMAP2_FLAIR        } from '../modules/local/minimap2_txome_align
 //include { MINIMAP2_TXOME_ALIGN as MINIMAP2_BAMBU        } from '../modules/local/minimap2_txome_align
 //include { MINIMAP2_TXOME_ALIGN as MINIMAP2_ISOQUANT     } from '../modules/local/minimap2_txome_align

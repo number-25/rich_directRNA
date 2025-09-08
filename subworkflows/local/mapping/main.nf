@@ -4,7 +4,6 @@
 //* index.
 //****************************************************************************
 
-include { MINIMAP2_INDEX     } from '../../../modules/local/minimap2/index'
 include { MINIMAP2_ALIGN     } from '../../../modules/local/minimap2/align'
 include { SAMTOOLS_SORT      } from '../../../modules/local/samtools/sort'
 include { SAMTOOLS_INDEX     } from '../../../modules/local/samtools/index'
@@ -20,13 +19,6 @@ workflow MAPPING {
 
     ch_versions = Channel.empty()
 
-/*
-    if (!params.minimap2_genome_idx) {
-        MINIMAP2_INDEX ( ch_genome_fasta )
-            ch_genome_minimap2_idx = MINIMAP2_INDEX.out.index
-            ch_versions = ch_versions.mix(MINIMAP2_INDEX.out.versions.first())
-    }
-*/
     MINIMAP2_ALIGN ( ch_sample, ch_genome_minimap2_idx )
         ch_sample_sam   = MINIMAP2_ALIGN.out.sam
         ch_versions     = ch_versions.mix(MINIMAP2_ALIGN.out.versions)

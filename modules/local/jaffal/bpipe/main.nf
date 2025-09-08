@@ -3,11 +3,14 @@ process JAFFAL {
     label 'process_high'
     conda "bioconda::jaffa=2.3.0"
     container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
-        'docker://davidsongroup/jaffa:2.4-devel' :
-        'docker://davidsongroup/jaffa:2.4-devel' }"
+        'https://depot.galaxyproject.org/singularity/jaffa:2.3--hdfd78af_0' :
+        'quay.io/biocontainers/jaffa:2.3--hdfd78af_0' }"
 
-    //singularityRunOptions = '-B $jaffal_ref_dir:/ref'
-    singularityRunOptions = 'exec'
+        //'docker://davidsongroup/jaffa:2.4-devel' :
+        //'docker://davidsongroup/jaffa:2.4-devel' }"
+
+    //singularityRunOptions = '-B $fastq'
+    //singularityRunOptions = 'run'
 
     input:
     tuple val(meta), path(fastq)
@@ -22,17 +25,11 @@ process JAFFAL {
     task.ext.when == null || task.ext.when
     // prefix??
 
-    //refBase=$jaffal_ref_dir \\
-    //-p genome=Masked_hg38 \\
-    //-p annotation=hg38_genCode37 \\
+
     script:
     """
-    bpipe \\
-        run \\
-        -p refBase=$jaffal_ref_dir \\
-        --threads $task.cpus \\
-        /JAFFA/JAFFAL.groovy \\
-        $fastq
+    cd .
+    bpipe run -p refBase=$jaffal_ref_dir $jaffal_ref_dir/JAFFAL.groovy $fastq
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
