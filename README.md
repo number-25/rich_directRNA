@@ -12,7 +12,7 @@
 
 ## Introduction
 
-**rich_directRNA** is a bioinformatics pipeline that is still in the works… It
+**rich_longTranscriptomics** is a bioinformatics pipeline that is still in the works… It
 is a nextflow pipeline that is used for the processing of direct RNA nanopore sequencing data, providing multiple transcript reconstruction, and quantification
 options with the use of a reference genome, and transcriptome annotation. Additionally, it performs post transcriptome reconstruction assessment, and recovery.
 
