@@ -22,7 +22,6 @@ process NANOQ {
     task.ext.when == null || task.ext.when
 
     script:
-    publishDir "${params.outdir}/fastq_qc"
     def args    = task.ext.args ?: ''
     def prefix  = task.ext.prefix ?: "${meta.id}_${meta.replicate}_nanoq" // get the sample ID from the meta mapping
     //if ( "${meta.replicate}" ?: '' )

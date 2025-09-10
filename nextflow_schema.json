@@ -162,7 +162,8 @@
                 },
                 "config_profile_contact": {
                     "type": "string",
-                    "description": "Institutional config contact information."
+                    "description": "Institutional config contact information.",
+                    "default": "deancombio@pm.me"
                 },
                 "config_profile_url": {
                     "type": "string",
@@ -353,7 +354,8 @@
                 },
                 "skip_jaffal": {
                     "type": "boolean",
-                    "description": "Skip JAFFAL fusion gene detection."
+                    "description": "Skip JAFFAL fusion gene detection.",
+                    "default": true
                 },
                 "skip_jaffal_download": {
                     "type": "boolean",
@@ -395,5 +397,19 @@
         {
             "$ref": "#/$defs/module_specific_options"
         }
-    ]
+    ],
+    "properties": {
+        "max_memory": {
+            "type": "string",
+            "default": "32.GB"
+        },
+        "max_cpus": {
+            "type": "integer",
+            "default": 10
+        },
+        "max_time": {
+            "type": "string",
+            "default": "48.h"
+        }
+    }
 }
