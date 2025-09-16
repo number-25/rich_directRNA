@@ -4,7 +4,6 @@
 
 ## Introduction
 
-
 ## Samplesheet input
 
 You will need to create a samplesheet with information about the samples you would like to analyse before running the pipeline. Use this parameter to specify its location. It has to be a comma-separated file with 4 columns, and a header row as shown in the examples below. It is best to specify this input parameter in `nextflow.config` or your own custom config file.
@@ -12,6 +11,7 @@ You will need to create a samplesheet with information about the samples you wou
 ```bash
 --input '[path to samplesheet file]'
 ```
+
 ### Full samplesheet
 
 The pipeline will auto-detect whether the sequencing summary files, and reads are in the paths listed on the samplesheet. Each row represents a fastq file. Replicate refers to a technical replicate, biological replicates should be named uniquely. Be sure to pay attention to sample naming, in
