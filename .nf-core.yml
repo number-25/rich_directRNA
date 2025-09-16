@@ -36,9 +36,9 @@ lint:
     - .github/ISSUE_TEMPLATE/bug_report.yml
   multiqc_config:
     - report_comment
-  nextflow_config:
-    - manifest.name
-    - manifest.homePage
+  nextflow_config: false
+#    - manifest.name
+#    - manifest.homePage
   nf_test_content: False
 nf_core_version: 3.3.2
 repository_type: pipeline

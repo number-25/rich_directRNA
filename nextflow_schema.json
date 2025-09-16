@@ -158,7 +158,8 @@
                 },
                 "custom_config_base": {
                     "type": "string",
-                    "description": "Base directory for Institutional configs."
+                    "description": "Base directory for Institutional configs.",
+                    "default": "conf/base.config"
                 },
                 "config_profile_contact": {
                     "type": "string",
@@ -397,19 +398,5 @@
         {
             "$ref": "#/$defs/module_specific_options"
         }
-    ],
-    "properties": {
-        "max_memory": {
-            "type": "string",
-            "default": "32.GB"
-        },
-        "max_cpus": {
-            "type": "integer",
-            "default": 10
-        },
-        "max_time": {
-            "type": "string",
-            "default": "48.h"
-        }
-    }
+    ]
 }
