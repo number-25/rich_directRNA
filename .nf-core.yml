@@ -1,4 +1,5 @@
 lint:
+  plugin_includes: false
   files_exist:
     - CODE_OF_CONDUCT.md
     - assets/nf-core-directrna_logo_light.png
