@@ -14,8 +14,7 @@ You will need to create a samplesheet with information about the samples you wou
 
 ### Full samplesheet
 
-The pipeline will auto-detect whether the sequencing summary files, and reads are in the paths listed on the samplesheet. Each row represents a fastq file. Replicate refers to a technical replicate, biological replicates should be named uniquely. Be sure to pay attention to sample naming, in
-order to avoid duplication and file overwriting.
+The pipeline will auto-detect whether the sequencing summary files, and reads are in the paths listed on the samplesheet. Each row represents a fastq file. Replicate refers to a technical replicate, biological replicates should be named uniquely. Be sure to pay attention to sample naming, in order to avoid duplication and file overwriting.
 
 A final samplesheet file consisting of long-read data may look something like the one below. This is for **one biological** sample which has been sequenced twice, giving two technical replicates.
 
@@ -27,9 +26,10 @@ CONTROL1,2,data/long_reads_sequencingsummary_2.txt,data/long_reads_2.fastq.gz
 
 | Column    | Description                                                                                                                                                                            |
 | --------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `sample`  | Custom sample name. This entry will be identical for multiple sequencing libraries/runs from the same sample. Spaces in sample names are automatically converted to underscores (`_`). |
-| `fastq_1` | Full path to FastQ file for Illumina short reads 1. File has to be gzipped and have the extension ".fastq.gz" or ".fq.gz".                                                             |
-| `fastq_2` | Full path to FastQ file for Illumina short reads 2. File has to be gzipped and have the extension ".fastq.gz" or ".fq.gz".                                                             |
+| `sample`  | Sample name. |
+| `replicate` | Technical replicate number                                                             |
+| `sequencing_summary_path` | Full path to nanopore sequencing summary file (usually a .txt file).gz".                                                             |
+| `read_path` | Full path to fastq reads.                                                             |
 
 An [example samplesheet](../assets/samplesheet.csv) has been provided with the pipeline.
 
@@ -38,16 +38,17 @@ An [example samplesheet](../assets/samplesheet.csv) has been provided with the p
 The typical command for running the pipeline is as follows:
 
 ```bash
-nextflow run number-25/rich_directRNA --input ./samplesheet.csv --outdir ./results --genome GRCh37 -profile docker
+mkdir results
+
+nextflow run . --input ./samplesheet.csv --outdir ./results --genome_fasta <path/to/genome> --annotation_gtf <path/to/annotation> -profile singularity
 ```
 
-This will launch the pipeline with the `docker` configuration profile. See below for more information about profiles.
+This will launch the pipeline with the `singularity` configuration profile. See below for more information about profiles.
 
 Note that the pipeline will create the following files in your working directory:
 
 ```bash
 work                # Directory containing the nextflow working files
-<OUTDIR>            # Finished results in specified location (defined with --outdir)
 .nextflow_log       # Log file from Nextflow
 # Other nextflow hidden files, eg. history of pipeline runs and old logs.
 ```
@@ -63,7 +64,7 @@ Do not use `-c <file>` to specify parameters as this will result in errors. Cust
 The above pipeline run specified with a params file in yaml format:
 
 ```bash
-nextflow run number-25/rich_directRNA -profile docker -params-file params.yaml
+nextflow run . -profile singularity -params-file params.yaml
 ```
 
 with `params.yaml` containing:
@@ -71,18 +72,22 @@ with `params.yaml` containing:
 ```yaml
 input: './samplesheet.csv'
 outdir: './results/'
-genome: 'GRCh37'
+genome_fasta: '<path/to/genome_fasta'
+annotation_gtf: '<path/to/annotation_gtf'
 <...>
 ```
 
-You can also generate such `YAML`/`JSON` files via [nf-core/launch](https://nf-co.re/launch).
+To generate this custom params file, we can launch an interactive module (either online or on the command line) with
+`<nf-core pipelines launch`, selecting a local pipeline (not a GitHub
+pipeline), finally entering `.` as the path to the workflow. Once completed, a custom params.yaml file will be generated, which can be provided to the workflow with `-params-file params.yaml`.
+
 
 ### Updating the pipeline
 
 When you run the above command, Nextflow automatically pulls the pipeline code from GitHub and stores it as a cached version. When running the pipeline after this, it will always use the cached version if available - even if the pipeline has been updated since. To make sure that you're running the latest version of the pipeline, make sure that you regularly update the cached version of the pipeline:
 
 ```bash
-nextflow pull number-25/rich_directRNA
+git pull https://github.com/number-25/rich_directRNA
 ```
 
 ### Reproducibility
@@ -93,13 +98,16 @@ First, go to the [number-25/rich_directRNA releases page](https://github.com/num
 
 This version number will be logged in reports when you run the pipeline, so that you'll know what you used when you look back in the future. For example, at the bottom of the MultiQC reports.
 
-To further assist in reproducbility, you can use share and re-use [parameter files](#running-the-pipeline) to repeat pipeline runs with the same settings without having to write out a command with every single parameter.
+To further assist in reproducibility, you can use share and re-use [parameter files](#running-the-pipeline) to repeat pipeline runs with the same settings without having to write out a command with every single parameter.
 
 :::tip
 If you wish to share such profile (such as upload as supplementary material for academic publications), make sure to NOT include cluster specific paths to files, nor institutional specific profiles.
 :::
 
 ## Core Nextflow arguments
+
+//TODO
+
 
 :::note
 These options are part of Nextflow and use a _single_ hyphen (pipeline parameters use a double-hyphen).
@@ -123,8 +131,11 @@ They are loaded in sequence, so later profiles can overwrite earlier profiles.
 If `-profile` is not specified, the pipeline will run locally and expect all software to be installed and available on the `PATH`. This is _not_ recommended, since it can lead to different results on different machines dependent on the computer enviroment.
 
 - `test`
-  - A profile with a complete configuration for automated testing
+  - A profile with a complete minimal configuration for rapid, automated testing
   - Includes links to test data so needs no other parameters
+- `test_full`
+  - A profile with a complete, thorough configuration for automated testing of entire pipeline with full size data
+  - Requires the user to provide real world sequencing data, reference files
 - `docker`
   - A generic configuration profile to be used with [Docker](https://docker.com/)
 - `singularity`
