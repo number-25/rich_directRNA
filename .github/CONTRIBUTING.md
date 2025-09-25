@@ -1,9 +1,9 @@
-# number-25/rich_directRNA: Contributing Guidelines
+# number-25/LongTranscriptomics: Contributing Guidelines
 
 Hi there!
-Many thanks for taking an interest in improving number-25/rich_directRNA.
+Many thanks for taking an interest in improving number-25/LongTranscriptomics.
 
-We try to manage the required tasks for number-25/rich_directRNA using GitHub issues, you probably came to this page when creating one.
+We try to manage the required tasks for number-25/LongTranscriptomics using GitHub issues, you probably came to this page when creating one.
 Please use the pre-filled template to save time.
 
 However, don't be put off by this template - other more general issues and suggestions are welcome!
@@ -11,10 +11,10 @@ Contributions to the code are even more welcome ;)
 
 ## Contribution workflow
 
-If you'd like to write some code for number-25/rich_directRNA, the standard workflow is as follows:
+If you'd like to write some code for number-25/LongTranscriptomics, the standard workflow is as follows:
 
-1. Check that there isn't already an issue about your idea in the [number-25/rich_directRNA issues](https://github.com/number-25/rich_directRNA/issues) to avoid duplicating work. If there isn't one already, please create one so that others know you're working on this
-2. [Fork](https://help.github.com/en/github/getting-started-with-github/fork-a-repo) the [number-25/rich_directRNA repository](https://github.com/number-25/rich_directRNA) to your GitHub account
+1. Check that there isn't already an issue about your idea in the [number-25/LongTranscriptomics issues](https://github.com/number-25/LongTranscriptomics/issues) to avoid duplicating work. If there isn't one already, please create one so that others know you're working on this
+2. [Fork](https://help.github.com/en/github/getting-started-with-github/fork-a-repo) the [number-25/LongTranscriptomics repository](https://github.com/number-25/LongTranscriptomics) to your GitHub account
 3. Make the necessary changes / additions within your forked repository following [Pipeline conventions](#pipeline-contribution-conventions)
 4. Use `nf-core schema build` and add any new parameters to the pipeline JSON schema (requires [nf-core tools](https://github.com/nf-core/tools) >= 1.10).
 5. Submit a Pull Request against the `dev` branch and wait for the code to be reviewed and merged
@@ -58,7 +58,7 @@ These tests are run both with the latest available version of `Nextflow` and als
 
 ## Pipeline contribution conventions
 
-To make the number-25/rich_directRNA code and processing logic more understandable for new contributors and to ensure quality, we semi-standardise the way the code and other contributions are written.
+To make the number-25/LongTranscriptomics code and processing logic more understandable for new contributors and to ensure quality, we semi-standardise the way the code and other contributions are written.
 
 ### Adding a new step
 
@@ -108,7 +108,7 @@ This repo includes a devcontainer configuration which will create a GitHub Codes
 
 To get started:
 
-- Open the repo in [Codespaces](https://github.com/number-25/rich_directRNA/codespaces)
+- Open the repo in [Codespaces](https://github.com/number-25/LongTranscriptomics/codespaces)
 - Tools installed
   - nf-core
   - Nextflow

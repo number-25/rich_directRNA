@@ -1,4 +1,4 @@
-# number-25/rich_directRNA: Citations
+# number-25/LongTranscriptomics: Citations
 
 ## [nf-core](https://pubmed.ncbi.nlm.nih.gov/32055031/)
 

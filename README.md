@@ -1,6 +1,6 @@
-[![nf-core CI](https://github.com/number-25/rich_directRNA/actions/workflows/ci.yml/badge.svg?branch=dev)](https://github.com/number-25/rich_directRNA/actions/workflows/ci.yml)
-[![nf-core linting comment](https://github.com/number-25/rich_directRNA/actions/workflows/linting_comment.yml/badge.svg)](https://github.com/number-25/rich_directRNA/actions/workflows/linting_comment.yml)
-[![GitHub Actions Linting Status](https://github.com/number-25/rich_directRNA/actions/workflows/linting.yml/badge.svg)](https://github.com/number-25/rich_directRNA/actions/workflows/linting.yml)
+[![nf-core CI](https://github.com/number-25/LongTranscriptomics/actions/workflows/ci.yml/badge.svg?branch=dev)](https://github.com/number-25/LongTranscriptomics/actions/workflows/ci.yml)
+[![nf-core linting comment](https://github.com/number-25/LongTranscriptomics/actions/workflows/linting_comment.yml/badge.svg)](https://github.com/number-25/LongTranscriptomics/actions/workflows/linting_comment.yml)
+[![GitHub Actions Linting Status](https://github.com/number-25/LongTranscriptomics/actions/workflows/linting.yml/badge.svg)](https://github.com/number-25/LongTranscriptomics/actions/workflows/linting.yml)
 [![Cite with Zenodo](http://img.shields.io/badge/DOI-10.5281/zenodo.17082314-1073c8?labelColor=000000)](https://doi.org/10.5281/zenodo.17082314-1073c8)
 [![nf-test](https://img.shields.io/badge/unit_tests-nf--test-337ab7.svg)](https://www.nf-test.com)
 
@@ -41,7 +41,7 @@ reads in BAM format. These are provided to the samplesheet as input.
 8. Transcriptome assessment [`gffutils`](https://ccb.jhu.edu/software/stringtie/gff.shtml)
 9. Transcript quantification ( [`TranSigner`](https://github.com/haydenji0731/TranSigner), [oarfish](https://github.com/COMBINE-lab/oarfish) )
 
-Small test datasets for the pipeline are included in the [assets directory](https://github.com/number-25/rich_directRNA/assets/test_data).
+Small test datasets for the pipeline are included in the [assets directory](https://github.com/number-25/LongTranscriptomics/assets/test_data).
 
 ## Usage
 
@@ -94,11 +94,11 @@ For additional documentation on usage of the workflow, and details on outputs, p
 
 ## Credits
 
-number-25/rich_directRNA was originally written by Dean Bašić.
+number-25/LongTranscriptomics was originally written by Dean Bašić.
 
 ## Citations
 
-If you use number-25/rich_directRNA for your analysis, please cite it using the following doi: [10.5281/zenodo.17082314-1073c8](https://doi.org/10.5281/zenodo.17082314-1073c8).
+If you use number-25/LongTranscriptomics for your analysis, please cite it using the following doi: [10.5281/zenodo.17082314-1073c8](https://doi.org/10.5281/zenodo.17082314-1073c8).
 
 <!-- nf-core: Add bibliography of tools and data used in your pipeline -->
 

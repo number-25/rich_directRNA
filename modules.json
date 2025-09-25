@@ -1,6 +1,6 @@
 {
-    "name": "number-25/rich_directRNA",
-    "homePage": "https://github.com/number-25/rich_directRNA",
+    "name": "number-25/LongTranscriptomics",
+    "homePage": "https://github.com/number-25/LongTranscriptomics",
     "repos": {
         "https://github.com/nf-core/modules.git": {
             "modules": {

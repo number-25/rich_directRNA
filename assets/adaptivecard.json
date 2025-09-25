@@ -17,7 +17,7 @@
                         "size": "Large",
                         "weight": "Bolder",
                         "color": "<% if (success) { %>Good<% } else { %>Attention<%} %>",
-                        "text": "number-25/rich_directRNA v${version} - ${runName}",
+                        "text": "number-25/LongTranscriptomics v${version} - ${runName}",
                         "wrap": true
                     },
                     {

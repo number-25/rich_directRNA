@@ -1,7 +1,7 @@
 {
     "$schema": "http://json-schema.org/draft/2020-12/schema",
-    "$id": "https://raw.githubusercontent.com/number-25/rich_directRNA/dev/assets/schema_input.json",
-    "title": "number-25/rich_directRNA pipeline - params.input schema",
+    "$id": "https://raw.githubusercontent.com/number-25/LongTranscriptomics/dev/assets/schema_input.json",
+    "title": "number-25/LongTranscriptomics pipeline - params.input schema",
     "description": "Schema for the file provided with params.input",
     "type": "array",
     "items": {

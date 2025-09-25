@@ -1,4 +1,4 @@
-# number-25/rich_directRNA: Output
+# number-25/LongTranscriptomics: Output
 
 ## Introduction
 

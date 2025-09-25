@@ -1,4 +1,4 @@
-# number-25/rich_directRNA: Usage
+# number-25/LongTranscriptomics: Usage
 
 > _Documentation of pipeline parameters is generated automatically from the pipeline schema and can no longer be found in markdown files._
 
@@ -24,12 +24,12 @@ CONTROL1,1,data/long_reads_sequencingsummary_1.txt,data/long_reads_1.fastq.gz
 CONTROL1,2,data/long_reads_sequencingsummary_2.txt,data/long_reads_2.fastq.gz
 ```
 
-| Column    | Description                                                                                                                                                                            |
-| --------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `sample`  | Sample name. |
-| `replicate` | Technical replicate number                                                             |
-| `sequencing_summary_path` | Full path to nanopore sequencing summary file (usually a .txt file).gz".                                                             |
-| `read_path` | Full path to fastq reads.                                                             |
+| Column                    | Description                                                              |
+| ------------------------- | ------------------------------------------------------------------------ |
+| `sample`                  | Sample name.                                                             |
+| `replicate`               | Technical replicate number                                               |
+| `sequencing_summary_path` | Full path to nanopore sequencing summary file (usually a .txt file).gz". |
+| `read_path`               | Full path to fastq reads.                                                |
 
 An [example samplesheet](../assets/samplesheet.csv) has been provided with the pipeline.
 
@@ -81,20 +81,19 @@ To generate this custom params file, we can launch an interactive module (either
 `<nf-core pipelines launch`, selecting a local pipeline (not a GitHub
 pipeline), finally entering `.` as the path to the workflow. Once completed, a custom params.yaml file will be generated, which can be provided to the workflow with `-params-file params.yaml`.
 
-
 ### Updating the pipeline
 
 When you run the above command, Nextflow automatically pulls the pipeline code from GitHub and stores it as a cached version. When running the pipeline after this, it will always use the cached version if available - even if the pipeline has been updated since. To make sure that you're running the latest version of the pipeline, make sure that you regularly update the cached version of the pipeline:
 
 ```bash
-git pull https://github.com/number-25/rich_directRNA
+git pull https://github.com/number-25/LongTranscriptomics
 ```
 
 ### Reproducibility
 
 It is a good idea to specify a pipeline version when running the pipeline on your data. This ensures that a specific version of the pipeline code and software are used when you run your pipeline. If you keep using the same tag, you'll be running the same version of the pipeline, even if there have been changes to the code since.
 
-First, go to the [number-25/rich_directRNA releases page](https://github.com/number-25/rich_directRNA/releases) and find the latest pipeline version - numeric only (eg. `1.3.1`). Then specify this when running the pipeline with `-r` (one hyphen) - eg. `-r 1.3.1`. Of course, you can switch to another version by changing the number after the `-r` flag.
+First, go to the [number-25/LongTranscriptomics releases page](https://github.com/number-25/LongTranscriptomics/releases) and find the latest pipeline version - numeric only (eg. `1.3.1`). Then specify this when running the pipeline with `-r` (one hyphen) - eg. `-r 1.3.1`. Of course, you can switch to another version by changing the number after the `-r` flag.
 
 This version number will be logged in reports when you run the pipeline, so that you'll know what you used when you look back in the future. For example, at the bottom of the MultiQC reports.
 
@@ -107,7 +106,6 @@ If you wish to share such profile (such as upload as supplementary material for 
 ## Core Nextflow arguments
 
 //TODO
-
 
 :::note
 These options are part of Nextflow and use a _single_ hyphen (pipeline parameters use a double-hyphen).

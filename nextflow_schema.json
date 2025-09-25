@@ -1,7 +1,7 @@
 {
     "$schema": "https://json-schema.org/draft/2020-12/schema",
-    "$id": "https://raw.githubusercontent.com/number-25/rich_directRNA/refs/heads/dev/nextflow_schema.json",
-    "title": "number-25/rich_directRNA pipeline parameters",
+    "$id": "https://raw.githubusercontent.com/number-25/LongTranscriptomics/refs/heads/dev/nextflow_schema.json",
+    "title": "number-25/LongTranscriptomics pipeline parameters",
     "description": "Analysis pipeline for ONT directRNA sequencing data",
     "type": "object",
     "$defs": {
