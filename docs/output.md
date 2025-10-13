@@ -4,42 +4,111 @@
 
 This document describes the output produced by the pipeline. Most of the plots are taken from the MultiQC report, which summarises results at the end of the pipeline.
 
-The directories listed below will be created in the results directory after the pipeline has finished. All paths are relative to the top-level results directory.
-
-<!-- nf-core: Write this documentation describing your workflow's output -->
+Directories corresponding to the stages listed below will be created in the results directory after the pipeline has finished. All paths are relative to the top-level results directory.
 
 ## Pipeline overview
 
 The pipeline is built using [Nextflow](https://www.nextflow.io/) and processes data using the following steps:
 
-- [FastQC](#fastqc) - Raw read QC
+- [FASTQ quality control and summary stats](#FASTQ-quality-control)
+  - [NANOQ](#NANOQ)
+  - [SEQUALI](#SEQUALI)
+- [Reference genome mapping](#Reference-genome-mapping)
+  - [minimap2](#minimap2)
+  - [samtools](#samtools-sort-index)
+- [Create bigWig coverage files](#Create-files-to-visualise-mapping)
+  - [bedtools](#bedtools)
+  - [bedGraphToBigWig](#bedGraphToBigWig)
+- [Extensive QC of alignments](#Alignment-quality-control)
+  - [samtools](#samtools-flagstats)
+  - [cramino](#cramino)
+  - [alfred](#alfred)
+  - [ngs-bits](#ngs-bits)
+- [Transcriptome reconstruction](#Transcriptome-reconstruction)
+  - [FLAIR](#FLAIR)
+  - [bambu](#bambu)
+  - [IsoQuant](#IsoQuant)
+  - [StringTie](#StringTie)
+<!-- 7. Fusion gene detection [`JAFFA`](github.com/Oshlack/JAFFA) -->
+- [Transcriptome assessment](#Transcriptome-assessment)
+  - [gffutils](#gffutils)
+- [Transcript quantification](#Transcript-quantification)
+  - [TranSigner](#TranSigner)
+  - [oarfish](#oarfish)
 - [MultiQC](#multiqc) - Aggregate report describing results and QC from the whole pipeline
 - [Pipeline information](#pipeline-information) - Report metrics generated during the workflow execution
 
-### FastQC
+## FASTQ-quality-control
+
+### NANOQ
 
 <details markdown="1">
 <summary>Output files</summary>
 
-- `fastqc/`
-  - `*_fastqc.html`: FastQC report containing quality metrics.
-  - `*_fastqc.zip`: Zip archive containing the FastQC report, tab-delimited data file and plot images.
+- `fastq_qc/nanoq/`
+  - `*_nanoq.json`: `json` formatted file containing quality metrics.
+  - `*_nanoq.stats`: basic NANOQ report containing quality metrics.
+  - `*_nanoq_stats.verbose`: verbose NANOQ report containing quality metrics.
 
 </details>
 
-[FastQC](http://www.bioinformatics.babraham.ac.uk/projects/fastqc/) gives general quality metrics about your sequenced reads. It provides information about the quality score distribution across your reads, per base sequence content (%A/T/G/C), adapter contamination and overrepresented sequences. For further reading and documentation see the [FastQC help pages](http://www.bioinformatics.babraham.ac.uk/projects/fastqc/Help/).
+[NANOQ](https://github.com/esteinig/nanoq) provides general quality statistics
+about the nanopore sequence reads. It outputs the statistics in both verbose and
+minimal reports, which can be formatted in `json` format.
 
-![MultiQC - FastQC sequence counts plot](images/mqc_fastqc_counts.png)
+```
+Nanoq Read Summary
+====================
 
-![MultiQC - FastQC mean quality scores plot](images/mqc_fastqc_quality.png)
+Number of reads:      100000
+Number of bases:      400398234
+N50 read length:      5154
+Longest read:         44888
+Shortest read:        5
+Mean read length:     4003
+Median read length:   3256
+Mean read quality:    NaN
+Median read quality:  NaN
 
-![MultiQC - FastQC adapter content plot](images/mqc_fastqc_adapter.png)
 
-:::note
-The FastQC plots displayed in the MultiQC report shows _untrimmed_ reads. They may contain adapter sequence and potentially regions with low quality.
-:::
+Read length thresholds (bp)
 
-### MultiQC
+> 200       99104             99.1%
+> 500       96406             96.4%
+> 1000      90837             90.8%
+> 2000      73579             73.6%
+> 5000      25515             25.5%
+> 10000     4987              05.0%
+> 30000     47                00.0%
+> 50000     0                 00.0%
+> 100000    0                 00.0%
+> 1000000   0                 00.0%
+
+
+Top ranking read lengths (bp)
+
+1. 44888
+2. 40044
+3. 37441
+4. 36543
+5. 35630
+```
+
+### SEQUALI
+
+<details markdown="1">
+<summary>Output files</summary>
+
+- `fastq_qc/sequali/`
+  - `*_sequali.json`: `json` formatted file containing quality metrics.
+  - `*_sequali.html`: `html` formatted containing quality metrics.
+
+</details>
+
+[NANOQ](https://github.com/esteinig/nanoq) provides general quality statistics
+about the nanopore sequence reads. It outputs the statistics in both verbose and
+minimal reports, which can be formatted in `json` format.
+
 
 <details markdown="1">
 <summary>Output files</summary>

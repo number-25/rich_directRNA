@@ -57,9 +57,8 @@ If you wish to repeatedly use the same parameters for multiple runs, rather than
 
 Pipeline settings can be provided in a `yaml` or `json` file via `-params-file <file>`.
 
-:::warning
-Do not use `-c <file>` to specify parameters as this will result in errors. Custom config files specified with `-c` must only be used for [tuning process resource specifications](https://nf-co.re/docs/usage/configuration#tuning-workflow-resources), other infrastructural tweaks (such as output directories), or module arguments (args).
-:::
+> [!WARNING]
+> Do not use `-c <file>` to specify parameters as this will result in errors. Custom config files specified with `-c` must only be used for [tuning process resource specifications](https://nf-co.re/docs/usage/configuration#tuning-workflow-resources), other infrastructural tweaks (such as output directories), or module arguments (args).
 
 The above pipeline run specified with a params file in yaml format:
 
@@ -67,7 +66,7 @@ The above pipeline run specified with a params file in yaml format:
 nextflow run . -profile singularity -params-file params.yaml
 ```
 
-with `params.yaml` containing:
+The `params.yaml` containing:
 
 ```yaml
 input: './samplesheet.csv'
@@ -83,7 +82,12 @@ pipeline), finally entering `.` as the path to the workflow. Once completed, a c
 
 ### Updating the pipeline
 
-When you run the above command, Nextflow automatically pulls the pipeline code from GitHub and stores it as a cached version. When running the pipeline after this, it will always use the cached version if available - even if the pipeline has been updated since. To make sure that you're running the latest version of the pipeline, make sure that you regularly update the cached version of the pipeline:
+When you run the above command, Nextflow automatically pulls the pipeline code
+from GitHub and stores it as a cached version. When running the pipeline after
+this, it will always use the cached version if available - even if the pipeline
+has been updated since. To make sure that you're running the latest version of
+the pipeline, make sure that you regularly update the cached version of the
+pipeline:
 
 ```bash
 git pull https://github.com/number-25/LongTranscriptomics
@@ -99,17 +103,13 @@ This version number will be logged in reports when you run the pipeline, so that
 
 To further assist in reproducibility, you can use share and re-use [parameter files](#running-the-pipeline) to repeat pipeline runs with the same settings without having to write out a command with every single parameter.
 
-:::tip
-If you wish to share such profile (such as upload as supplementary material for academic publications), make sure to NOT include cluster specific paths to files, nor institutional specific profiles.
-:::
+> [!TIP]
+> If you wish to share such profile (such as upload as supplementary material for academic publications), make sure to NOT include cluster specific paths to files, nor institutional specific profiles.
 
 ## Core Nextflow arguments
 
-//TODO
-
-:::note
-These options are part of Nextflow and use a _single_ hyphen (pipeline parameters use a double-hyphen).
-:::
+> [!NOTE]
+> These options are part of Nextflow and use a _single_ hyphen (pipeline parameters use a double-hyphen).
 
 ### `-profile`
 
@@ -117,16 +117,14 @@ Use this parameter to choose a configuration profile. Profiles can give configur
 
 Several generic profiles are bundled with the pipeline which instruct the pipeline to use software packaged using different methods (Docker, Singularity, Podman, Shifter, Charliecloud, Apptainer, Conda) - see below.
 
-:::info
-We highly recommend the use of Docker or Singularity containers for full pipeline reproducibility, however when this is not possible, Conda is also supported.
-:::
+> [!IMPORTANT]
+> We highly recommend the use of Docker or Singularity containers for full pipeline reproducibility, however when this is not possible, Conda is also supported.
 
 The pipeline also dynamically loads configurations from [https://github.com/nf-core/configs](https://github.com/nf-core/configs) when it runs, making multiple config profiles for various institutional clusters available at run time. For more information and to see if your system is available in these configs please see the [nf-core/configs documentation](https://github.com/nf-core/configs#documentation).
 
-Note that multiple profiles can be loaded, for example: `-profile test,docker` - the order of arguments is important!
-They are loaded in sequence, so later profiles can overwrite earlier profiles.
+Note that multiple profiles can be loaded, for example: `-profile test,docker` - the order of arguments is important! They are loaded in sequence, so later profiles can overwrite earlier profiles.
 
-If `-profile` is not specified, the pipeline will run locally and expect all software to be installed and available on the `PATH`. This is _not_ recommended, since it can lead to different results on different machines dependent on the computer enviroment.
+If `-profile` is not specified, the pipeline will run locally and expect all software to be installed and available on the `PATH`. This is _not_ recommended, since it can lead to different results on different machines dependent on the computer environment.
 
 - `test`
   - A profile with a complete minimal configuration for rapid, automated testing
@@ -157,6 +155,9 @@ Specify this when restarting a pipeline. Nextflow will use cached results from a
 
 You can also supply a run name to resume a specific run: `-resume [run-name]`. Use the `nextflow log` command to show previous run names.
 
+> [!CUATION]
+> Very high volume use of the `-resume` option has been known to lead to inconsistent errors in a small number of instances. Keep this in mind if you're stuck at debugging.
+
 ### `-c`
 
 Specify the path to a specific config file (this is a core Nextflow command). See the [nf-core website documentation](https://nf-co.re/usage/configuration) for more information.
@@ -183,7 +184,21 @@ To learn how to provide additional arguments to a particular tool of the pipelin
 
 ### nf-core/configs
 
-In most cases, you will only need to create a custom config as a one-off but if you and others within your organisation are likely to be running nf-core pipelines regularly and need to use the same settings regularly it may be a good idea to request that your custom config file is uploaded to the `nf-core/configs` git repository. Before you do this please can you test that the config file works with your pipeline of choice using the `-c` parameter. You can then create a pull request to the `nf-core/configs` repository with the addition of your config file, associated documentation file (see examples in [`nf-core/configs/docs`](https://github.com/nf-core/configs/tree/master/docs)), and amending [`nfcore_custom.config`](https://github.com/nf-core/configs/blob/master/nfcore_custom.config) to include your custom profile.
+> [!NOTE]
+> Some portions of the following section will only apply to official nf-core pipelines. As this current pipeline is NOT part of nf-core, attempting a custom config for this
+
+In most cases, you will only need to create a custom config as a one-off but if
+you and others within your organisation are likely to be running nf-core
+pipelines regularly and need to use the same settings regularly it may be a
+good idea to request that your custom config file is uploaded to the
+`nf-core/configs` git repository. Before you do this please can you test that
+the config file works with your pipeline of choice using the `-c` parameter.
+You can then create a pull request to the `nf-core/configs` repository with the
+addition of your config file, associated documentation file (see examples in
+[`nf-core/configs/docs`](https://github.com/nf-core/configs/tree/master/docs)),
+and amending
+[`nfcore_custom.config`](https://github.com/nf-core/configs/blob/master/nfcore_custom.config)
+to include your custom profile.
 
 See the main [Nextflow documentation](https://www.nextflow.io/docs/latest/config.html) for more information about creating your own configuration files.
 
