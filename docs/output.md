@@ -20,7 +20,7 @@ The pipeline is built using [Nextflow](https://www.nextflow.io/) and processes d
   - [bedtools](#bedtools)
   - [bedGraphToBigWig](#bedGraphToBigWig)
 - [Extensive QC of alignments](#Alignment-quality-control)
-  - [samtools](#samtools-flagstats)
+  - [samtools](#samtools-flagstat)
   - [cramino](#cramino)
   - [alfred](#alfred)
   - [ngs-bits](#ngs-bits)
@@ -38,7 +38,7 @@ The pipeline is built using [Nextflow](https://www.nextflow.io/) and processes d
 - [MultiQC](#multiqc) - Aggregate report describing results and QC from the whole pipeline
 - [Pipeline information](#pipeline-information) - Report metrics generated during the workflow execution
 
-## FASTQ-quality-control
+## FASTQ quality control
 
 ### NANOQ
 
@@ -105,9 +105,152 @@ Top ranking read lengths (bp)
 
 </details>
 
-[NANOQ](https://github.com/esteinig/nanoq) provides general quality statistics
-about the nanopore sequence reads. It outputs the statistics in both verbose and
-minimal reports, which can be formatted in `json` format.
+[SEQUALI](https://github.com/rhpvorderman/sequali) provides general quality statistics
+about the sequence reads, along with several other features including,
+overrepresentation analysis and duplication rate estimation. It outputs the
+statistics in both ??
+
+## Reference genome mapping
+
+### minimap2
+
+<details markdown="1">
+<summary>Output files</summary>
+
+- `multiqc/`
+  - `multiqc_report.html`: a standalone HTML file that can be viewed in your web browser.
+  - `multiqc_data/`: directory containing parsed statistics from the different tools used in the pipeline.
+  - `multiqc_plots/`: directory containing static images from the report in various formats.
+
+</details>
+
+[minimap2](https://github.com/lh3/minimap2)  is perhaps the most popular
+long-read sequence aligner. In general, it aligns the sequence reads to the reference
+genome/transcriptome provided by the user. Taken directly from the developers
+> Minimap2 is a versatile sequence alignment program that aligns DNA or mRNA
+  sequences against a large reference database. Typical use cases include: (1)
+  mapping PacBio or Oxford Nanopore genomic reads to the human genome; (2)
+  finding overlaps between long reads with error rate up to ~15%; (3)
+  splice-aware alignment of PacBio Iso-Seq or Nanopore cDNA or Direct RNA reads
+  against a reference genome; (4) aligning Illumina single- or paired-end reads;
+  (5) assembly-to-assembly alignment; (6) full-genome alignment between two
+  closely related species with divergence below ~15%.
+
+### samtools sort index
+
+<details markdown="1">
+<summary>Output files</summary>
+
+- `multiqc/`
+  - `multiqc_report.html`: a standalone HTML file that can be viewed in your web browser.
+  - `multiqc_data/`: directory containing parsed statistics from the different tools used in the pipeline.
+  - `multiqc_plots/`: directory containing static images from the report in various formats.
+
+</details>
+
+[samtools](http://www.htslib.org/doc/#manual-pages) is a multipurpose
+toolkit for working with SAM/BAM files. It is used to sort the output from
+minimap2 (SAM format) and output it in compressed BAM format, and then index
+this file.
+
+## Create files to visualise mapping
+
+### bedtools
+
+<details markdown="1">
+<summary>Output files</summary>
+
+- `multiqc/`
+  - `multiqc_report.html`: a standalone HTML file that can be viewed in your web browser.
+  - `multiqc_data/`: directory containing parsed statistics from the different tools used in the pipeline.
+  - `multiqc_plots/`: directory containing static images from the report in various formats.
+
+</details>
+
+[bedtools](https://github.com/arq5x/bedtools2) is a multipurpose
+toolkit for working with tab separated genomic formats such as GTF/GFF/BED, but
+also SAM/BAM/CRAM files. Here it is used convert the mapped BAM file to BEDGRAPH
+format, in preparation for conversion to BigWig.
+
+### bedGraphToBigWig
+
+<details markdown="1">
+<summary>Output files</summary>
+
+- `multiqc/`
+  - `multiqc_report.html`: a standalone HTML file that can be viewed in your web browser.
+  - `multiqc_data/`: directory containing parsed statistics from the different tools used in the pipeline.
+  - `multiqc_plots/`: directory containing static images from the report in various formats.
+
+</details>
+
+[bedGraphToBigWig](https://hgdownload.soe.ucsc.edu/admin/exe/) is a specific
+tool that is part of a broad UCSC software suite. It has one specific
+function that can be guessed from it's very name. You guessed it, it converts a
+bedgraph to a BigWig file, that's it. Once created, the BigWig files can be
+loaded into a genome browser such as IGV, allowing the mapping to be visualised
+in a lightweight way.
+
+## Alignment quality control
+
+### samtools flagstat
+
+[samtools](http://www.htslib.org/doc/#manual-pages) flagstats provides summary
+statistics on the mapped BAM file. Specifically, it counts the number of
+alignments for each FLAG type.
+
+### cramino
+
+[cramino](https://github.com/wdecoster/cramino) is a tool for quick quality assessment of cram and bam files, intended for long read sequencing.
+
+```
+File name       example.cram
+Number of reads 14108020
+% from total reads  83.45
+Yield [Gb]      139.91
+N50     17447
+Median length   6743.00
+Mean length     9917
+Median identity 94.27
+Mean identity   92.53
+Path    alignment/example.cram
+Creation time   09/09/2022 10:53:36
+```
+
+### alfred
+
+[alfred](https://www.gear-genomics.com/docs/alfred/cli/) computes various
+alignment metrics and summary statistics by read group.
+
+### ngs-bits
+
+[ngs-bits
+mappingQC](https://github.com/imgag/ngs-bits/blob/master/doc/tools/MappingQC/index.md)
+provides one more technique for quality control of the mapped BAM files. It's
+advantage is that it has an output that is compatible with
+[MultiQC](https://github.com/MultiQC/MultiQC/blob/main/docs/markdown/modules/ngsbits.md).
+
+
+## Transcriptome reconstruction
+
+### FLAIR
+
+[FLAIR](https://github.com/BrooksLabUCSC/flair) **F**ull **L**ength
+**A**lternative **I**soform analysis of **R**NA is used for the correction,
+isoform definition, and alternative splicing analysis of noisy reads. FLAIR has
+primarily been used for nanopore cDNA, native RNA, and PacBio sequencing reads.
+FLAIR is able to be used with and without read correction, making it amenable to
+sensitive sample types, such as those coming from cancer where errors may
+instead be putative variants which should not be corrected.
+
+![FLAIR - example schematic](images/flair_workflow_compartmentalized.png)
+
+### bambu
+
+### IsoQuant
+
+### StringTie
+
 
 
 <details markdown="1">
