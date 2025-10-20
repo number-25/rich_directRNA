@@ -37,11 +37,12 @@ reads in BAM format. These are provided to the samplesheet as input.
    2. [`bambu`](github.com/GoekeLab/bambu) - very minor read correction
    3. [`IsoQuant`](https://ablab.github.io/IsoQuant/) - allows read correction
    4. [`StringTie`](https://github.com/skovaka/stringtie2)
-7. Fusion gene detection [`JAFFA`](github.com/Oshlack/JAFFA)
-8. Transcriptome assessment [`gffutils`](https://ccb.jhu.edu/software/stringtie/gff.shtml)
-9. Transcript quantification ( [`TranSigner`](https://github.com/haydenji0731/TranSigner), [oarfish](https://github.com/COMBINE-lab/oarfish) )
-
-Small test datasets for the pipeline are included in the [assets directory](https://github.com/number-25/LongTranscriptomics/assets/test_data).
+   <!-- 7. Fusion gene detection [`JAFFA`](github.com/Oshlack/JAFFA) -->
+7. Transcriptome assessment [`gffcompare`](https://ccb.jhu.edu/software/stringtie/gff.shtml)
+8. Transcript quantification
+   1. [oarfish](https://github.com/COMBINE-lab/oarfish) )
+     <!-- ( [`TranSigner`](https://github.com/haydenji0731/TranSigner),
+   Small test datasets for the pipeline are included in the [assets directory](https://github.com/number-25/LongTranscriptomics/assets/test_data). -->
 
 ## Usage
 

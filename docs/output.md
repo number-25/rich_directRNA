@@ -29,11 +29,10 @@ The pipeline is built using [Nextflow](https://www.nextflow.io/) and processes d
   - [bambu](#bambu)
   - [IsoQuant](#IsoQuant)
   - [StringTie](#StringTie)
-<!-- 7. Fusion gene detection [`JAFFA`](github.com/Oshlack/JAFFA) -->
+  <!-- 7. Fusion gene detection [`JAFFA`](github.com/Oshlack/JAFFA) -->
 - [Transcriptome assessment](#Transcriptome-assessment)
-  - [gffutils](#gffutils)
+  - [gffcompare](#gffcompare)
 - [Transcript quantification](#Transcript-quantification)
-  - [TranSigner](#TranSigner)
   - [oarfish](#oarfish)
 - [MultiQC](#multiqc) - Aggregate report describing results and QC from the whole pipeline
 - [Pipeline information](#pipeline-information) - Report metrics generated during the workflow execution
@@ -117,34 +116,32 @@ statistics in both ??
 <details markdown="1">
 <summary>Output files</summary>
 
-- `multiqc/`
-  - `multiqc_report.html`: a standalone HTML file that can be viewed in your web browser.
-  - `multiqc_data/`: directory containing parsed statistics from the different tools used in the pipeline.
-  - `multiqc_plots/`: directory containing static images from the report in various formats.
+- `mapping/`
+  - `*_minimap2.sam`: the mapped output SAM file from minimap2.
 
 </details>
 
-[minimap2](https://github.com/lh3/minimap2)  is perhaps the most popular
+[minimap2](https://github.com/lh3/minimap2) is perhaps the most popular
 long-read sequence aligner. In general, it aligns the sequence reads to the reference
 genome/transcriptome provided by the user. Taken directly from the developers
+
 > Minimap2 is a versatile sequence alignment program that aligns DNA or mRNA
-  sequences against a large reference database. Typical use cases include: (1)
-  mapping PacBio or Oxford Nanopore genomic reads to the human genome; (2)
-  finding overlaps between long reads with error rate up to ~15%; (3)
-  splice-aware alignment of PacBio Iso-Seq or Nanopore cDNA or Direct RNA reads
-  against a reference genome; (4) aligning Illumina single- or paired-end reads;
-  (5) assembly-to-assembly alignment; (6) full-genome alignment between two
-  closely related species with divergence below ~15%.
+> sequences against a large reference database. Typical use cases include: (1)
+> mapping PacBio or Oxford Nanopore genomic reads to the human genome; (2)
+> finding overlaps between long reads with error rate up to ~15%; (3)
+> splice-aware alignment of PacBio Iso-Seq or Nanopore cDNA or Direct RNA reads
+> against a reference genome; (4) aligning Illumina single- or paired-end reads;
+> (5) assembly-to-assembly alignment; (6) full-genome alignment between two
+> closely related species with divergence below ~15%.
 
 ### samtools sort index
 
 <details markdown="1">
 <summary>Output files</summary>
 
-- `multiqc/`
-  - `multiqc_report.html`: a standalone HTML file that can be viewed in your web browser.
-  - `multiqc_data/`: directory containing parsed statistics from the different tools used in the pipeline.
-  - `multiqc_plots/`: directory containing static images from the report in various formats.
+- `mapping/`
+  - `*_minimap2.bam`: the mapped output BAM file that has been sorted by samtools.
+  - `*_minimap2.bam.bai`: the index of the mapped output BAM file.
 
 </details>
 
@@ -160,10 +157,9 @@ this file.
 <details markdown="1">
 <summary>Output files</summary>
 
-- `multiqc/`
-  - `multiqc_report.html`: a standalone HTML file that can be viewed in your web browser.
-  - `multiqc_data/`: directory containing parsed statistics from the different tools used in the pipeline.
-  - `multiqc_plots/`: directory containing static images from the report in various formats.
+- `mapping_visualisation/`
+  - `*_+.bedGraph`: the intermediary bedgraph file from the positive (+) strand.
+  - `*_+.bedGraph`: the intermediary bedgraph file from the negative (-) strand.
 
 </details>
 
@@ -177,10 +173,9 @@ format, in preparation for conversion to BigWig.
 <details markdown="1">
 <summary>Output files</summary>
 
-- `multiqc/`
-  - `multiqc_report.html`: a standalone HTML file that can be viewed in your web browser.
-  - `multiqc_data/`: directory containing parsed statistics from the different tools used in the pipeline.
-  - `multiqc_plots/`: directory containing static images from the report in various formats.
+- `mapping_visualisation/`
+  - `*_+.bigWig`: the file bigWig file from the positive (+) strand.
+  - `*_+.bigWig`: the file bigWig file from the negative (-) strand.
 
 </details>
 
@@ -195,11 +190,26 @@ in a lightweight way.
 
 ### samtools flagstat
 
+<details markdown="1">
+<summary>Output files</summary>
+
+- `mapping_qc/samtools_flagstat/`
+  - `*.flagstat.tsv`: the output of samtools flagstat in tsv format.
+  </details>
+
 [samtools](http://www.htslib.org/doc/#manual-pages) flagstats provides summary
 statistics on the mapped BAM file. Specifically, it counts the number of
 alignments for each FLAG type.
 
 ### cramino
+
+<details markdown="1">
+<summary>Output files</summary>
+
+- `mapping_qc/cramino/`
+  - `*_cramino.stats`: the output of cramino.
+
+</details>
 
 [cramino](https://github.com/wdecoster/cramino) is a tool for quick quality assessment of cram and bam files, intended for long read sequencing.
 
@@ -219,10 +229,29 @@ Creation time   09/09/2022 10:53:36
 
 ### alfred
 
+<details markdown="1">
+<summary>Output files</summary>
+
+- `mapping_qc/alfred/`
+  - `*_alfred.transposed.stats`: the transposed output of alfred.
+  - `*_alfred.tsv.gz`: the output of alfred in gzipped tsv format.
+
+</details>
+
 [alfred](https://www.gear-genomics.com/docs/alfred/cli/) computes various
 alignment metrics and summary statistics by read group.
 
 ### ngs-bits
+
+<details markdown="1">
+<summary>Output files</summary>
+
+- `multiqc/`
+  - `multiqc_report.html`: a standalone HTML file that can be viewed in your web browser.
+  - `multiqc_data/`: directory containing parsed statistics from the different tools used in the pipeline.
+  - `multiqc_plots/`: directory containing static images from the report in various formats.
+
+</details>
 
 [ngs-bits
 mappingQC](https://github.com/imgag/ngs-bits/blob/master/doc/tools/MappingQC/index.md)
@@ -230,10 +259,19 @@ provides one more technique for quality control of the mapped BAM files. It's
 advantage is that it has an output that is compatible with
 [MultiQC](https://github.com/MultiQC/MultiQC/blob/main/docs/markdown/modules/ngsbits.md).
 
-
 ## Transcriptome reconstruction
 
 ### FLAIR
+
+<details markdown="1">
+<summary>Output files</summary>
+
+- `multiqc/`
+  - `multiqc_report.html`: a standalone HTML file that can be viewed in your web browser.
+  - `multiqc_data/`: directory containing parsed statistics from the different tools used in the pipeline.
+  - `multiqc_plots/`: directory containing static images from the report in various formats.
+
+</details>
 
 [FLAIR](https://github.com/BrooksLabUCSC/flair) **F**ull **L**ength
 **A**lternative **I**soform analysis of **R**NA is used for the correction,
@@ -247,11 +285,19 @@ instead be putative variants which should not be corrected.
 
 ### bambu
 
+<details markdown="1">
+<summary>Output files</summary>
+
+- `multiqc/`
+  - `multiqc_report.html`: a standalone HTML file that can be viewed in your web browser.
+  - `multiqc_data/`: directory containing parsed statistics from the different tools used in the pipeline.
+  - `multiqc_plots/`: directory containing static images from the report in various formats.
+
+</details>
+
+[bambu](https://github.com/GoekeLab/bambu) provides reference-guided transcript discovery and quantification for long read RNA-Seq data. It performs very slight splice site correction, and is currently the most widely used long-read transcript reconstruction software in the field.
+
 ### IsoQuant
-
-### StringTie
-
-
 
 <details markdown="1">
 <summary>Output files</summary>
@@ -263,11 +309,104 @@ instead be putative variants which should not be corrected.
 
 </details>
 
+[IsoQuant](https://github.com/ablab/IsoQuant) is a tool for the genome-based analysis of long RNA
+reads, such as PacBio or Oxford Nanopores. IsoQuant allows to reconstruct and
+quantify transcript models with high precision and decent recall. If the
+reference annotation is given, IsoQuant also assigns reads to the annotated
+isoforms based on their intron and exon structure. IsoQuant further performs
+annotated gene, isoform, exon and intron quantification. If reads are grouped
+(e.g. according to cell type), counts are reported according to the provided
+grouping. IsoQuant, like FLAIR, provides optional read correction capabilities, which should be used accordingly.
+
+### StringTie
+
+<details markdown="1">
+<summary>Output files</summary>
+
+- `multiqc/`
+  - `multiqc_report.html`: a standalone HTML file that can be viewed in your web browser.
+  - `multiqc_data/`: directory containing parsed statistics from the different tools used in the pipeline.
+  - `multiqc_plots/`: directory containing static images from the report in various formats.
+
+</details>
+
+[StringTie](ccb.jhu.edu/software/stringtie/) is a fast and highly
+efficient assembler of RNA-Seq alignments into potential transcripts. It uses a
+novel network flow algorithm as well as an optional de novo assembly step to
+assemble and quantitate full-length transcripts representing multiple splice
+variants for each gene locus. StringTie does not perform read correction.
+
+<details markdown="1">
+<summary>Output files</summary>
+
+- `multiqc/`
+  - `multiqc_report.html`: a standalone HTML file that can be viewed in your web browser.
+  - `multiqc_data/`: directory containing parsed statistics from the different tools used in the pipeline.
+  - `multiqc_plots/`: directory containing static images from the report in various formats.
+
+</details>
+
+## Transcriptome assessment
+
+### gffcompare
+
+<details markdown="1">
+<summary>Output files</summary>
+
+- `multiqc/`
+  - `multiqc_report.html`: a standalone HTML file that can be viewed in your web browser.
+  - `multiqc_data/`: directory containing parsed statistics from the different tools used in the pipeline.
+  - `multiqc_plots/`: directory containing static images from the report in various formats.
+
+</details>
+
+[gffcompare](https://ccb.jhu.edu/software/stringtie/gff.shtml#gffcompare) can be used to compare, merge, annotate and estimate
+accuracy of one or more GFF files (the "query" files), when compared with a
+reference annotation (also provided as GFF/GTF).
+
+```
+#= Summary for dataset: stringtie_asm.gtf
+#     Query mRNAs :   23555 in   17628 loci  (17231 multi-exon transcripts)
+#            (3731 multi-transcript loci, ~1.3 transcripts per locus)
+# Reference mRNAs :   16628 in   12062 loci  (15850 multi-exon)
+# Super-loci w/ reference transcripts:    11552
+#-----------------| Sensitivity | Precision  |
+        Base level:    82.4     |    76.5    |
+        Exon level:    81.2     |    82.9    |
+      Intron level:    86.1     |    94.8    |
+Intron chain level:    56.9     |    52.4    |
+  Transcript level:    55.2     |    38.9    |
+       Locus level:    70.1     |    48.0    |
+```
+
+## Transcript quantification
+
+### Oarfish
+
+<details markdown="1">
+<summary>Output files</summary>
+
+- `multiqc/`
+  - `multiqc_report.html`: a standalone HTML file that can be viewed in your web browser.
+  - `multiqc_data/`: directory containing parsed statistics from the different tools used in the pipeline.
+  - `multiqc_plots/`: directory containing static images from the report in various formats.
+
+</details>
+
+[oarfish](https://github.com/COMBINE-lab/oarfish) is a program for quantifying
+transcript-level expression from long-read (i.e. Oxford nanopore cDNA and
+direct RNA and PacBio) sequencing technologies. oarfish requires a sample of
+sequencing reads aligned to the transcriptome (currntly not to the genome). It
+handles multi-mapping reads through the use of probabilistic allocation via an
+expectation-maximization (EM) algorithm.
+
+## MultiQC
+
 [MultiQC](http://multiqc.info) is a visualization tool that generates a single HTML report summarising all samples in your project. Most of the pipeline QC results are visualised in the report and further statistics are available in the report data directory.
 
 Results generated by MultiQC collate pipeline QC from supported tools e.g. FastQC. The pipeline has special steps which also allow the software versions to be reported in the MultiQC output for future traceability. For more information about how to use MultiQC reports, see <http://multiqc.info>.
 
-### Pipeline information
+## Pipeline information
 
 <details markdown="1">
 <summary>Output files</summary>
