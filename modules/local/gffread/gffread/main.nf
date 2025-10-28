@@ -1,5 +1,4 @@
 process GFFREAD_GETFASTA {
-    tag "$fasta"
     label 'process_single'
     conda "${moduleDir}/environment.yml"
     container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
@@ -10,6 +9,8 @@ process GFFREAD_GETFASTA {
     tuple val(meta), path(gtf)
     tuple path(genome_fasta), path(genome_fasta_index)
     val origin
+
+    //tag "$fasta"
 
     output:
     tuple val(meta), path("*.fa"),  emit: transcripts_fa

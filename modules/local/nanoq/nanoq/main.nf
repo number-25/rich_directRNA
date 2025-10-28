@@ -12,8 +12,8 @@ process NANOQ {
     //val(output_format) //One of the following: fastq, fastq.gz, fastq.bz2, fastq.lzma, fasta, fasta.gz, fasta.bz2, fasta.lzma.
 
     output:
-    tuple val(meta), path("*.stats")            , emit: stats
-    tuple val(meta), path("*_stats.verbose")    , emit: verbose_stats
+    tuple val(meta), path("*_stats.txt")            , emit: stats
+    tuple val(meta), path("*_stats_verbose.txt")    , emit: verbose_stats
     tuple val(meta), path("*.json")             , emit: json_stats
     //tuple val(meta), path("*_filtered.${output_format}")                              , emit: reads
     path "versions.yml"                         , emit: versions
@@ -29,16 +29,16 @@ process NANOQ {
     //else
     """
     nanoq \\
-        -H \\
         -s \\
+        -v \\
         -i ${fastq} \\
-        > ${prefix}.stats
+        > ${prefix}_stats.txt
 
     nanoq \\
         -s \\
         -vvv \\
         -i ${fastq} \\
-        > ${prefix}_stats.verbose
+        > ${prefix}_stats_verbose.txt
 
     nanoq \\
         -s \\
@@ -56,8 +56,8 @@ process NANOQ {
     def args    = task.ext.args ?: ''
     def prefix  = task.ext.prefix ?: "${meta.id}_${meta.replicate}_nanoq"
     """
-    touch ${prefix}.stats
-    touch ${prefix}_stats.verbose
+    touch ${prefix}_stats.txt
+    touch ${prefix}_stats_verbose.txt
     touch ${prefix}.json
 
     cat <<-END_VERSIONS > versions.yml

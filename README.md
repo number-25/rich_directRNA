@@ -12,8 +12,8 @@
 
 ## Introduction
 
-**rich_longTranscriptomics** is a nextflow pipeline that is used for the processing of direct RNA nanopore sequencing data, providing multiple transcript reconstruction, and quantification
-options with the use of a reference genome, and transcriptome annotation. Additionally, it performs post transcriptome reconstruction assessment, and recovery.
+**rich_longTranscriptomics** is a nextflow pipeline that is used for the processing of direct RNA nanopore sequencing data, providing multiple transcript reconstruction options, and quantification with the use of a reference genome, and transcriptome annotation.
+<!-- Additionally, it performs post transcriptome reconstruction assessment, and recovery. -->
 
 The pipeline currently _only_ accepts sequencing data from directRNA Oxford
 Nanopore Technologies (ONT) libraries. It is recommended to provide raw FASTQ
@@ -33,14 +33,14 @@ reads in BAM format. These are provided to the samplesheet as input.
    3. [`alfred`](https://www.gear-genomics.com/docs/alfred/)
    4. [`ngs-bits`](https://github.com/imgag/ngs-bits/tree/master)
 6. Multiple transcriptome reconstruction options, with read correction options.
-   1. [`FLAIR`](github.com/BrooksLabUCSC/flair) - allows read correction
-   2. [`bambu`](github.com/GoekeLab/bambu) - very minor read correction
+   1. [`FLAIR`](https://github.com/BrooksLabUCSC/flair) - allows read correction
+   2. [`bambu`](http://github.com/GoekeLab/bambu) - very minor read correction
    3. [`IsoQuant`](https://ablab.github.io/IsoQuant/) - allows read correction
    4. [`StringTie`](https://github.com/skovaka/stringtie2)
    <!-- 7. Fusion gene detection [`JAFFA`](github.com/Oshlack/JAFFA) -->
 7. Transcriptome assessment [`gffcompare`](https://ccb.jhu.edu/software/stringtie/gff.shtml)
 8. Transcript quantification
-   1. [oarfish](https://github.com/COMBINE-lab/oarfish) )
+   1. [`oarfish`](https://github.com/COMBINE-lab/oarfish) )
      <!-- ( [`TranSigner`](https://github.com/haydenji0731/TranSigner),
    Small test datasets for the pipeline are included in the [assets directory](https://github.com/number-25/LongTranscriptomics/assets/test_data). -->
 

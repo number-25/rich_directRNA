@@ -12,7 +12,7 @@ process SAMTOOLS_FLAGSTAT {
     //tuple val(meta2), path(fasta)
 
     output:
-    tuple val(meta), path("*.tsv"),     emit: flagstat
+    tuple val(meta), path("*.txt"),     emit: flagstat
     //tuple val(meta), path("*.cram"),    emit: cram, optional: true
     //tuple val(meta), path("*.crai"),    emit: crai, optional: true
     //tuple val(meta), path("*.csi"),     emit: csi,  optional: true
@@ -24,7 +24,7 @@ process SAMTOOLS_FLAGSTAT {
     script:
     def args      = task.ext.args ?: ''
     def prefix    = task.ext.prefix ?: "${meta.id}_${meta.replicate}.flagstat"
-    def extension = task.ext.extension ?: "tsv"
+    def extension = task.ext.extension ?: "txt"
     /*def extension = args.contains("--output-fmt sam") ? "sam" :
                     args.contains("--output-fmt cram") ? "cram" :
                     "bam"
@@ -37,7 +37,7 @@ process SAMTOOLS_FLAGSTAT {
         -@ $task.cpus \\
         -O ${extension} \\
         ${bam} \\
-        > ${prefix}.tsv \\
+        > ${prefix}.txt \\
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
@@ -48,9 +48,9 @@ process SAMTOOLS_FLAGSTAT {
     stub:
     def args      = task.ext.args ?: ''
     def prefix    = task.ext.prefix ?: "${meta.id}_${meta.replicate}.flagstat"
-    def extension = task.ext.extension ?: "tsv"
+    def extension = task.ext.extension ?: "txt"
     """
-    touch ${prefix}.tsv
+    touch ${prefix}.txt
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
         samtools: \$(echo \$(samtools --version 2>&1) | sed 's/^.*samtools //; s/Using.*\$//')

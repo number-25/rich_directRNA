@@ -46,8 +46,8 @@ The pipeline is built using [Nextflow](https://www.nextflow.io/) and processes d
 
 - `fastq_qc/nanoq/`
   - `*_nanoq.json`: `json` formatted file containing quality metrics.
-  - `*_nanoq.stats`: basic NANOQ report containing quality metrics.
-  - `*_nanoq_stats.verbose`: verbose NANOQ report containing quality metrics.
+  - `*_nanoq_stats.txt`: basic NANOQ report containing quality metrics.
+  - `*_nanoq_stats_verbose.txt`: verbose NANOQ report containing quality metrics.
 
 </details>
 
@@ -106,8 +106,8 @@ Top ranking read lengths (bp)
 
 [SEQUALI](https://github.com/rhpvorderman/sequali) provides general quality statistics
 about the sequence reads, along with several other features including,
-overrepresentation analysis and duplication rate estimation. It outputs the
-statistics in both ??
+over-representation analysis and duplication rate estimation. It outputs the
+statistics in both JSON and HTML format.
 
 ## Reference genome mapping
 
@@ -165,7 +165,7 @@ this file.
 
 [bedtools](https://github.com/arq5x/bedtools2) is a multipurpose
 toolkit for working with tab separated genomic formats such as GTF/GFF/BED, but
-also SAM/BAM/CRAM files. Here it is used convert the mapped BAM file to BEDGRAPH
+also SAM/BAM/CRAM files. Here it is used to convert the mapped BAM file to BEDGRAPH
 format, in preparation for conversion to BigWig.
 
 ### bedGraphToBigWig
@@ -194,7 +194,7 @@ in a lightweight way.
 <summary>Output files</summary>
 
 - `mapping_qc/samtools_flagstat/`
-  - `*.flagstat.tsv`: the output of samtools flagstat in tsv format.
+  - `*.flagstat.txt`: the output of samtools flagstat in txt format.
   </details>
 
 [samtools](http://www.htslib.org/doc/#manual-pages) flagstats provides summary
@@ -211,7 +211,7 @@ alignments for each FLAG type.
 
 </details>
 
-[cramino](https://github.com/wdecoster/cramino) is a tool for quick quality assessment of cram and bam files, intended for long read sequencing.
+[cramino](https://github.com/wdecoster/cramino) is a tool for quick quality assessment of cram and bam files, intended for long read sequencing. It will output the statistics in a simple text file which is human readable.
 
 ```
 File name       example.cram
@@ -239,14 +239,16 @@ Creation time   09/09/2022 10:53:36
 </details>
 
 [alfred](https://www.gear-genomics.com/docs/alfred/cli/) computes various
-alignment metrics and summary statistics by read group.
+alignment metrics and summary statistics by read group. The transposed output is a transformation of the alignment metrics from column format to row format for readability. TSV output is gzipped by default.
 
 ### ngs-bits
 
 <details markdown="1">
 <summary>Output files</summary>
 
-- `multiqc/`
+#### TODO
+
+- `mapping_qc/ngf-bits/`
   - `multiqc_report.html`: a standalone HTML file that can be viewed in your web browser.
   - `multiqc_data/`: directory containing parsed statistics from the different tools used in the pipeline.
   - `multiqc_plots/`: directory containing static images from the report in various formats.
@@ -305,7 +307,6 @@ instead be putative variants which should not be corrected.
 - `multiqc/`
   - `multiqc_report.html`: a standalone HTML file that can be viewed in your web browser.
   - `multiqc_data/`: directory containing parsed statistics from the different tools used in the pipeline.
-  - `multiqc_plots/`: directory containing static images from the report in various formats.
 
 </details>
 
@@ -323,10 +324,9 @@ grouping. IsoQuant, like FLAIR, provides optional read correction capabilities, 
 <details markdown="1">
 <summary>Output files</summary>
 
-- `multiqc/`
-  - `multiqc_report.html`: a standalone HTML file that can be viewed in your web browser.
-  - `multiqc_data/`: directory containing parsed statistics from the different tools used in the pipeline.
-  - `multiqc_plots/`: directory containing static images from the report in various formats.
+- `transcript_reconstruction/stringtie`
+  - `KCMF1.1.stringtie.coverage.gtf`: a standalone HTML file that can be viewed in your web browser.
+  - `KCMF1.1.stringtie.transcripts.gtf`: directory containing parsed statistics from the different tools used in the pipeline.
 
 </details>
 
