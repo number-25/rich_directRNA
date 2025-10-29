@@ -18,10 +18,13 @@ process BAMBU {
     tuple val(meta), path(bam)
 
     output:
-    path "counts_gene.txt"         , emit: ch_gene_counts
-    path "counts_transcript.txt"   , emit: ch_transcript_counts
-    tuple val(meta), path("extended_annotations.gtf"), emit: bambu_extended_gtf
-    path "versions.yml"            , emit: versions
+    path "counts_gene.txt"               , emit: ch_gene_counts
+    path "counts_transcript.txt"         , emit: ch_transcript_counts
+    tuple val(meta)                      , path("extended_annotations.gtf") , emit: bambu_extended_gtf
+    //path "allTranscriptModels.gtf"       , emit: bambu_all_gtf
+    //path "supportedTranscriptModels.gtf" , emit: bambu_supported_gtf
+    //path "novelTranscripts.gtf"          , emit: bambu_novel_only_gtf
+    path "versions.yml"                  , emit: versions
 
 /*
     tuple val(meta), path("extendedAnnotations.gtf"),        emit: bambu_extended_gtf

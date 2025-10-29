@@ -12,7 +12,8 @@
 
 ## Introduction
 
-**rich_longTranscriptomics** is a nextflow pipeline that is used for the processing of direct RNA nanopore sequencing data, providing multiple transcript reconstruction options, and quantification with the use of a reference genome, and transcriptome annotation.
+**LongTranscriptomics** is a nextflow pipeline that is used for the processing of direct RNA nanopore sequencing data, providing multiple transcript reconstruction options, and quantification with the use of a reference genome, and transcriptome annotation.
+
 <!-- Additionally, it performs post transcriptome reconstruction assessment, and recovery. -->
 
 The pipeline currently _only_ accepts sequencing data from directRNA Oxford

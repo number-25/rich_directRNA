@@ -48,3 +48,6 @@ print(readlist)
 grlist <- prepareAnnotations(annot_gtf)
 se     <- bambu(reads = readlist, annotations = grlist, genome = genomeSequence, ncore = ncore, verbose = TRUE)
 writeBambuOutput(se, output_tag)
+
+#se.novel = se[mcols(se)$novelTranscript&(apply(assays(se)$fullLengthCounts >= 1,1,sum)>=1),]
+#writeBambuOutput(se.novel, output_tag)

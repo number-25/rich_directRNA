@@ -16,7 +16,7 @@ The pipeline is built using [Nextflow](https://www.nextflow.io/) and processes d
 - [Reference genome mapping](#Reference-genome-mapping)
   - [minimap2](#minimap2)
   - [samtools](#samtools-sort-index)
-- [Create bigWig coverage files](#Create-files-to-visualise-mapping)
+- [Create bigWig coverage files](#Create-files-to-visualise-mapping-coverage)
   - [bedtools](#bedtools)
   - [bedGraphToBigWig](#bedGraphToBigWig)
 - [Extensive QC of alignments](#Alignment-quality-control)
@@ -150,7 +150,7 @@ toolkit for working with SAM/BAM files. It is used to sort the output from
 minimap2 (SAM format) and output it in compressed BAM format, and then index
 this file.
 
-## Create files to visualise mapping
+## Create files to visualise mapping coverage
 
 ### bedtools
 
@@ -184,7 +184,15 @@ tool that is part of a broad UCSC software suite. It has one specific
 function that can be guessed from it's very name. You guessed it, it converts a
 bedgraph to a BigWig file, that's it. Once created, the BigWig files can be
 loaded into a genome browser such as IGV, allowing the mapping to be visualised
-in a lightweight way.
+in a lightweight way. The bigWig format is an indexed binary format useful for
+displaying dense, continuous data in Genome Browsers such as the UCSC and IGV.
+This mitigates the need to load the much larger BAM file for data visualisation
+purposes which will be slower and result in memory issues. The bigWig format is
+also supported by various bioinformatics software for downstream processing
+such as meta-profile plotting.
+
+bigBed are more useful for displaying distribution of reads across exon
+intervals as is typically observed for RNA-seq dat
 
 ## Alignment quality control
 
@@ -360,8 +368,7 @@ variants for each gene locus. StringTie does not perform read correction.
 
 </details>
 
-[gffcompare](https://ccb.jhu.edu/software/stringtie/gff.shtml#gffcompare) can be used to compare, merge, annotate and estimate
-accuracy of one or more GFF files (the "query" files), when compared with a
+[gffcompare](https://ccb.jhu.edu/software/stringtie/gff.shtml#gffcompare) can be used to compare, merge, annotate and estimate accuracy of one or more GFF files (the "query" files), when compared with a
 reference annotation (also provided as GFF/GTF).
 
 ```
@@ -386,17 +393,16 @@ Intron chain level:    56.9     |    52.4    |
 <details markdown="1">
 <summary>Output files</summary>
 
-- `multiqc/`
-  - `multiqc_report.html`: a standalone HTML file that can be viewed in your web browser.
-  - `multiqc_data/`: directory containing parsed statistics from the different tools used in the pipeline.
-  - `multiqc_plots/`: directory containing static images from the report in various formats.
+- `transcript_quantification/oarfish/<samplename>/`
+  - `*.quant.gz`: a tab separated file listing the quantified targets, as well as information about their length and other metadata. The num_reads column provides the estimate of the number of reads originating from each target.
+  - `*.meta_info.json`: a JSON format file containing information about relevant parameters with which oarfish was run, and other relevant inforamtion from the processed sample apart from the actual transcript quantifications.
 
 </details>
 
 [oarfish](https://github.com/COMBINE-lab/oarfish) is a program for quantifying
 transcript-level expression from long-read (i.e. Oxford nanopore cDNA and
 direct RNA and PacBio) sequencing technologies. oarfish requires a sample of
-sequencing reads aligned to the transcriptome (currntly not to the genome). It
+sequencing reads aligned to the transcriptome (currently not to the genome). It
 handles multi-mapping reads through the use of probabilistic allocation via an
 expectation-maximization (EM) algorithm.
 
