@@ -27,7 +27,7 @@ reads in BAM format. These are provided to the samplesheet as input.
 1. QC of FASTQ input files ( [`NANOQ`](https://github.com/esteinig/nanoq), [`SEQUALI`](https://github.com/rhpvorderman/sequali) )
 2. Mapping to reference genome ( [`minimap2`](github.com/lh3/minimap2) )
 3. Sort and index alignments ( [`samtools`](https://sourceforge.net/projects/samtools/files/samtools/) )
-4. Create bigWig coverage files ( [`bedtools`](https://github.com/arq5x/bedtools2/), [bedGraphToBigWig](https://hgdownload.soe.ucsc.edu/admin/exe/) )
+4. Create bigWig coverage files ( [`bedtools`](https://github.com/arq5x/bedtools2/), [`bedGraphToBigWig`](https://hgdownload.soe.ucsc.edu/admin/exe/) )
 5. Extensive QC of alignments
    1. [`samtools`](https://sourceforge.net/projects/samtools/files/samtools/)
    2. [`cramino`](https://github.com/wdecoster/cramino)
@@ -41,7 +41,7 @@ reads in BAM format. These are provided to the samplesheet as input.
    <!-- 7. Fusion gene detection [`JAFFA`](github.com/Oshlack/JAFFA) -->
 7. Transcriptome assessment [`gffcompare`](https://ccb.jhu.edu/software/stringtie/gff.shtml)
 8. Transcript quantification
-   1. [`oarfish`](https://github.com/COMBINE-lab/oarfish) )
+   1. [`oarfish`](https://github.com/COMBINE-lab/oarfish)
      <!-- ( [`TranSigner`](https://github.com/haydenji0731/TranSigner),
    Small test datasets for the pipeline are included in the [assets directory](https://github.com/number-25/LongTranscriptomics/assets/test_data). -->
 
