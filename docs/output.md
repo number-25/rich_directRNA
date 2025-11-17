@@ -29,6 +29,7 @@ The pipeline is built using [Nextflow](https://www.nextflow.io/) and processes d
   - [bambu](#bambu)
   - [IsoQuant](#IsoQuant)
   - [StringTie](#StringTie)
+  - [TranscriptToFasta](#Transcripts-FASTA)
   <!-- 7. Fusion gene detection [`JAFFA`](github.com/Oshlack/JAFFA) -->
 - [Transcriptome assessment](#Transcriptome-assessment)
   - [gffcompare](#gffcompare)
@@ -254,20 +255,15 @@ alignment metrics and summary statistics by read group. The transposed output is
 <details markdown="1">
 <summary>Output files</summary>
 
-#### TODO
-
-- `mapping_qc/ngf-bits/`
-  - `multiqc_report.html`: a standalone HTML file that can be viewed in your web browser.
-  - `multiqc_data/`: directory containing parsed statistics from the different tools used in the pipeline.
-  - `multiqc_plots/`: directory containing static images from the report in various formats.
+- `mapping_qc/ngs-bits/`
+  - `*_ngsbits.qcML`: ngsbits summary file in XML format. Used as input to MultiQC.
 
 </details>
 
-[ngs-bits
-mappingQC](https://github.com/imgag/ngs-bits/blob/master/doc/tools/MappingQC/index.md)
+[ngs-bits mappingQC](https://github.com/imgag/ngs-bits/blob/master/doc/tools/MappingQC/index.md)
 provides one more technique for quality control of the mapped BAM files. It's
 advantage is that it has an output that is compatible with
-[MultiQC](https://github.com/MultiQC/MultiQC/blob/main/docs/markdown/modules/ngsbits.md).
+[MultiQC](https://github.com/MultiQC/MultiQC/blob/main/docs/markdown/modules/ngsbits.md). Outut comes formatted in XML format, so is not particularly human readable.
 
 ## Transcriptome reconstruction
 
@@ -276,10 +272,16 @@ advantage is that it has an output that is compatible with
 <details markdown="1">
 <summary>Output files</summary>
 
-- `multiqc/`
-  - `multiqc_report.html`: a standalone HTML file that can be viewed in your web browser.
-  - `multiqc_data/`: directory containing parsed statistics from the different tools used in the pipeline.
-  - `multiqc_plots/`: directory containing static images from the report in various formats.
+- `transcript_reconstruction/flair/bam_to_bed/`
+  - `*_.bed`: genome alignment that has been converted from BAM to BED format, to be used as input to FLAIR.
+- `correct/`(optional)
+  - `*_flair_correct_all_corrected.bed`: BED file of correct reads that is used in subsequent steps.
+  - `*_flair_correct_all_inconsistent.bed`: BED file of rejected alignments.
+  - `*_flair_correct_cannot_verify.bed`: BED file of unknown alignments, (only if the) chromosome is not found in annotation.
+- `collapse/`
+  - `*_collapsed_isoforms.bed`: BED file of high confidence isoforms.
+  - `*_collapsed_isoforms.gtf`: as above but in GTF format.
+  - `*_collapsed_isoforms.fa`: fasta sequences of high confidence isoforms.
 
 </details>
 
@@ -287,9 +289,9 @@ advantage is that it has an output that is compatible with
 **A**lternative **I**soform analysis of **R**NA is used for the correction,
 isoform definition, and alternative splicing analysis of noisy reads. FLAIR has
 primarily been used for nanopore cDNA, native RNA, and PacBio sequencing reads.
-FLAIR is able to be used with and without read correction, making it amenable to
+FLAIR is able to be used with and without read correction (splice site correction), making it amenable to
 sensitive sample types, such as those coming from cancer where errors may
-instead be putative variants which should not be corrected.
+instead be putative variants which should not be corrected. FLAIR accepts a BED file as input, therefore, the aligned BAM file is always converted to BED format prior to input.
 
 ![FLAIR - example schematic](images/flair_workflow_compartmentalized.png)
 
@@ -298,10 +300,10 @@ instead be putative variants which should not be corrected.
 <details markdown="1">
 <summary>Output files</summary>
 
-- `multiqc/`
-  - `multiqc_report.html`: a standalone HTML file that can be viewed in your web browser.
-  - `multiqc_data/`: directory containing parsed statistics from the different tools used in the pipeline.
-  - `multiqc_plots/`: directory containing static images from the report in various formats.
+- `transcript_reconstruction/bambu/`
+  - `counts_gene.txt`: gene level estimated counts.
+  - `counts_transcript.txt`: transcript level estimated counts.
+  - `extended_annotations.gtf`: contains all transcript models from the reference annotations and any novel high confidence transcript models (below NDR threshold).
 
 </details>
 
@@ -312,9 +314,20 @@ instead be putative variants which should not be corrected.
 <details markdown="1">
 <summary>Output files</summary>
 
-- `multiqc/`
-  - `multiqc_report.html`: a standalone HTML file that can be viewed in your web browser.
-  - `multiqc_data/`: directory containing parsed statistics from the different tools used in the pipeline.
+- `transcript_reconstruction/isoquant/`
+  - `*_isoquant.corrected_reads.bed.gz`: BED file with corrected read alignments (gzipped by default).
+  - `*_isoquant.discovered_gene_counts.tsv`: raw read counts for discovered genes (corresponds to SAMPLE_ID.transcript_models.gtf).
+  - `*_isoquant.discovered_gene_tpm.tsv`: expression of discovered genes in TPM (corresponds to SAMPLE_ID.transcript_models.gtf).
+  - `*_isoquant.discovered_transcript_counts.tsv`: raw read counts for discovered transcript models (corresponds to SAMPLE_ID.transcript_models.gtf).
+  - `*_isoquant.discovered_transcript_tpm.tsv`: expression of discovered transcripts models in TPM (corresponds to SAMPLE_ID.transcript_models.gtf).
+  - `*_isoquant.extended_annotation.gtf`: GTF file with the entire reference annotation plus all discovered novel transcripts.
+  - `*_isoquant.gene_counts.tsv`: TSV file with raw read counts for reference genes.
+  - `*_isoquant.gene_tpm.tsv`: TSV file with reference gene expression in TPM.
+  - `*_isoquant.transcript_counts.tsv`: TSV file with raw read counts for reference transcript.
+  - `*_isoquant.transcript_tpm.tsv`: TSV file with reference transcript expression in TPM.
+  - `*_isoquant.read_assignments.tsv.gz`: TSV file with read to isoform assignments (gzipped by default).
+  - `*_isoquant.transcript_model_reads.tsv.gz`: TSV file indicating which reads contributed to transcript models (gzipped by default).
+  - `*_isoquant.transcript_models.gtf`: GTF file with discovered expressed transcript (both known and novel transcripts).
 
 </details>
 
@@ -332,27 +345,35 @@ grouping. IsoQuant, like FLAIR, provides optional read correction capabilities, 
 <details markdown="1">
 <summary>Output files</summary>
 
-- `transcript_reconstruction/stringtie`
-  - `KCMF1.1.stringtie.coverage.gtf`: a standalone HTML file that can be viewed in your web browser.
-  - `KCMF1.1.stringtie.transcripts.gtf`: directory containing parsed statistics from the different tools used in the pipeline.
-
-</details>
+- `transcript_reconstruction/stringtie/`
+  - `*_stringtie.transcripts.gtf`: main output GTF file containing the assembled transcripts.
+  - `*_stringtie.coverage.gtf`: fully covered transcripts that match the reference annotation, in GTF format.
 
 [StringTie](ccb.jhu.edu/software/stringtie/) is a fast and highly
 efficient assembler of RNA-Seq alignments into potential transcripts. It uses a
 novel network flow algorithm as well as an optional de novo assembly step to
 assemble and quantitate full-length transcripts representing multiple splice
 variants for each gene locus. StringTie does not perform read correction.
+i
+
+</details>
+
+### Transcripts FASTA
 
 <details markdown="1">
 <summary>Output files</summary>
 
-- `multiqc/`
-  - `multiqc_report.html`: a standalone HTML file that can be viewed in your web browser.
-  - `multiqc_data/`: directory containing parsed statistics from the different tools used in the pipeline.
-  - `multiqc_plots/`: directory containing static images from the report in various formats.
+- `transcript_reconstruction/transcripts_fasta/`
+  - `*_bambu_transcripts.fa`: FASTA sequences of all assembled transcripts from bambu.
+  - `*_isoquant_transcripts.fa`: FASTA sequences of all assembled transcripts from isoquant.
+  - `*_stringtie_transcripts.fa`: FASTA sequences of all assembled transcripts from stringtie.
 
 </details>
+
+This is a straight forward module which simply converts the
+reconstruction/assembled transcripts from the various software into their FASTA
+sequences. If using FLAIR, the transcript sequences in FASTA format will be
+created by the tool itself.
 
 ## Transcriptome assessment
 
@@ -361,10 +382,12 @@ variants for each gene locus. StringTie does not perform read correction.
 <details markdown="1">
 <summary>Output files</summary>
 
-- `multiqc/`
-  - `multiqc_report.html`: a standalone HTML file that can be viewed in your web browser.
-  - `multiqc_data/`: directory containing parsed statistics from the different tools used in the pipeline.
-  - `multiqc_plots/`: directory containing static images from the report in various formats.
+- `transcriptome_assessment/{flair,isoquant,bambu,stringtie}/`
+  - `*_{flair,isoquant,bambu,stringtie}.annotated.gtf`: input transcriptome GTF file annotated with the reference transcriptome provided.
+  - `*_{flair,isoquant,bambu,stringtie}.gtf.refmap`: this tab-delimited file lists, for each reference transcript, which query transcript either fully or partially matches that reference transcript.
+  - `*_{flair,isoquant,bambu,stringtie}.gtf.tmap`: this tab delimited file lists the most closely matching reference transcript for each query transcript.
+  - `*_{flair,isoquant,bambu,stringtie}.stats`: in this output file Gffcompare reports various statistics related to the “accuracy” (or a measure of agreement) of the input transcripts when compared to reference annotation data. These accuracy measures are calculated under the assumption that the input GFF/GTF file(s) (the "query" transcripts, or transfrags, from one or multiple "samples") are coming from some transcript discovery/assembly pipeline (e.g. Cufflinks or StringTie), or from any other gene/transcript prediction pipeline. GffCompare can be used to assess the accuracy of such pipelines, when comparing their results to a known reference annotation
+  - `*_{flair,isoquant,bambu,stringtie}.tracking`: this file matches transcripts up between samples. This file matches transcripts up between samples. Each row represents a transcript structure that is preserved (structurally equivalent) across all the input GTF files. GffCompare considers transcripts "matching" (i.e. structurally equivalent) if all their introns are identical. Note that "matching" transcripts are allowed to differ on the length of the first and last exons, since these lengths can usually vary across samples for the same biological transcript.
 
 </details>
 
@@ -393,7 +416,7 @@ Intron chain level:    56.9     |    52.4    |
 <details markdown="1">
 <summary>Output files</summary>
 
-- `transcript_quantification/oarfish/<samplename>/`
+- `transcript_quantification/oarfish/`
   - `*.quant.gz`: a tab separated file listing the quantified targets, as well as information about their length and other metadata. The num_reads column provides the estimate of the number of reads originating from each target.
   - `*.meta_info.json`: a JSON format file containing information about relevant parameters with which oarfish was run, and other relevant inforamtion from the processed sample apart from the actual transcript quantifications.
 
