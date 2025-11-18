@@ -10,13 +10,61 @@
 
 ## Pipeline tools
 
-- [FastQC](https://www.bioinformatics.babraham.ac.uk/projects/fastqc/)
+- [nanoq](https://github.com/esteinig/nanoq)
 
-  > Andrews, S. (2010). FastQC: A Quality Control Tool for High Throughput Sequence Data [Online].
+  > Steinig et al., (2022). Nanoq: ultra-fast quality control for nanopore reads. Journal of Open Source Software, 7(69), 2991, https://doi.org/10.21105/joss.02991
 
-- [MultiQC](https://pubmed.ncbi.nlm.nih.gov/27312411/)
+- [SEQUALI](https://github.com/rhpvorderman/sequali)
 
-  > Ewels P, Magnusson M, Lundin S, Käller M. MultiQC: summarize analysis results for multiple tools and samples in a single report. Bioinformatics. 2016 Oct 1;32(19):3047-8. doi: 10.1093/bioinformatics/btw354. Epub 2016 Jun 16. PubMed PMID: 27312411; PubMed Central PMCID: PMC5039924.
+  > Ruben H P Vorderman, Sequali: efficient and comprehensive quality control of short- and long-read sequencing data, Bioinformatics Advances, Volume 5, Issue 1, 2025, vbaf010, https://doi.org/10.1093/bioadv/vbaf010
+
+- [minimap2](https://github.com/lh3/minimap2)
+
+  > Li, H. (2018). Minimap2: pairwise alignment for nucleotide sequences. Bioinformatics, 34:3094-3100. doi:10.1093/bioinformatics/bty191
+
+- [samtools](https://sourceforge.net/projects/samtools/files/samtools/)
+
+  > Li, Heng, et al. "The sequence alignment/map format and SAMtools." bioinformatics 25.16 (2009): 2078-2079.
+
+- [bedtools](https://github.com/arq5x/bedtools2/)
+
+  > Quinlan, Aaron R., and Ira M. Hall. "BEDTools: a flexible suite of utilities for comparing genomic features." Bioinformatics 26.6 (2010): 841-842.
+
+- [cramino](https://github.com/wdecoster/cramino)
+
+  > Wouter De Coster, Rosa Rademakers, NanoPack2: population-scale evaluation of long-read sequencing data, Bioinformatics, Volume 39, Issue 5, May 2023, btad311, https://doi.org/10.1093/bioinformatics/btad311
+
+- [alfred](https://www.gear-genomics.com/docs/alfred/)
+
+  >  Rausch, T., Fritz, M.H., Korbel, J.O. and Benes, V. Alfred: interactive multi-sample BAM alignment statistics, feature counting and feature annotation for long- and short-read sequencing. Bioinformatics. 2019 Jul 15;35(14):2489-2491. https://doi.org/10.1093/bioinformatics/bty1007
+
+- [ngs-bits](https://github.com/imgag/ngs-bits/tree/master)
+
+  > Marc Sturm, et al. Imgag/ngs-bits: 2025_09. 2025_09, Zenodo, 25 Sept. 2025, https://doi.org/10.5281/zenodo.17201254.
+
+- [FLAIR](https://github.com/BrooksLabUCSC/flair)
+
+  > Tang, Alison D., et al. "Full-length transcript characterization of SF3B1 mutation in chronic lymphocytic leukemia reveals downregulation of retained introns." Nature communications 11.1 (2020): 1438.
+
+- [bambu](http://github.com/GoekeLab/bambu)
+
+  > Chen, Ying, et al. "Context-aware transcript quantification from long-read RNA-seq data with Bambu." Nature methods 20.8 (2023): 1187-1195.
+
+- [IsoQuant](https://ablab.github.io/IsoQuant/)
+
+  > Prjibelski, Andrey D., et al. "Accurate isoform discovery with IsoQuant using long reads." Nature Biotechnology 41.7 (2023): 915-918.
+
+- [StringTie](https://github.com/skovaka/stringtie2)
+
+  > Kovaka, Sam, et al. "Transcriptome assembly from long-read RNA-seq alignments with StringTie2." Genome biology 20.1 (2019): 278.
+
+- [gffcompare](https://ccb.jhu.edu/software/stringtie/gff.shtml)
+
+  > Pertea, Geo, and Mihaela Pertea. "GFF utilities: GffRead and GffCompare." F1000Research 9 (2020): ISCB-Comm.
+
+- [oarfish](https://github.com/COMBINE-lab/oarfish)
+
+  > Zare Jousheghani, Zahra, Noor Pratap Singh, and Rob Patro. "Oarfish: Enhanced probabilistic modeling leads to improved accuracy in long read transcriptome quantification." Bioinformatics 41.Supplement_1 (2025): i304-i313.
 
 ## Software packaging/containerisation tools
 
