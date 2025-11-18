@@ -1,3 +1,5 @@
+![cover image](docs/images/cover_image.jpg)
+
 [![nf-core CI](https://github.com/number-25/LongTranscriptomics/actions/workflows/ci.yml/badge.svg?branch=dev)](https://github.com/number-25/LongTranscriptomics/actions/workflows/ci.yml)
 [![nf-core linting comment](https://github.com/number-25/LongTranscriptomics/actions/workflows/linting_comment.yml/badge.svg)](https://github.com/number-25/LongTranscriptomics/actions/workflows/linting_comment.yml)
 [![GitHub Actions Linting Status](https://github.com/number-25/LongTranscriptomics/actions/workflows/linting.yml/badge.svg)](https://github.com/number-25/LongTranscriptomics/actions/workflows/linting.yml)
