@@ -19,16 +19,15 @@ The pipeline will auto-detect whether the sequencing summary files, and reads ar
 A final samplesheet file consisting of long-read data may look something like the one below. This is for **one biological** sample which has been sequenced twice, giving two technical replicates.
 
 ```csv title="samplesheet.csv"
-sample,replicate,sequencing_summary_path,read_path
-CONTROL1,1,data/long_reads_sequencingsummary_1.txt,data/long_reads_1.fastq.gz
-CONTROL1,2,data/long_reads_sequencingsummary_2.txt,data/long_reads_2.fastq.gz
+sample,replicate,read_path
+CONTROL1,1,data/long_reads_1.fastq.gz
+CONTROL1,2,data/long_reads_2.fastq.gz
 ```
 
 | Column                    | Description                                                              |
 | ------------------------- | ------------------------------------------------------------------------ |
 | `sample`                  | Sample name.                                                             |
 | `replicate`               | Technical replicate number                                               |
-| `sequencing_summary_path` | Full path to nanopore sequencing summary file (usually a .txt file).gz". |
 | `read_path`               | Full path to fastq reads.                                                |
 
 An [example samplesheet](../assets/samplesheet.csv) has been provided with the pipeline.

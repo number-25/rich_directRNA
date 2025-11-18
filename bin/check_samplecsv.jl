@@ -35,13 +35,13 @@ header = input_samplesheet[1]
 split_header = split(header, ',')
 
 ## length
-length(split_header) == 4 || throw("The header is the incorrect size, check how many columns you have provided (4 is required")
+length(split_header) == 3 || throw("The header is the incorrect size, check how many columns you have provided (3 is required")
 println("sample sheet has the correct number of columns")
 
 ## check that the header names are correct
-header_names = ("sample", "replicate", "sequencing_summary_path", "read_path")
+header_names = ("sample", "replicate"", "read_path")
 for colname in header_names
-    colname ∈ split_header || throw("column names are incorrectly spelled, ensure that they are sample,replicate,sequencing_summary_path,readpath")
+    colname ∈ split_header || throw("column names are incorrectly spelled, ensure that they are sample,replicate,readpath")
 end
 println("the header names are spelled correctly")
 
@@ -50,9 +50,9 @@ samplesheet_body = input_samplesheet[2:end]
 for row in samplesheet_body
     rownumber = 1
     split_row = split(row, ',')
-    length(split(row, ',')) == 4 || throw("row number $(rownumber) has the incorrect number of columns, please check formatting")
+    length(split(row, ',')) == 3 || throw("row number $(rownumber) has the incorrect number of columns, please check formatting")
 # check to see if sample name is a single string and not spaced
-    first_column, second_column, third_column, fourth_column = split_row[1:end]
+    first_column, second_column, third_column = split_row[1:end]
     !occursin(' ', first_column) || throw("sample name is separated by a space, please format it so that it is one continuous string")
 # check to see if the replicate is an interger (if provided))
     if !isempty(second_column)
@@ -62,12 +62,8 @@ for row in samplesheet_body
             throw("The replicate is not an integer, please change it to one e.g 1, 2")
         end
     end
-# check to see if sequencing summary exists and isn't empty
-    path_to_summary = nextflow_path * '/' * third_column
-    ispath(path_to_summary) || throw("sequencing summary file doesn't exist, or the path pointing to it is incorrect")
-    # is it empty?
 # check to see if the reads path points to a valid path or a valid file
-    path_to_reads = nextflow_path * '/' * fourth_column
+    path_to_reads = nextflow_path * '/' * third
     ispath(path_to_reads) || isfile(path_to_reads) || throw("the path to the reads either doesn't exist, or the path pointing to a specific fastq file doesn't exist, please check paths")
     if ispath(path_to_reads) && !isfile(path_to_reads)
         !isempty(readdir(glob"*.fq", path_to_reads)) ||

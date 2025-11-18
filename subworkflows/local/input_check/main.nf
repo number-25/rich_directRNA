@@ -23,7 +23,7 @@ workflow INPUT_CHECK {
         ch_sample.view() */
 
     emit:
-    ch_sample // [ sample, replicate, sequencing_summary_file, path_to_reads ]
+    ch_sample // [ sample, replicate, path_to_reads ]
     //ch_versions = ch_versions.mix(CHECK_SAMPLESHEET.out.versions.first())
 }
 
@@ -32,8 +32,7 @@ def get_sample_info(LinkedHashMap row) {
     // create meta map
     def meta = [:]
     meta.id           = row.sample
-    meta.replicate   = row.replicate
-    meta.sequencing_summary = row.sequencing_summary_path
+    meta.replicate    = row.replicate
     //meta.fastq = row.read_path
 
     // add path(s) of the fastq file to the meta map

@@ -19,13 +19,6 @@
                 "errorMessage": "Replicate must be an integer",
                 "meta": ["replicate"]
             },
-            "sequencing_summary": {
-                "type": "string",
-                "format": "file-path",
-                "exists": true,
-                "pattern": "^\S+.txt$",
-                "errorMessage": "Sequencing summary file cannot contain spaces and must have extension '.txt'"
-            },
             "fastq": {
                 "type": "string",
                 "format": "file-path",
@@ -34,6 +27,6 @@
                 "errorMessage": "FastQ file must be provided, cannot contain spaces and must have extension '.fq.gz' or '.fastq.gz'"
             }
         },
-        "required": ["sample", "sequencing_summary", "fastq"]
+        "required": ["sample", "fastq"]
     }
 }

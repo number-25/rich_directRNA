@@ -1,5 +1,3 @@
-![cover image](docs/images/cover_image.jpg)
-
 [![nf-core CI](https://github.com/number-25/LongTranscriptomics/actions/workflows/ci.yml/badge.svg?branch=dev)](https://github.com/number-25/LongTranscriptomics/actions/workflows/ci.yml)
 [![nf-core linting comment](https://github.com/number-25/LongTranscriptomics/actions/workflows/linting_comment.yml/badge.svg)](https://github.com/number-25/LongTranscriptomics/actions/workflows/linting_comment.yml)
 [![GitHub Actions Linting Status](https://github.com/number-25/LongTranscriptomics/actions/workflows/linting.yml/badge.svg)](https://github.com/number-25/LongTranscriptomics/actions/workflows/linting.yml)
@@ -41,9 +39,8 @@ reads in BAM format. These are provided to the samplesheet as input.
    3. [`IsoQuant`](https://ablab.github.io/IsoQuant/) - allows read correction
    4. [`StringTie`](https://github.com/skovaka/stringtie2)
    <!-- 7. Fusion gene detection [`JAFFA`](github.com/Oshlack/JAFFA) -->
-7. Transcriptome assessment [`gffcompare`](https://ccb.jhu.edu/software/stringtie/gff.shtml)
-8. Transcript quantification
-   1. [`oarfish`](https://github.com/COMBINE-lab/oarfish)
+7. Transcriptome assessment ( [`gffcompare`](https://ccb.jhu.edu/software/stringtie/gff.shtml) )
+8. Transcript quantification ( [`oarfish`](https://github.com/COMBINE-lab/oarfish) )
      <!-- ( [`TranSigner`](https://github.com/haydenji0731/TranSigner),
    Small test datasets for the pipeline are included in the [assets directory](https://github.com/number-25/LongTranscriptomics/assets/test_data). -->
 
@@ -57,9 +54,9 @@ First, prepare a samplesheet with your input data that looks as follows:
 `samplesheet.csv`:
 
 ```csv
-sample,replicate,sequencing_summary_path,read_path
-CONTROL1,1,data/long_reads_sequencingsummary_1.txt,data/long_reads_1.fastq.gz
-CONTROL1,2,data/long_reads_sequencingsummary_2.txt,data/long_reads_2.fastq.gz
+sample,replicate,read_path
+CONTROL1,1,data/long_reads_1.fastq.gz
+CONTROL1,2,data/long_reads_2.fastq.gz
 ```
 
 Each row represents a fastq file. Replicate refers to a technical replicate, biological replicates should be named uniquely. Be sure to pay attention to sample naming, in
