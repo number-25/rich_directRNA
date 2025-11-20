@@ -13,6 +13,10 @@
     // once a stable release it pushed/ Validate input parameters()
     // https://nextflow-io.github.io/nf-schema/latest/parameters/help_text/
     //validateParameters()
+*/
+
+//    NF_VALIDATION_SCHEMA(
+
 
     // Print summary to stdout of supplied parameters that differ from defaults
 
@@ -160,6 +164,9 @@ include { GFFCOMPARE as GFFCOMPARE_STRINGTIE      } from '../modules/local/gffco
 //include { validateParameters } from 'plugin/nf-schema'
 //include { paramsSummaryMap       } from 'plugin/nf-schema'
 //include { paramsSummaryMultiqc   } from '../subworkflows/nf-core/utils_nfcore_pipeline'
+// include { NF_VALIDATION_SCHEMA } from
+// '../subworkflows/nf-core/utils_nfvalidation_plugin'
+
 include { softwareVersionsToYAML    } from '../subworkflows/nf-core/utils_nfcore_pipeline'
 //include { methodsDescriptionText } from '../subworkflows/local/utils_nfcore_directrna_pipeline'
 
