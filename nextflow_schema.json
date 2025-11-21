@@ -374,10 +374,6 @@
                 "skip_oarfish": {
                     "type": "boolean",
                     "description": "Skip OARFISH transcript quantification."
-                },
-                "skip_transigner": {
-                    "type": "boolean",
-                    "description": "Skip TranSigner transcript quantification."
                 }
             }
         }

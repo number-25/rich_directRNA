@@ -7,16 +7,10 @@
 // nextflow magik
 
 //def summary_params = NfcoreSchema.paramsSummaryMap(workflow, params)
-    // nf-schema plugins
-    // Not working yet, but is promising for testing further on - it could avoid
     // using the Julia script to validate inputs - consider embarking on this
     // once a stable release it pushed/ Validate input parameters()
     // https://nextflow-io.github.io/nf-schema/latest/parameters/help_text/
     //validateParameters()
-*/
-
-//    NF_VALIDATION_SCHEMA(
-
 
     // Print summary to stdout of supplied parameters that differ from defaults
 
@@ -72,6 +66,17 @@ def isOffline() {
 }
 
 /*
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    IMPORT NF-CORE MODULES / SUBWORKFLOWS / FUNCTIONS
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+*/
+
+include { softwareVersionsToYAML    } from '../subworkflows/nf-core/utils_nfcore_pipeline'
+//include { samplesheetToList } from 'plugin/nf-schema'
+//include { paramsSummaryMultiqc   } from '../subworkflows/nf-core/utils_nfcore_pipeline'
+//include { methodsDescriptionText } from '../subworkflows/local/utils_nfcore_directrna_pipeline'
+
+/*
 ----------------------------------------------------------------------------------------
     IMPORT LOCAL MODULES / SUBWORKFLOWS / FUNCTIONS
 ----------------------------------------------------------------------------------------
@@ -123,7 +128,7 @@ include { OARFISH as OARFISH_BAMBU                      } from '../modules/local
 include { OARFISH as OARFISH_ISOQUANT                   } from '../modules/local/oarfish/raw_read'
 include { OARFISH as OARFISH_STRINGTIE                  } from '../modules/local/oarfish/raw_read'
 // TRANSIGNER
-include { TRANSIGNER as TRANSIGNER_FLAIR                } from '../modules/local/transigner/align'
+//include { TRANSIGNER as TRANSIGNER_FLAIR                } from '../modules/local/transigner/align'
 
 // transcriptome assessment
 // JACCARD for tools using read correction
@@ -155,29 +160,9 @@ include { GFFCOMPARE as GFFCOMPARE_STRINGTIE      } from '../modules/local/gffco
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    IMPORT NF-CORE MODULES / SUBWORKFLOWS / FUNCTIONS
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-*/
-
-//include { samplesheetToList } from 'plugin/nf-schema'
-//WANTTHISONE include { paramsSummaryLog          } from 'plugin/nf-schema'
-//include { validateParameters } from 'plugin/nf-schema'
-//include { paramsSummaryMap       } from 'plugin/nf-schema'
-//include { paramsSummaryMultiqc   } from '../subworkflows/nf-core/utils_nfcore_pipeline'
-// include { NF_VALIDATION_SCHEMA } from
-// '../subworkflows/nf-core/utils_nfvalidation_plugin'
-
-include { softwareVersionsToYAML    } from '../subworkflows/nf-core/utils_nfcore_pipeline'
-//include { methodsDescriptionText } from '../subworkflows/local/utils_nfcore_directrna_pipeline'
-
-/*
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     RUN MAIN WORKFLOW
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
-
-
-//ch_multiqc_files = Channel.empty()
 
 workflow DIRECTRNA{
 

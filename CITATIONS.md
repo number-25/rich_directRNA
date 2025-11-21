@@ -36,7 +36,7 @@
 
 - [alfred](https://www.gear-genomics.com/docs/alfred/)
 
-  >  Rausch, T., Fritz, M.H., Korbel, J.O. and Benes, V. Alfred: interactive multi-sample BAM alignment statistics, feature counting and feature annotation for long- and short-read sequencing. Bioinformatics. 2019 Jul 15;35(14):2489-2491. https://doi.org/10.1093/bioinformatics/bty1007
+  > Rausch, T., Fritz, M.H., Korbel, J.O. and Benes, V. Alfred: interactive multi-sample BAM alignment statistics, feature counting and feature annotation for long- and short-read sequencing. Bioinformatics. 2019 Jul 15;35(14):2489-2491. https://doi.org/10.1093/bioinformatics/bty1007
 
 - [ngs-bits](https://github.com/imgag/ngs-bits/tree/master)
 

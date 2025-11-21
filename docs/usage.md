@@ -24,11 +24,11 @@ CONTROL1,1,data/long_reads_1.fastq.gz
 CONTROL1,2,data/long_reads_2.fastq.gz
 ```
 
-| Column                    | Description                                                              |
-| ------------------------- | ------------------------------------------------------------------------ |
-| `sample`                  | Sample name.                                                             |
-| `replicate`               | Technical replicate number                                               |
-| `read_path`               | Full path to fastq reads.                                                |
+| Column      | Description                |
+| ----------- | -------------------------- |
+| `sample`    | Sample name.               |
+| `replicate` | Technical replicate number |
+| `read_path` | Full path to fastq reads.  |
 
 An [example samplesheet](../assets/samplesheet.csv) has been provided with the pipeline.
 

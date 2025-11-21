@@ -21,6 +21,8 @@ Nanopore Technologies (ONT) libraries. It is recommended to provide raw FASTQ
 files to the pipeline, however, it will also accept already mapped sequencing
 reads in BAM format. These are provided to the samplesheet as input.
 
+The general flow of the pipeline is as follows;
+
 <!-- nf-core: Include a figure that guides the user through the major workflow steps. Many nf-core
      workflows use the "tube map" design for that. See https://nf-co.re/docs/contributing/design_guidelines#examples for examples.   -->
 
@@ -60,7 +62,7 @@ CONTROL1,2,data/long_reads_2.fastq.gz
 ```
 
 Each row represents a fastq file. Replicate refers to a technical replicate, biological replicates should be named uniquely. Be sure to pay attention to sample naming, in
-order to avoid duplication and file overwriting.
+order to avoid duplication and file overwriting. The replicate field is optional, the other two are mandatory.
 
 The basic reference files required to run the pipeline are 1) a genome in fasta format, and 2) a transcriptome annotation in gtf format. It is advised that the files be gzipped, but it is fine if they are not.
 

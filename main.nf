@@ -11,71 +11,36 @@
 nextflow.enable.dsl = 2
 
 /*
-========================================================================================
-    VALIDATE & PRINT PARAMETER SUMMARY
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-*/
-
-//WorkflowMain.initialise(workflow, params, log)
-
-/*
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    IMPORT FUNCTIONS / MODULES / SUBWORKFLOWS / WORKFLOWS
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-*/
-
-//include { DIRECTRNA } from './workflows/directrna'
-//include { PREPARE_REFERENCE } from './subworkflows/local/prepare_reference'
-//include { PIPELINE_INITIALISATION } from 'subworkflows/local/utils_nfcore_directrna_pipeline'
-//include { PIPELINE_COMPLETION     } from 'subworkflows/local/utils_nfcore_directrna_pipeline'
-//include { getGenomeAttribute      } from './subworkflows/local/utils_nfcore_directrna_pipeline'
-
-/*
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    GENOME PARAMETER VALUES
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-*/
-
-//nf-core: Remove this line if you don't need a FASTA file
-//   This is an example of how to use getGenomeAttribute() to fetch parameters
-//   from igenomes.config using `--genome`
-//params.genome_fasta = getGenomeAttribute('fasta')
-
-    //
-    // SUBWORKFLOW: Prepare reference genome files
-    //
-    //PREPARE_REFERENCE
-
-
-/*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     NAMED WORKFLOWS FOR PIPELINE
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
-include { DIRECTRNA } from './workflows/directrna'
+include { DIRECTRNA             } from './workflows/directrna'
+include { validateParameters    } from 'plugin/nf-schema'
+include { paramsSummaryLog      } from 'plugin/nf-schema'
 
-//
-// WORKFLOW: Run main analysis pipeline depending on type of input
-//
 workflow{
-    DIRECTRNA ()
-        //samplesheet
+
+    //
+    // nf-scheme validations
+    //
+
+    validateParameters()
+    log.info paramsSummaryLog(workflow)
+
+    if (params.help) {
+        log.info paramsHelp(
+            beforeText: "Welcome to LongTranscriptomics, I see you are seeking help.",
+            afterText: "Farewell, hopefully this was helpful.",
+            command: "nextflow run . -profile <profile> --outdir <outdir>",
+        )
+        exit 0
     }
-    //take:
-    //samplesheet // channel: samplesheet read in from --input
-
-    //main:
-
-    //
-    // WORKFLOW: Run pipeline
-    //
 
 
-    //emit:
-    //multiqc_report = DIRECTRNA.out.multiqc_report // channel: /path/to/multiqc_report.html
-
-//}
+    DIRECTRNA ()
+}
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     RUN MAIN WORKFLOW
@@ -98,18 +63,6 @@ workflow {
         params.outdir,
         params.input
     )
-
-    //
-    // WORKFLOW: Run main workflow
-    //
-    //MEDGEN_DIRECTRNA (
-    //    PIPELINE_INITIALISATION.out.samplesheet
-    )
-
-    //
-    // SUBWORKFLOW: Run completion tasks
-    //
-
     PIPELINE_COMPLETION (
         params.email,
         params.email_on_fail,
