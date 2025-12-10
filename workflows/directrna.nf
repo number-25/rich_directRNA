@@ -172,7 +172,6 @@ workflow DIRECTRNA{
     ch_versions = Channel.empty()
     ch_versions.view()
     ch_multiqc_files = Channel.empty()
-    ch_multiqc_files.view()
     //def multiqc_report      = []
 
     // INPUT_CHECK
@@ -180,7 +179,6 @@ workflow DIRECTRNA{
         .set { ch_sample }
 
     ch_sequencing_type = channel.value(params.sequencing_type)
-    ch_sequencing_type.view()
 
     // QC of fastq files
     /// MODULES: NANOQ & SEQUALI
@@ -424,8 +422,6 @@ workflow DIRECTRNA{
             ch_multiqc_files = ch_multiqc_files.mix(ch_stringtie_gffcompare_stats.ifEmpty([]))
         }
     }
-
-    ch_multiqc_files.view()
 
 /*
     // TODO
