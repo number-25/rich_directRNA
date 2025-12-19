@@ -3,8 +3,11 @@ process BAMBU {
     label 'process_medium'
     conda "conda-forge::r-base=4.0.3 bioconda::bioconductor-bambu=3.0.8 bioconda::bioconductor-bsgenome=1.66.0"
     container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
-        'https://depot.galaxyproject.org/singularity/bioconductor-bambu:3.0.8--r42hc247a5b_0' :
-        'docker://quay.io/biocontainers/bioconductor-bambu:3.0.8--r42hc247a5b_0' }"
+        'number25/bambu:3.12.0' :
+        'number25/bambu:3.12.0' }"
+
+       // 'docker://quay.io/biocontainers/bioconductor-bambu:3.0.8--r42hc247a5b_0' }"
+       // 'docker://quay.io/biocontainers/bioconductor-bambu:3.0.8--r42hc247a5b_0' }"
    //containerOptions = '-u $(id -u):$(id -g)'
         //'number25/bambu:3.8.0':
         //'docker://quay.io/number_25/bambu:latest' }"
@@ -18,23 +21,14 @@ process BAMBU {
     tuple val(meta), path(bam)
 
     output:
-    path "counts_gene.txt"               , emit: ch_gene_counts
-    path "counts_transcript.txt"         , emit: ch_transcript_counts
-    tuple val(meta)                      , path("extended_annotations.gtf") , emit: bambu_extended_gtf
-    //path "allTranscriptModels.gtf"       , emit: bambu_all_gtf
-    //path "supportedTranscriptModels.gtf" , emit: bambu_supported_gtf
-    //path "novelTranscripts.gtf"          , emit: bambu_novel_only_gtf
-    path "versions.yml"                  , emit: versions
+    //path "counts_gene.txt"                                  , emit: ch_gene_counts
+    //path "counts_transcript.txt"                            , emit: ch_transcript_counts
+    path "extended_annotations.gtf"                         , emit: bambu_extended_gtf
+    path "allTranscriptModels.gtf"                          , emit: bambu_all_gtf
+    path "novelTranscripts.gtf"                             , emit: bambu_novel_only_gtf
+    tuple val(meta), path("supportedTranscriptModels.gtf")  , emit: bambu_supported_gtf
+    path "versions.yml"                                     , emit: versions
 
-/*
-    tuple val(meta), path("extendedAnnotations.gtf"),        emit: bambu_extended_gtf
-    //tuple val(meta), path("*_counts_gene.txt")         , emit: bambu_gene_counts
-    //tuple val(meta), path("*_counts_transcript.txt")   , emit: bambu_transcript_counts
-    tuple val(meta), path("allTranscriptModels.gtf"),       emit: bambu_transcript_models
-    tuple val(meta), path("supportedTranscriptModels.gtf"), emit: bambu_supported_transcript_models
-    tuple val(meta), path("novelTranscripts.gtf"),     emit: bambu_novel_transcript_models
-    path "versions.yml",                                        emit: versions
-*/
     when:
     task.ext.when == null || task.ext.when
     //def prefix = task.ext.prefix ?: "${meta.id}_${meta.replicate}_bambu"

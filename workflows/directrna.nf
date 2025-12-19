@@ -355,13 +355,11 @@ workflow DIRECTRNA{
     // BAMBU
     if (!params.skip_bambu) {
         BAMBU( ch_genome_fasta, ch_annotation_gtf, ch_bam )
-        ch_bambu_extended_gtf = BAMBU.out.bambu_extended_gtf
-        //ch_bambu_supported_gtf = BAMBU.out.bambu_supported_gtf
+        ch_bambu_supported_gtf = BAMBU.out.bambu_supported_gtf
         ch_versions = ch_versions.mix(BAMBU.out.versions.first())
-        // MIX genome fasta with fasta index as this will improve GFFREADs speed
-        //GFFREAD_GETFASTA_BAMBU( ch_bambu_extended_gtf, ch_genome_fasta_with_index, 'bambu' )
-        //ch_bambu_transcripts = GFFREAD_GETFASTA_BAMBU.out.transcripts_fa
-        //ch_versions = ch_versions.mix(GFFREAD_GETFASTA_BAMBU.out.versions.first())
+        GFFREAD_GETFASTA_BAMBU( ch_bambu_supported_gtf, ch_genome_fasta_with_index, 'bambu' )
+        ch_bambu_transcripts = GFFREAD_GETFASTA_BAMBU.out.transcripts_fa
+        ch_versions = ch_versions.mix(GFFREAD_GETFASTA_BAMBU.out.versions.first())
         }
 
     // ISOQUANT
@@ -406,11 +404,11 @@ workflow DIRECTRNA{
             ch_multiqc_files = ch_multiqc_files.mix(ch_flair_gffcompare_stats.ifEmpty([]))
         }
         // TODO - this version of bambu currently only outputs the "extended annotation", which is the reference annotation + the detected transcripts in the sample, so there's no point to doing gffcompare as sensitivity and accuracy are 100%
-        //if (!params.skip_bambu) {
-        //    GFFCOMPARE_BAMBU( ch_genome_fasta_with_index, ch_bambu_extended_gtf, ch_annotation_gtf, 'bambu' )
-        //    ch_bambu_gffcompare_stats = GFFCOMPARE_BAMBU.out.gffcompare_stats.collect{it[1]}.flatten()
-        //    ch_multiqc_files = ch_multiqc_files.mix(ch_bambu_gffcompare_stats.ifEmpty([]))
-        //}
+        if (!params.skip_bambu) {
+            GFFCOMPARE_BAMBU( ch_genome_fasta_with_index, ch_bambu_supported_gtf, ch_annotation_gtf, 'bambu' )
+            ch_bambu_gffcompare_stats = GFFCOMPARE_BAMBU.out.gffcompare_stats.collect{it[1]}.flatten()
+            ch_multiqc_files = ch_multiqc_files.mix(ch_bambu_gffcompare_stats.ifEmpty([]))
+        }
         if (!params.skip_isoquant) {
             GFFCOMPARE_ISOQUANT(ch_genome_fasta_with_index, ch_isoquant_gtf, ch_annotation_gtf, 'isoquant' )
             ch_isoquant_gffcompare_stats = GFFCOMPARE_ISOQUANT.out.gffcompare_stats.collect{it[1]}.flatten()
