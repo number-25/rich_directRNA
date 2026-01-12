@@ -56,14 +56,13 @@ workflow PREPARE_REFERENCE{
     // Uncompress genome fasta file
     // Mandatory input
     if (genome_fasta) {
-        file(genome_fasta, checkIfExists: true)
         if (genome_fasta.endsWith('.gz')) {
-            ch_genome_fasta = GUNZIP_FASTA( [ [:], genome_fasta ] ).gunzip.map { it[1] }
+            ch_genome_fasta = GUNZIP_FASTA( [ [:], file(genome_fasta, checkIfExists: true) ]).gunzip.map { it[1] }
             ch_versions = ch_versions.mix(GUNZIP_FASTA.out.versions)
         } else {
     //which one below?
             //ch_genome_fasta = Channel.value(file(genome_fasta), checkIfExists: true)
-            ch_genome_fasta = Channel.fromPath(params.genome_fasta, checkIfExists: true)
+            ch_genome_fasta = Channel.fromPath(genome_fasta, checkIfExists: true)
         }
     }
 
@@ -88,9 +87,8 @@ workflow PREPARE_REFERENCE{
     // Uncompress transcriptome fasta file
     // Mandatory input
     if (transcriptome_fasta) {
-        file(transcriptome_fasta, checkIfExists: true)
         if (transcriptome_fasta.endsWith('.gz')) {
-            ch_transcriptome_fasta = GUNZIP_TRANSCRIPTOME( [ [:], transcriptome_fasta ] ).gunzip.map { it[1] }
+            ch_transcriptome_fasta = GUNZIP_TRANSCRIPTOME( [ [:], file(transcriptome_fasta, checkIfExists: true) ] ).gunzip.map { it[1] }
             ch_versions = ch_versions.mix(GUNZIP_TRANSCRIPTOME.out.versions)
 } else {
             //ch_transcriptome_fasta = Channel.value(file(transcriptome_fasta), checkIfExists: true)
@@ -101,9 +99,8 @@ workflow PREPARE_REFERENCE{
     // Uncompress GTF annotation file
     // Mandatory input
     if (annotation_gtf) {
-        file(annotation_gtf, checkIfExists:true)
         if (annotation_gtf.endsWith('.gz')) {
-            ch_annotation_gtf = GUNZIP_ANNOTATION_GTF( [ [:], annotation_gtf ] ).gunzip.map { it[1] }
+            ch_annotation_gtf = GUNZIP_ANNOTATION_GTF( [ [:], file(annotation_gtf, checkIfExists: true) ] ).gunzip.map { it[1] }
             ch_versions = ch_versions.mix(GUNZIP_ANNOTATION_GTF.out.versions)
         } else {
 //            ch_annotation_gtf = Channel.value(file(annotation_gtf), checkIfExists: true)

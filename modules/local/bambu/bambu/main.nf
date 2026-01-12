@@ -3,8 +3,8 @@ process BAMBU {
     label 'process_medium'
     conda "conda-forge::r-base=4.0.3 bioconda::bioconductor-bambu=3.0.8 bioconda::bioconductor-bsgenome=1.66.0"
     container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
-        'number25/bambu:3.12.0' :
-        'number25/bambu:3.12.0' }"
+    'docker://number25/bambu:3.12.0' :
+    'docker://quay.io/number_25/bambu:3.12.0' }"
 
        // 'docker://quay.io/biocontainers/bioconductor-bambu:3.0.8--r42hc247a5b_0' }"
        // 'docker://quay.io/biocontainers/bioconductor-bambu:3.0.8--r42hc247a5b_0' }"
@@ -16,16 +16,15 @@ process BAMBU {
 
     input:
     path(genome_fasta)
-    //path(genome_fasta_sizes)
     path(annotation_gtf)
     tuple val(meta), path(bam)
 
     output:
     //path "counts_gene.txt"                                  , emit: ch_gene_counts
     //path "counts_transcript.txt"                            , emit: ch_transcript_counts
-    path "extended_annotations.gtf"                         , emit: bambu_extended_gtf
-    path "allTranscriptModels.gtf"                          , emit: bambu_all_gtf
-    path "novelTranscripts.gtf"                             , emit: bambu_novel_only_gtf
+    path "extended_annotations.gtf"
+    path "allTranscriptModels.gtf"
+    path "novelTranscripts.gtf"
     tuple val(meta), path("supportedTranscriptModels.gtf")  , emit: bambu_supported_gtf
     path "versions.yml"                                     , emit: versions
 
