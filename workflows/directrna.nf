@@ -6,16 +6,7 @@
 
 // nextflow magik
 
-//def summary_params = NfcoreSchema.paramsSummaryMap(workflow, params)
-    // using the Julia script to validate inputs - consider embarking on this
-    // once a stable release it pushed/ Validate input parameters()
-    // https://nextflow-io.github.io/nf-schema/latest/parameters/help_text/
-    //validateParameters()
-
-    // Print summary to stdout of supplied parameters that differ from defaults
-
-    // log.info paramsSummaryLog(workflow)
-
+    //def summary_params = NfcoreSchema.paramsSummaryMap(workflow, params)
     // Create a new channel of metadata from a sample sheet passed to the pipeline through the --input parameter
     //ch_input = Channel.fromList(samplesheetToList(params.input, "assets/schema_input.json"))
 
@@ -395,15 +386,13 @@ workflow DIRECTRNA{
 
     //
     // Transcriptome assessment
-    // SQANTI, gffcompare
-    // Not done yet
+    // gffcompare
     if (!params.skip_gffcompare) {
         if (!params.skip_flair) {
             GFFCOMPARE_FLAIR( ch_genome_fasta_with_index, ch_flair_collapsed_gtf, ch_annotation_gtf, 'flair' )
             ch_flair_gffcompare_stats = GFFCOMPARE_FLAIR.out.gffcompare_stats.collect{it[1]}.flatten()
             ch_multiqc_files = ch_multiqc_files.mix(ch_flair_gffcompare_stats.ifEmpty([]))
         }
-        // TODO - this version of bambu currently only outputs the "extended annotation", which is the reference annotation + the detected transcripts in the sample, so there's no point to doing gffcompare as sensitivity and accuracy are 100%
         if (!params.skip_bambu) {
             GFFCOMPARE_BAMBU( ch_genome_fasta_with_index, ch_bambu_supported_gtf, ch_annotation_gtf, 'bambu' )
             ch_bambu_gffcompare_stats = GFFCOMPARE_BAMBU.out.gffcompare_stats.collect{it[1]}.flatten()
@@ -442,15 +431,6 @@ workflow DIRECTRNA{
 
     //
     // Transcript quantification
-    // TransSigner
-    //if (!params.skip_quantification && !params.skip_mapping)
-    //    TRANSIGNER
-//    if (!params.skip_transigner) {
-//        if (!params.skip_flair) {
-//            TRANSIGNER_FLAIR( ch_flair_collapsed_fa, ch_transcriptome_minimap2_index, 'flair')
-//        }
-        //}
-
     // Oarfish
    // if (!params.skip_quantification && !params.skip_mapping && params.!skip_oarfish)
     if (!params.skip_transcript_quantification) {
@@ -458,9 +438,9 @@ workflow DIRECTRNA{
             if (!params.skip_flair) {
                 OARFISH_FLAIR( ch_flair_collapsed_fa, ch_transcriptome_minimap2_index, ch_sequencing_type, 'flair' )
             }
-            //if (!params.skip_bambu) {
-            //    OARFISH_BAMBU( ch_bambu_transcripts, ch_transcriptome_minimap2_index, ch_sequencing_type, 'bambu' )
-            //}
+            if (!params.skip_bambu) {
+                OARFISH_BAMBU( ch_bambu_transcripts, ch_transcriptome_minimap2_index, ch_sequencing_type, 'bambu' )
+            }
             if (!params.skip_isoquant) {
                 OARFISH_ISOQUANT( ch_isoquant_transcripts, ch_transcriptome_minimap2_index, ch_sequencing_type, 'isoquant' )
             }

@@ -27,18 +27,18 @@ workflow{
     // nf-scheme validations
     //
 
-   // validateParameters()
+    validateParameters()
+
     log.info paramsSummaryLog(workflow)
 
     if (params.help) {
         log.info paramsHelp(
-            beforeText: "Welcome to LongTranscriptomics, I see you are seeking help.",
+            beforeText: "Welcome to LongTranscriptomics, I see you are seeking help. ",
             afterText: "Farewell, hopefully this was helpful.",
             command: "nextflow run . -profile <profile> --outdir <outdir>",
         )
         exit 0
     }
-
 
     DIRECTRNA ()
 }
@@ -52,18 +52,6 @@ workflow {
 
     main:
 
-    //
-    // SUBWORKFLOW: Run initialisation tasks
-    /*
-    PIPELINE_INITIALISATION (
-        params.version,
-        params.help,
-        params.validate_params,
-        params.monochrome_logs,
-        args,
-        params.outdir,
-        params.input
-    )
     PIPELINE_COMPLETION (
         params.email,
         params.email_on_fail,

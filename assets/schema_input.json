@@ -1,5 +1,5 @@
 {
-    "$schema": "http://json-schema.org/draft/2020-12/schema",
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
     "$id": "https://raw.githubusercontent.com/number-25/LongTranscriptomics/dev/assets/schema_input.json",
     "title": "number-25/LongTranscriptomics pipeline - params.input schema",
     "description": "Schema for the file provided with params.input",
@@ -15,18 +15,18 @@
             },
             "replicate": {
                 "type": "integer",
-                "pattern": "\d+",
+                "pattern": "\\d+",
                 "errorMessage": "Replicate must be an integer",
                 "meta": ["replicate"]
             },
-            "fastq": {
+            "reads": {
                 "type": "string",
                 "format": "file-path",
                 "exists": true,
                 "pattern": "^\\S+\\.f(ast)?q\\.gz$",
-                "errorMessage": "FastQ file must be provided, cannot contain spaces and must have extension '.fq.gz' or '.fastq.gz'"
+                "errorMessage": "FastQ/BAM file must be provided, cannot contain spaces and must have extension '.fq.gz', '.fastq.gz' or '.bam'"
             }
         },
-        "required": ["sample", "fastq"]
+        "required": ["sample", "reads"]
     }
 }

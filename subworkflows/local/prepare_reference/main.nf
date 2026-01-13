@@ -12,12 +12,10 @@ include { SQANTI_PREPARE_REFERENCE                  } from '../../local/sqanti/s
 include { JAFFAL_PREPARE_REFERENCE                  } from '../../local/jaffal_prepare_reference'
 include { UNZIP                                     } from '../../../modules/local/unzip/unzip'
 
-// prepare additional files
-//TO-DO make these modules
+//optional modules down the line
 //include { GXF2BED as GTF_TO_BED } from '../../../modules/local/gxf2bed' // gxf2bed module
 //include { BIGWIG_TO_WIG } from '../../../modules/local/bigwigtowig'
 //include { BEDOPS as WIG_TO_BED } from '../../../modules/local/bedops'
-//include { SAMTOOLS_SORT } from '../../../modules/nf-core/samtools/sort/main'
 
 workflow PREPARE_REFERENCE{
 
@@ -60,8 +58,6 @@ workflow PREPARE_REFERENCE{
             ch_genome_fasta = GUNZIP_FASTA( [ [:], file(genome_fasta, checkIfExists: true) ]).gunzip.map { it[1] }
             ch_versions = ch_versions.mix(GUNZIP_FASTA.out.versions)
         } else {
-    //which one below?
-            //ch_genome_fasta = Channel.value(file(genome_fasta), checkIfExists: true)
             ch_genome_fasta = Channel.fromPath(genome_fasta, checkIfExists: true)
         }
     }
@@ -91,7 +87,6 @@ workflow PREPARE_REFERENCE{
             ch_transcriptome_fasta = GUNZIP_TRANSCRIPTOME( [ [:], file(transcriptome_fasta, checkIfExists: true) ] ).gunzip.map { it[1] }
             ch_versions = ch_versions.mix(GUNZIP_TRANSCRIPTOME.out.versions)
 } else {
-            //ch_transcriptome_fasta = Channel.value(file(transcriptome_fasta), checkIfExists: true)
             ch_transcriptome_fasta = Channel.fromPath(params.transcriptome_fasta, checkIfExists: true)
         }
     }
@@ -103,7 +98,6 @@ workflow PREPARE_REFERENCE{
             ch_annotation_gtf = GUNZIP_ANNOTATION_GTF( [ [:], file(annotation_gtf, checkIfExists: true) ] ).gunzip.map { it[1] }
             ch_versions = ch_versions.mix(GUNZIP_ANNOTATION_GTF.out.versions)
         } else {
-//            ch_annotation_gtf = Channel.value(file(annotation_gtf), checkIfExists: true)
             ch_annotation_gtf = Channel.fromPath(params.annotation_gtf, checkIfExists: true)
         }
     }
@@ -111,13 +105,11 @@ workflow PREPARE_REFERENCE{
     // Initialise genome minimap2 index if provided
     // If bam input is provided, skip minimap2 genome indexing
     if (!bam_input) {
-        //if (genome_minimap2_index == null) {
         if (!genome_minimap2_index) {
             MINIMAP2_GENOME_INDEX( ch_genome_fasta )
             ch_genome_minimap2_index = MINIMAP2_GENOME_INDEX.out.index
             ch_versions = ch_versions.mix(MINIMAP2_GENOME_INDEX.out.versions)
         } else {
-            //ch_genome_minimap2_index = Channel.value(file(genome_minimap2_index), checkIfExists: true)
             ch_genome_minimap2_index = Channel.fromPath(params.genome_minimap2_index, checkIfExists: true)
         }
     } else {
@@ -127,13 +119,11 @@ workflow PREPARE_REFERENCE{
     // Initialise transcriptome minimap2 index if provided
     // If bam input is provided, skip minimap2 transcriptome indexing
     if (!skip_transcript_quantification) {
-        //if (genome_minimap2_index == null) {
         if (!transcriptome_minimap2_index) {
             MINIMAP2_TXOME_INDEX( ch_transcriptome_fasta )
             ch_transcriptome_minimap2_index = MINIMAP2_TXOME_INDEX.out.index
             ch_versions = ch_versions.mix(MINIMAP2_TXOME_INDEX.out.versions)
         } else {
-            //ch_genome_minimap2_index = Channel.value(file(genome_minimap2_index), checkIfExists: true)
             ch_transcriptome_minimap2_index = Channel.fromPath(params.transcriptome_minimap2_index, checkIfExists: true)
         }
     } else {
@@ -183,7 +173,6 @@ workflow PREPARE_REFERENCE{
     } else {
         ch_jaffal_reference_dir = null
     }
-
 
     emit:
     genome_fasta                    = ch_genome_fasta

@@ -74,7 +74,6 @@
                 },
                 "help": {
                     "type": "boolean",
-                    "default": false,
                     "description": "Show the help message for the pipeline.",
                     "fa_icon": "fas fa-question-circle",
                     "help_text": "Welcome to LongTranscriptomics, I see you are seeking help, these are  a list of basic parameters."
