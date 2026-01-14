@@ -56,7 +56,7 @@ First, prepare a samplesheet with your input data that looks as follows:
 `samplesheet.csv`:
 
 ```csv
-sample,replicate,read_path
+sample,replicate,reads
 CONTROL1,1,data/long_reads_1.fastq.gz
 CONTROL1,2,data/long_reads_2.fastq.gz
 ```
