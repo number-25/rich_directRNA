@@ -19,7 +19,7 @@ The pipeline will auto-detect whether the sequencing summary files, and reads ar
 A final samplesheet file consisting of long-read data may look something like the one below. This is for **one biological** sample which has been sequenced twice, giving two technical replicates.
 
 ```csv title="samplesheet.csv"
-sample,replicate,read_path
+sample,replicate,reads
 CONTROL1,1,data/long_reads_1.fastq.gz
 CONTROL1,2,data/long_reads_2.fastq.gz
 ```
@@ -28,7 +28,7 @@ CONTROL1,2,data/long_reads_2.fastq.gz
 | ----------- | -------------------------- |
 | `sample`    | Sample name.               |
 | `replicate` | Technical replicate number |
-| `read_path` | Full path to fastq reads.  |
+| `reads` | Full path to fastq reads.  |
 
 An [example samplesheet](../assets/samplesheet.csv) has been provided with the pipeline.
 
