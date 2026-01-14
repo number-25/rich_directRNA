@@ -82,7 +82,7 @@
                     "type": "string",
                     "default": "ont-drna",
                     "description": "Type of Oxford Nanopore library.",
-                    "help_text": "Type of Oxford nanopore library. Either 'ont-drna' or 'ont-cdna'",
+                    "help_text": "Type of Oxford nanopore library. Either 'ont-drna' or 'ont-cdna'.",
                     "fa_icon": "fas fa-font"
                 }
             }

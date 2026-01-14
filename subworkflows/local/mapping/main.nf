@@ -12,8 +12,8 @@ workflow MAPPING {
 
     take:
     ch_sample // channel: [ val(meta), [ fastqpath ] ]
-    ch_genome_fasta // channel: [ genome reference path ]
     ch_genome_minimap2_idx  // channel: [minimap2 genome index ]
+    ch_transcriptome_minimap2_idx // channel [minimap2 transcriptome index ]
 
     main:
 

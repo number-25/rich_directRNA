@@ -9,17 +9,10 @@ process MINIMAP2_ALIGN {
     input:
     tuple val(meta), path(fastq)
     path(genome_index)
-    // tuple val(meta2), path(reference)
-    // val bam_format
-    // val bam_index_extension
-    // val cigar_paf_format
-    // val cigar_bam
 
     output:
-    //tuple val(meta), path("*.paf")                       , optional: true, emit: paf
-    tuple val(meta), path("*.sam")                       , optional: true, emit: sam
-    //tuple val(meta), path("*.bam.${bam_index_extension}"), optional: true, emit: index
-    path "versions.yml"                                  , emit: versions
+    tuple val(meta), path("*.sam")  , optional: true, emit: sam
+    path "versions.yml"             , emit: versions
 
     when:
     task.ext.when == null || task.ext.when
@@ -28,29 +21,13 @@ process MINIMAP2_ALIGN {
     // This can be expanded eventually to allow cDNA mapping, etc.
     def args        = task.ext.args ?: ''
     def prefix      = task.ext.prefix ?: "${meta.id}_${meta.replicate}_minimap2"
-    def dRNA_preset = task.ext.dRNA_preset ?: "-ax splice -uf"
-    def kmer        = task.ext.kmer ?: "-k 14"
-    //def mismatch_tag = (params.talon ) ? "--MD"
-    /*
-    def args2 = task.ext.args2 ?: ''
-    def args3 = task.ext.args3 ?: ''
-    def args4 = task.ext.args4 ?: ''
-    def bam_index = bam_index_extension ? "${prefix}.bam##idx##${prefix}.bam.${bam_index_extension} --write-index" : "${prefix}.bam"
-    def bam_output = bam_format ? "-a | samtools sort -@ ${task.cpus-1} -o ${bam_index} ${args2}" : "-o ${prefix}.paf"
-    def cigar_paf = cigar_paf_format && !bam_format ? "-c" : ''
-    def set_cigar_bam = cigar_bam && bam_format ? "-L" : ''
-    def bam_input = "${reads.extension}".matches('sam|bam|cram')
-    def samtools_reset_fastq = bam_input ? "samtools reset --threads ${task.cpus-1} $args3 $reads | samtools fastq --threads ${task.cpus-1} $args4 |" : ''
-    def query = bam_input ? "-" : reads
-    def target = reference ?: (bam_input ? error("BAM input requires reference") : reads)
-    */
+    //def dRNA_preset = task.ext.dRNA_preset ?: "-ax splice -uf"
+    def preset      = (params.sequencing_type == 'ont-drna') ?: "-ax splice -uf" : "-ax splice"
+    def kmer        = (params.sequencing_type == 'ont-drna') ?: "-k 14" : ""
 
-    //$samtools_reset_fastq \\
-    // $set_cigar_bam \\
-    // $bam_output
     """
     minimap2 \\
-        ${dRNA_preset} \\
+        ${preset} \\
         ${kmer} \\
         -t ${task.cpus} \\
         ${genome_index} \\
@@ -66,12 +43,8 @@ process MINIMAP2_ALIGN {
 
     stub:
     def prefix      = task.ext.prefix ?: "${meta.id}_${meta.replicate}_minimap2"
-    def dRNA_preset = task.ext.dRNA_preset ?: "-ax splice -uf"
-    def kmer        = task.ext.kmer ?: "-k 14"
-    //def output_file = bam_format ? "${prefix}.bam" : "${prefix}.paf"
-    //def bam_index = bam_index_extension ? "touch ${prefix}.bam.${bam_index_extension}" : ""
-    //def bam_input = "${reads.extension}".matches('sam|bam|cram')
-    //def target = reference ?: (bam_input ? error("BAM input requires reference") : reads)
+    def preset      = (params.sequencing_type == 'ont-drna') ?: "-ax splice -uf" : "-ax splice"
+    def kmer        = (params.sequencing_type == 'ont-drna') ?: "-k 14" : ""
 
     """
     touch ${prefix}.sam

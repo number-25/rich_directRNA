@@ -250,9 +250,10 @@ workflow DIRECTRNA{
 
     // Mapping and sorting
     // SUBWORKFLOW: MAPPING
-    //
+    // TODO mapping to transcriptome
     if (!params.bam_input) {
-        MAPPING( ch_sample, ch_genome_fasta, ch_genome_minimap2_index )
+        MAPPING( ch_sample, ch_genome_fasta, ch_genome_minimap2_index,
+        ch_transcriptome_minimap2_index )
         ch_bam = MAPPING.out.bam
         ch_bam_index = MAPPING.out.bai
         ch_bam_index_path = MAPPING.out.bai.flatten().last()

@@ -28,7 +28,7 @@ CONTROL1,2,data/long_reads_2.fastq.gz
 | ----------- | -------------------------- |
 | `sample`    | Sample name.               |
 | `replicate` | Technical replicate number |
-| `reads` | Full path to fastq reads.  |
+| `reads`     | Full path to fastq reads.  |
 
 An [example samplesheet](../assets/samplesheet.csv) has been provided with the pipeline.
 
