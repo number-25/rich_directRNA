@@ -18,12 +18,10 @@ process MINIMAP2_ALIGN {
     task.ext.when == null || task.ext.when
 
     script:
-    // This can be expanded eventually to allow cDNA mapping, etc.
     def args        = task.ext.args ?: ''
     def prefix      = task.ext.prefix ?: "${meta.id}_${meta.replicate}_minimap2"
-    //def dRNA_preset = task.ext.dRNA_preset ?: "-ax splice -uf"
-    def preset      = (params.sequencing_type == 'ont-drna') ?: "-ax splice -uf" : "-ax splice"
-    def kmer        = (params.sequencing_type == 'ont-drna') ?: "-k 14" : ""
+    def preset      = (params.sequencing_type == 'ont-drna') ? "-ax splice -uf" : "-ax splice"
+    def kmer        = (params.sequencing_type == 'ont-drna') ? "-k 14" : ""
 
     """
     minimap2 \\
@@ -39,12 +37,11 @@ process MINIMAP2_ALIGN {
         minimap2: \$(minimap2 --version 2>&1)
     END_VERSIONS
     """
-    //samtools: \$(echo \$(samtools --version 2>&1) | sed 's/^.*samtools //; s/Using.*\$//')
 
     stub:
     def prefix      = task.ext.prefix ?: "${meta.id}_${meta.replicate}_minimap2"
-    def preset      = (params.sequencing_type == 'ont-drna') ?: "-ax splice -uf" : "-ax splice"
-    def kmer        = (params.sequencing_type == 'ont-drna') ?: "-k 14" : ""
+    def preset      = (params.sequencing_type == 'ont-drna') ? "-ax splice -uf" : "-ax splice"
+    def kmer        = (params.sequencing_type == 'ont-drna') ? "-k 14" : ""
 
     """
     touch ${prefix}.sam

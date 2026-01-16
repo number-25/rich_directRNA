@@ -16,7 +16,7 @@
 
 <!-- Additionally, it performs post transcriptome reconstruction assessment, and recovery. -->
 
-The pipeline currently _only_ accepts sequencing data from directRNA Oxford
+The pipeline accepts sequencing data from both directRNA and cDNA Oxford
 Nanopore Technologies (ONT) libraries. It is recommended to provide raw FASTQ
 files to the pipeline, however, it will also accept already mapped sequencing
 reads in BAM format. These are provided to the samplesheet as input.

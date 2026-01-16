@@ -173,18 +173,20 @@ workflow DIRECTRNA{
 
     // QC of fastq files
     /// MODULES: NANOQ & SEQUALI
-    if (!params.skip_qc || !params_bam_input) {
-        if (!params.skip_nanoq) {
-            NANOQ( ch_sample )
-            ch_nanoq_stats = NANOQ.out.stats.collect{it[1]}.flatten()
-            ch_multiqc_files = ch_multiqc_files.mix(ch_nanoq_stats.ifEmpty([]))
-            ch_versions = ch_versions.mix(NANOQ.out.versions.first())
-        }
-        if (!params.skip_sequali) {
-            SEQUALI( ch_sample )
-            ch_sequali_stats = SEQUALI.out.sequali_json.collect{it[1]}.flatten()
-            ch_multiqc_files = ch_multiqc_files.mix(ch_sequali_stats.ifEmpty([]))
-            ch_versions = ch_versions.mix(SEQUALI.out.versions.first())
+    if (!params.skip_qc) {
+        if (!params.bam_input) {
+            if (!params.skip_nanoq) {
+                NANOQ( ch_sample )
+                ch_nanoq_stats = NANOQ.out.stats.collect{it[1]}.flatten()
+                ch_multiqc_files = ch_multiqc_files.mix(ch_nanoq_stats.ifEmpty([]))
+                ch_versions = ch_versions.mix(NANOQ.out.versions.first())
+            }
+            if (!params.skip_sequali) {
+                SEQUALI( ch_sample )
+                ch_sequali_stats = SEQUALI.out.sequali_json.collect{it[1]}.flatten()
+                ch_multiqc_files = ch_multiqc_files.mix(ch_sequali_stats.ifEmpty([]))
+                ch_versions = ch_versions.mix(SEQUALI.out.versions.first())
+            }
         }
     }
 
@@ -252,7 +254,7 @@ workflow DIRECTRNA{
     // SUBWORKFLOW: MAPPING
     // TODO mapping to transcriptome
     if (!params.bam_input) {
-        MAPPING( ch_sample, ch_genome_fasta, ch_genome_minimap2_index,
+        MAPPING( ch_sample, ch_genome_minimap2_index,
         ch_transcriptome_minimap2_index )
         ch_bam = MAPPING.out.bam
         ch_bam_index = MAPPING.out.bai
@@ -263,8 +265,7 @@ workflow DIRECTRNA{
         ch_bam = ch_sample
         SAMTOOLS_INDEX( ch_bam )
         ch_bam_index = SAMTOOLS_INDEX.out.bai
-        ch_bam_index_path = MAPPING.out.bai.flatten().last()
-        ch_mixed_bam = ch_bam.combine(ch_bam_index_path)
+        ch_mixed_bam = ch_bam.combine(ch_bam_index)
     }
 
     // BAM TO BIGWIG for visualisation

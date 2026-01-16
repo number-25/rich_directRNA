@@ -27,6 +27,10 @@
                     "type": "string",
                     "description": "Path to reference genome minimap2 index."
                 },
+                "transcriptome_mapping": {
+                    "type": "boolean",
+                    "description": "Map to reference transcriptome instead of genome."
+                },
                 "transcriptome_fasta": {
                     "type": "string",
                     "description": "Path to transcriptome fasta sequence."
@@ -44,7 +48,13 @@
                     "description": "Skip the preparation of the reference files."
                 }
             },
-            "required": ["genome_fasta", "transcriptome_fasta", "annotation_gtf"],
+            "required": [
+                "genome_fasta",
+                "transcriptome_fasta",
+                "annotation_gtf",
+                "transcriptome_mapping",
+                "skip_prepare_reference"
+            ],
             "fa_icon": "fas fa-book-open"
         },
         "input_output_options": {
@@ -381,7 +391,8 @@
                     "type": "boolean",
                     "description": "Skip OARFISH transcript quantification."
                 }
-            }
+            },
+            "required": ["bam_input"]
         }
     },
     "allOf": [
