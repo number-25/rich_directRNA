@@ -1,7 +1,6 @@
 process NGS_BITS {
     tag "$meta.id"
     label 'process_medium'
-
     conda "${moduleDir}/environment.yml"
     container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
         'https://depot.galaxyproject.org/singularity/ngs-bits:2025_01--py313h6fdbb3c_0':

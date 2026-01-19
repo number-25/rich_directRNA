@@ -48,13 +48,7 @@
                     "description": "Skip the preparation of the reference files."
                 }
             },
-            "required": [
-                "genome_fasta",
-                "transcriptome_fasta",
-                "annotation_gtf",
-                "transcriptome_mapping",
-                "skip_prepare_reference"
-            ],
+            "required": ["genome_fasta", "transcriptome_fasta", "annotation_gtf"],
             "fa_icon": "fas fa-book-open"
         },
         "input_output_options": {
@@ -391,8 +385,7 @@
                     "type": "boolean",
                     "description": "Skip OARFISH transcript quantification."
                 }
-            },
-            "required": ["bam_input"]
+            }
         }
     },
     "allOf": [
