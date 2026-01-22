@@ -131,6 +131,10 @@ include { GFFCOMPARE as GFFCOMPARE_BAMBU          } from '../modules/local/gffco
 include { GFFCOMPARE as GFFCOMPARE_ISOQUANT       } from '../modules/local/gffcompare/gffcompare'
 include { GFFCOMPARE as GFFCOMPARE_STRINGTIE      } from '../modules/local/gffcompare/gffcompare'
 
+include { PROFILE_UNMAPPED_READS                } from '../subworkflows/local/profile_unmapped_reads'
+include { SAMTOOLS_VIEW                         } from '../modules/local/samtools/view'
+
+
 // Going to be a bit of a long-think
 //include { SQANTI_PREPARE_REFERENCE                  } from '../subworkflows/local/sqanti/'
 //include { QC_SQANTI as SQANTI_QC_FLAIR              } from '../subworkflows/local/sqanti/qc'
@@ -260,11 +264,14 @@ workflow DIRECTRNA{
         ch_bam_index = MAPPING.out.bai
         ch_bam_index_path = MAPPING.out.bai.flatten().last()
         ch_mixed_bam = ch_bam.combine(ch_bam_index_path)
+        ch_unmapped_bam = MAPPING.out.unmapped_bam
         ch_versions = ch_versions.mix(MAPPING.out.versions.first())
     } else {
         ch_bam = ch_sample
         SAMTOOLS_INDEX( ch_bam )
         ch_bam_index = SAMTOOLS_INDEX.out.bai.flatten().last()
+        SAMTOOLS_VIEW( ch_bam )
+        ch_unmapped_bam = SAMTOOLS_VIEW.out.unmapped_bam
         ch_mixed_bam = ch_bam.combine(ch_bam_index)
     }
 
@@ -458,6 +465,12 @@ workflow DIRECTRNA{
         }
     }
 
+    // PROFILE UNMAPPED READS
+    if (!params.skip_sylph) {
+        ch_sylph_database_url = channel.value(params.sylph_database_url)
+        ch_sylph_database_name = channel.value(params.sylph_database_name)
+        PROFILE_UNMAPPED_READS( ch_sylph_database_url, ch_unmapped_bam, ch_sylph_database_name )
+    }
     //
     // Collate statistics
     //

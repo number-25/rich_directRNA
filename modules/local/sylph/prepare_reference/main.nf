@@ -1,20 +1,16 @@
-process CURL {
-    tag "$download"
-    label 'process_single'
+process SYLPH_PREPARE_REFERENCE {
+    tag "SYLPH_REFERENCE"
+    label 'process_low'
     conda "${moduleDir}/environment.yml"
     container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
         'docker://ricsanfre/docker-curl-jq:latest':
         'docker://ricsanfre/docker-curl-jq:latest' }"
-        //'docker://quay.io/curl/curl:8.14.1' }"
 
     input:
-    val prefix
-    val suffix
     val url
-    //tuple val(meta), path(archive)
 
     output:
-    path("*.zip"),          emit: curl
+    path("*.syldb"),        emit: database
     path "versions.yml",    emit: versions
 
     when:
@@ -31,8 +27,7 @@ process CURL {
     """
     curl \\
         $mimic_browser \\
-        -L $url \\
-        -o ${prefix}.${suffix}
+        -L $url
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
@@ -49,7 +44,7 @@ process CURL {
     //def prefix      = task.ext.prefix ?: name
     //gunzip          = prefix + ".$extension"
     """
-    touch ${prefix}.${suffix}
+    touch "*.syldb"
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
         curl: \$(curl --version | cut -d" " -f2 | head -n1)

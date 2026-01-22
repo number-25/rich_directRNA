@@ -384,6 +384,20 @@
                 "skip_oarfish": {
                     "type": "boolean",
                     "description": "Skip OARFISH transcript quantification."
+                },
+                "sylph_database_url": {
+                    "type": "string",
+                    "default": "http://faust.compbio.cs.cmu.edu/sylph-stuff/gtdb-r226-c1000-dbv1.syldb",
+                    "description": "URL to sylph prebuild database used for downloads - from https://sylph-docs.github.io/pre%E2%80%90built-databases/ ."
+                },
+                "skip_sylph": {
+                    "type": "boolean",
+                    "description": "Skip sylph profiling of unmapped reads."
+                },
+                "sylph_database_name": {
+                    "type": "string",
+                    "default": "GTDB_r226",
+                    "description": "Name of sylph database, must be identical to those given in https://sylph-docs.github.io/pre%E2%80%90built-databases/ , with spaces replaced with underscores."
                 }
             }
         }
