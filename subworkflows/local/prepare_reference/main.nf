@@ -35,6 +35,7 @@ workflow PREPARE_REFERENCE{
     skip_jaffal_download            // boolean: skip jaffal fusion gene detection [default: false]
     jaffal_reference                // file: /path/to/jaffal_reference
     skip_transcript_quantification  // boolean: skip all transcript quantification [default: false]
+    skip_sylph                      // boolean: false [default: false]
     skip_sqanti_all                 // boolean: skip all of sqanti [default: false]
     skip_sqanti_qc                  // boolean: skip sqanti qc [default: false]
     sqanti_qc_reference             // boolean: three values options [mouse, human, custom]
@@ -130,6 +131,11 @@ workflow PREPARE_REFERENCE{
         ch_transcriptome_minimap2_index = null
     }
 
+    // Prepare reference database for sylph
+    if (!params.skip_sylph) {
+        ch_sylph_database = Channel.fromPath(params.sylph_database, checkIfExists: true)
+    }
+
     // Prepare references for SQANTI QC
     if (!skip_sqanti_all || !skip_sqanti_qc) {
         SQANTI_PREPARE_REFERENCE(
@@ -182,6 +188,7 @@ workflow PREPARE_REFERENCE{
     transcriptome_fasta             = ch_transcriptome_fasta
     transcriptome_minimap2_index    = ch_transcriptome_minimap2_index
     annotation_gtf                  = ch_annotation_gtf
+    sylph_database                  = ch_sylph_database
     sqanti_qc_cage_bed              = ch_sqanti_qc_cage_bed
     sqanti_qc_polyA_sites_bed       = ch_sqanti_qc_polyA_sites_bed
     sqanti_qc_polyA_motif           = ch_sqanti_qc_polyA_motif

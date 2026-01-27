@@ -210,6 +210,7 @@ workflow DIRECTRNA{
             params.skip_jaffal_download,    // boolean [default: false]
             params.jaffal_reference,        // path
             params.skip_transcript_quantification, // boolean [default: false]
+            params.skip_sylph,              // boolean [default: false]
             params.skip_sqanti_all,         // boolean [default: false]
             params.skip_sqanti_qc,          // boolean [defeault: false]
             params.sqanti_qc_reference,     // value: human, mouse or custom
@@ -230,6 +231,7 @@ workflow DIRECTRNA{
         ch_transcriptome_fasta          = PREPARE_REFERENCE.out.transcriptome_fasta
         ch_transcriptome_minimap2_index = PREPARE_REFERENCE.out.transcriptome_minimap2_index
         ch_annotation_gtf               = PREPARE_REFERENCE.out.annotation_gtf
+        ch_sylph_database               = PREPARE_REFERENCE.out.sylph_database
         ch_jaffal_reference_dir         = PREPARE_REFERENCE.out.jaffal_reference
         // Combine genome fasta with genome fasta index into single channel -
         // some software expect both files in a single path/channel
@@ -260,17 +262,18 @@ workflow DIRECTRNA{
     if (!params.bam_input) {
         MAPPING( ch_sample, ch_genome_minimap2_index,
         ch_transcriptome_minimap2_index )
-        ch_bam = MAPPING.out.bam
+        ch_bam = MAPPING.out.bam.view()
         ch_bam_index = MAPPING.out.bai
-        ch_bam_index_path = MAPPING.out.bai.flatten().last()
+        ch_bam_index_path = MAPPING.out.bai.flatten().last().view()
         ch_mixed_bam = ch_bam.combine(ch_bam_index_path)
         ch_unmapped_bam = MAPPING.out.unmapped_bam
         ch_versions = ch_versions.mix(MAPPING.out.versions.first())
     } else {
         ch_bam = ch_sample
-        SAMTOOLS_INDEX( ch_bam )
+        ch_bam.view()
+        SAMTOOLS_INDEX( ch_sample )
         ch_bam_index = SAMTOOLS_INDEX.out.bai.flatten().last()
-        SAMTOOLS_VIEW( ch_bam )
+        SAMTOOLS_VIEW( ch_sample )
         ch_unmapped_bam = SAMTOOLS_VIEW.out.unmapped_bam
         ch_mixed_bam = ch_bam.combine(ch_bam_index)
     }
@@ -330,20 +333,20 @@ workflow DIRECTRNA{
     if (!params.bam_input) {
         if (!params.skip_flair) {
             if (!params.skip_flair_correct) {
-                BAM_TO_BED12( ch_bam, ch_bam_index )
+                BAM_TO_BED12( ch_bam, ch_bam_index_path )
                 ch_mapped_bed = BAM_TO_BED12.out.bed
                 FLAIR_CORRECT( ch_mapped_bed, ch_genome_fasta, ch_annotation_gtf )
                 ch_flair_corrected_bed = FLAIR_CORRECT.out.flair_corrected_bed
                 BEDTOOLS_JACCARD_FLAIR( ch_flair_corrected_bed, ch_mapped_bed, 'flair' )
             }
-            if (!params.skip_flair_collapse) {
+        if (!params.skip_flair_collapse) {
                 if (!params.skip_flair_correct) {
                     FLAIR_COLLAPSE( ch_sample, ch_flair_corrected_bed, ch_annotation_gtf, ch_genome_fasta )
                     ch_flair_collapsed_bed = FLAIR_COLLAPSE.out.collapsed_isoforms_bed
                     ch_flair_collapsed_gtf = FLAIR_COLLAPSE.out.collapsed_isoforms_gtf
                     ch_flair_collapsed_fa = FLAIR_COLLAPSE.out.collapsed_isoforms_fa
                 } else {
-                    BAM_TO_BED12( ch_bam, ch_bam_index )
+                    BAM_TO_BED12( ch_bam, ch_bam_index_path )
                     ch_mapped_bed = BAM_TO_BED12.out.bed
                     FLAIR_COLLAPSE( ch_sample, ch_mapped_bed, ch_annotation_gtf, ch_genome_fasta )
                     ch_flair_collapsed_bed = FLAIR_COLLAPSE.out.collapsed_isoforms_bed
@@ -467,9 +470,10 @@ workflow DIRECTRNA{
 
     // PROFILE UNMAPPED READS
     if (!params.skip_sylph) {
-        ch_sylph_database_url = channel.value(params.sylph_database_url)
         ch_sylph_database_name = channel.value(params.sylph_database_name)
-        PROFILE_UNMAPPED_READS( ch_sylph_database_url, ch_unmapped_bam, ch_sylph_database_name )
+        PROFILE_UNMAPPED_READS( ch_sylph_database, ch_unmapped_bam, ch_sylph_database_name )
+        ch_sylph_tax = PROFILE_UNMAPPED_READS.out.sylph_tax
+        ch_multiqc_files = ch_multiqc_files.mix(ch_sylph_tax.ifEmpty([]))
     }
     //
     // Collate statistics

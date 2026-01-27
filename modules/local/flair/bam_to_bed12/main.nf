@@ -8,7 +8,7 @@ process BAM_TO_BED12 {
 
     input:
     tuple val(meta), path(mapped_bam)
-    path(mapped_bam_index)
+    path mapped_bam_index
     //tuple val(meta), path(mapped_bam_index)
 
     output:

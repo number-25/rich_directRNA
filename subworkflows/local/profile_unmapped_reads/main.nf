@@ -1,11 +1,11 @@
-include { SYLPH_PREPARE_REFERENCE   } from '../../../modules/local/sylph/prepare_reference'
+//include { SYLPH_PREPARE_REFERENCE   } from '../../../modules/local/sylph/prepare_reference'
 include { SYLPH_PROFILE             } from '../../../modules/local/sylph/profile'
 include { SYLPH_TAX                 } from '../../../modules/local/sylph/tax'
 
 workflow PROFILE_UNMAPPED_READS {
 
     take:
-    sylph_database_url
+    sylph_database
     unmapped_reads
     sylph_database_name
 
@@ -13,10 +13,9 @@ workflow PROFILE_UNMAPPED_READS {
 
     ch_versions = Channel.empty()
 
-    SYLPH_PREPARE_REFERENCE( sylph_database_url )
-    ch_sylph_database = SYLPH_PREPARE_REFERENCE.out.database
+    //ch_sylph_database = SYLPH_PREPARE_REFERENCE.out.database
 
-    SYLPH_PROFILE( unmapped_reads, ch_sylph_database )
+    SYLPH_PROFILE( unmapped_reads, sylph_database )
     ch_sylph_profile = SYLPH_PROFILE.out.sylph_profile
 
     SYLPH_TAX( ch_sylph_profile, sylph_database_name )
