@@ -108,18 +108,12 @@ include { GFFREAD_GETFASTA as GFFREAD_GETFASTA_STRINGTIE} from '../modules/local
 // fusion gene detection
 include { JAFFAL                    } from '../modules/local/jaffal/bpipe'
 
-// transcript quantification
-//include { MINIMAP2_TXOME_ALIGN as MINIMAP2_FLAIR        } from '../modules/local/minimap2_txome_align
-//include { MINIMAP2_TXOME_ALIGN as MINIMAP2_BAMBU        } from '../modules/local/minimap2_txome_align
-//include { MINIMAP2_TXOME_ALIGN as MINIMAP2_ISOQUANT     } from '../modules/local/minimap2_txome_align
-//include { MINIMAP2_TXOME_ALIGN as MINIMAP2_STRINGTIE    } from '../modules/local/minimap2_txome_align
 // OARFISH
 include { OARFISH as OARFISH_FLAIR                      } from '../modules/local/oarfish/raw_read'
 include { OARFISH as OARFISH_BAMBU                      } from '../modules/local/oarfish/raw_read'
 include { OARFISH as OARFISH_ISOQUANT                   } from '../modules/local/oarfish/raw_read'
 include { OARFISH as OARFISH_STRINGTIE                  } from '../modules/local/oarfish/raw_read'
 // TRANSIGNER
-//include { TRANSIGNER as TRANSIGNER_FLAIR                } from '../modules/local/transigner/align'
 
 // transcriptome assessment
 // JACCARD for tools using read correction
@@ -132,8 +126,7 @@ include { GFFCOMPARE as GFFCOMPARE_ISOQUANT       } from '../modules/local/gffco
 include { GFFCOMPARE as GFFCOMPARE_STRINGTIE      } from '../modules/local/gffcompare/gffcompare'
 
 include { PROFILE_UNMAPPED_READS                } from '../subworkflows/local/profile_unmapped_reads'
-include { SAMTOOLS_VIEW                         } from '../modules/local/samtools/view'
-
+include { SAMTOOLS_FASTA                        } from '../modules/local/samtools/fasta'
 
 // Going to be a bit of a long-think
 //include { SQANTI_PREPARE_REFERENCE                  } from '../subworkflows/local/sqanti/'
@@ -204,6 +197,7 @@ workflow DIRECTRNA{
             params.genome_minimap2_index,
             params.bam_input,
             params.transcriptome_fasta,
+            params.transcriptome_fasta_index,
             params.transcriptome_minimap2_index,
             params.annotation_gtf,
             params.skip_jaffal,             // boolean [default: false]
@@ -229,13 +223,16 @@ workflow DIRECTRNA{
         ch_genome_sizes                 = PREPARE_REFERENCE.out.genome_fasta_sizes
         ch_genome_minimap2_index        = PREPARE_REFERENCE.out.genome_minimap2_index
         ch_transcriptome_fasta          = PREPARE_REFERENCE.out.transcriptome_fasta
+        ch_transcriptome_fasta_index    = PREPARE_REFERENCE.out.transcriptome_fasta_index
         ch_transcriptome_minimap2_index = PREPARE_REFERENCE.out.transcriptome_minimap2_index
         ch_annotation_gtf               = PREPARE_REFERENCE.out.annotation_gtf
         ch_sylph_database               = PREPARE_REFERENCE.out.sylph_database
         ch_jaffal_reference_dir         = PREPARE_REFERENCE.out.jaffal_reference
         // Combine genome fasta with genome fasta index into single channel -
         // some software expect both files in a single path/channel
-        ch_genome_fasta_with_index = ch_genome_fasta.combine(ch_genome_fasta_index)
+        ch_genome_fasta_with_index          = ch_genome_fasta.combine(ch_genome_fasta_index)
+        ch_transcriptome_fasta_with_index   = ch_transcriptome_fasta.combine(ch_transcriptome_fasta_index)
+
 
         // initialize sqanti qc references
         if (!params.skip_sqanti_qc) {
@@ -266,27 +263,30 @@ workflow DIRECTRNA{
         ch_bam_index = MAPPING.out.bai
         ch_bam_index_path = MAPPING.out.bai.flatten().last().view()
         ch_mixed_bam = ch_bam.combine(ch_bam_index_path)
-        ch_unmapped_bam = MAPPING.out.unmapped_bam
+        SAMTOOLS_FASTA( ch_bam )
+        ch_unmapped_reads = SAMTOOLS_FASTA.out.fasta
         ch_versions = ch_versions.mix(MAPPING.out.versions.first())
     } else {
         ch_bam = ch_sample
         ch_bam.view()
         SAMTOOLS_INDEX( ch_sample )
         ch_bam_index = SAMTOOLS_INDEX.out.bai.flatten().last()
-        SAMTOOLS_VIEW( ch_sample )
-        ch_unmapped_bam = SAMTOOLS_VIEW.out.unmapped_bam
-        ch_mixed_bam = ch_bam.combine(ch_bam_index)
+        SAMTOOLS_FASTA( ch_sample )
+        ch_unmapped_reads = SAMTOOLS_FASTA.out.fasta
+        ch_mixed_bam = ch_bam.combine(ch_bam_index).view()
     }
 
     // BAM TO BIGWIG for visualisation
     // uses SUBWORKFLOW: BEDGRAPH_BEDCLIP_BEDGRAPHTOBIGWIG
     if (!params.skip_bam_to_bigwig) {
+        if (!params.transcriptome_mapping) {
         BAM_TO_BEDGRAPH_FW( ch_bam, ch_genome_sizes, '+' )
         BAM_TO_BEDGRAPH_REV( ch_bam, ch_genome_sizes, '-' )
         ch_bedgraph_fw = BAM_TO_BEDGRAPH_FW.out.bedgraph
         ch_bedgraph_rev = BAM_TO_BEDGRAPH_REV.out.bedgraph
         BEDGRAPH_BEDCLIP_BEDGRAPHTOBIGWIG_FW( ch_bedgraph_fw, ch_genome_sizes, '+' )
         BEDGRAPH_BEDCLIP_BEDGRAPHTOBIGWIG_REV( ch_bedgraph_rev, ch_genome_sizes, '-' )
+        }
     }
 
     // BAM QC
@@ -299,7 +299,7 @@ workflow DIRECTRNA{
         ch_cramino_min_length = params.cramino_min_length
         ch_skip_ngs_bits = params.skip_ngs_bits
         ch_ngs_bits_build = params.ngs_bits_build
-        //TO-DO NEED TO ADD THIS CONTAMINATION TO A CUSTOM CONFIG
+        //TODO NEED TO ADD THIS CONTAMINATION TO A CUSTOM CONFIG
         ch_ngs_bits_skip_contamination = params.ngs_bits_skip_contamination
         BAM_QC(
             ch_skip_cramino,
@@ -311,11 +311,14 @@ workflow DIRECTRNA{
             ch_bam,
             ch_mixed_bam,
             ch_genome_fasta,
+            ch_transcriptome_fasta,
             ch_cramino_min_length
             )
         if (!params.skip_ngs_bits){
+            if (!params.transcriptome_mapping) {
             ch_ngs_bits_stats = BAM_QC.out.ngs_bits_stats.collect{it[1]}.flatten()
             ch_multiqc_files = ch_multiqc_files.mix(ch_ngs_bits_stats.ifEmpty([]))
+            }
         }
         if (!params.skip_samtools_flagstat){
             ch_samtools_flagstat_stats = BAM_QC.out.flagstat.collect{it[1]}.flatten()
@@ -332,51 +335,94 @@ workflow DIRECTRNA{
     // FLAIR
     if (!params.bam_input) {
         if (!params.skip_flair) {
-            if (!params.skip_flair_correct) {
-                BAM_TO_BED12( ch_bam, ch_bam_index_path )
-                ch_mapped_bed = BAM_TO_BED12.out.bed
-                FLAIR_CORRECT( ch_mapped_bed, ch_genome_fasta, ch_annotation_gtf )
-                ch_flair_corrected_bed = FLAIR_CORRECT.out.flair_corrected_bed
-                BEDTOOLS_JACCARD_FLAIR( ch_flair_corrected_bed, ch_mapped_bed, 'flair' )
-            }
-        if (!params.skip_flair_collapse) {
+            if (!params.transcriptome_mapping) {
                 if (!params.skip_flair_correct) {
-                    FLAIR_COLLAPSE( ch_sample, ch_flair_corrected_bed, ch_annotation_gtf, ch_genome_fasta )
-                    ch_flair_collapsed_bed = FLAIR_COLLAPSE.out.collapsed_isoforms_bed
-                    ch_flair_collapsed_gtf = FLAIR_COLLAPSE.out.collapsed_isoforms_gtf
-                    ch_flair_collapsed_fa = FLAIR_COLLAPSE.out.collapsed_isoforms_fa
-                } else {
                     BAM_TO_BED12( ch_bam, ch_bam_index_path )
                     ch_mapped_bed = BAM_TO_BED12.out.bed
-                    FLAIR_COLLAPSE( ch_sample, ch_mapped_bed, ch_annotation_gtf, ch_genome_fasta )
-                    ch_flair_collapsed_bed = FLAIR_COLLAPSE.out.collapsed_isoforms_bed
-                    ch_flair_collapsed_gtf = FLAIR_COLLAPSE.out.collapsed_isoforms_gtf
-                    ch_flair_collapsed_fa = FLAIR_COLLAPSE.out.collapsed_isoforms_fa
+                    FLAIR_CORRECT( ch_mapped_bed, ch_genome_fasta, ch_annotation_gtf )
+                    ch_flair_corrected_bed = FLAIR_CORRECT.out.flair_corrected_bed
+                    BEDTOOLS_JACCARD_FLAIR( ch_flair_corrected_bed, ch_mapped_bed, 'flair' )
+                }
+            if (!params.skip_flair_collapse) {
+                    if (!params.skip_flair_correct) {
+                        FLAIR_COLLAPSE( ch_sample, ch_flair_corrected_bed, ch_annotation_gtf, ch_genome_fasta )
+                        ch_flair_collapsed_bed = FLAIR_COLLAPSE.out.collapsed_isoforms_bed
+                        ch_flair_collapsed_gtf = FLAIR_COLLAPSE.out.collapsed_isoforms_gtf
+                        ch_flair_collapsed_fa = FLAIR_COLLAPSE.out.collapsed_isoforms_fa
+                    } else {
+                        BAM_TO_BED12( ch_bam, ch_bam_index_path )
+                        ch_mapped_bed = BAM_TO_BED12.out.bed
+                        FLAIR_COLLAPSE( ch_sample, ch_mapped_bed, ch_annotation_gtf, ch_genome_fasta )
+                        ch_flair_collapsed_bed = FLAIR_COLLAPSE.out.collapsed_isoforms_bed
+                        ch_flair_collapsed_gtf = FLAIR_COLLAPSE.out.collapsed_isoforms_gtf
+                        ch_flair_collapsed_fa = FLAIR_COLLAPSE.out.collapsed_isoforms_fa
+                    }
+                }
+            } else {
+                if (!params.skip_flair_correct) {
+                    BAM_TO_BED12( ch_bam, ch_bam_index_path )
+                    ch_mapped_bed = BAM_TO_BED12.out.bed
+                    FLAIR_CORRECT( ch_mapped_bed, ch_transcriptome_fasta, ch_annotation_gtf )
+                    ch_flair_corrected_bed = FLAIR_CORRECT.out.flair_corrected_bed
+                    BEDTOOLS_JACCARD_FLAIR( ch_flair_corrected_bed, ch_mapped_bed, 'flair' )
+                }
+                if (!params.skip_flair_collapse) {
+                    if (!params.skip_flair_correct) {
+                        FLAIR_COLLAPSE( ch_sample, ch_flair_corrected_bed, ch_annotation_gtf, ch_transcriptome_fasta )
+                        ch_flair_collapsed_bed = FLAIR_COLLAPSE.out.collapsed_isoforms_bed
+                        ch_flair_collapsed_gtf = FLAIR_COLLAPSE.out.collapsed_isoforms_gtf
+                        ch_flair_collapsed_fa = FLAIR_COLLAPSE.out.collapsed_isoforms_fa
+                    } else {
+                        BAM_TO_BED12( ch_bam, ch_bam_index_path )
+                        ch_mapped_bed = BAM_TO_BED12.out.bed
+                        FLAIR_COLLAPSE( ch_sample, ch_mapped_bed, ch_annotation_gtf, ch_transcriptome_fasta )
+                        ch_flair_collapsed_bed = FLAIR_COLLAPSE.out.collapsed_isoforms_bed
+                        ch_flair_collapsed_gtf = FLAIR_COLLAPSE.out.collapsed_isoforms_gtf
+                        ch_flair_collapsed_fa = FLAIR_COLLAPSE.out.collapsed_isoforms_fa
+                    }
                 }
             }
         }
-    }
+        }
 
     // BAMBU
     if (!params.skip_bambu) {
-        BAMBU( ch_genome_fasta, ch_annotation_gtf, ch_bam )
-        ch_bambu_supported_gtf = BAMBU.out.bambu_supported_gtf
-        ch_versions = ch_versions.mix(BAMBU.out.versions.first())
-        GFFREAD_GETFASTA_BAMBU( ch_bambu_supported_gtf, ch_genome_fasta_with_index, 'bambu' )
-        ch_bambu_transcripts = GFFREAD_GETFASTA_BAMBU.out.transcripts_fa
-        ch_versions = ch_versions.mix(GFFREAD_GETFASTA_BAMBU.out.versions.first())
+        if (!params.transcriptome_mapping) {
+            BAMBU( ch_genome_fasta, ch_annotation_gtf, ch_bam )
+            ch_bambu_supported_gtf = BAMBU.out.bambu_supported_gtf
+            ch_versions = ch_versions.mix(BAMBU.out.versions.first())
+            GFFREAD_GETFASTA_BAMBU( ch_bambu_supported_gtf, ch_genome_fasta_with_index, 'bambu' )
+            ch_bambu_transcripts = GFFREAD_GETFASTA_BAMBU.out.transcripts_fa
+            ch_versions = ch_versions.mix(GFFREAD_GETFASTA_BAMBU.out.versions.first())
+        } else {
+            BAMBU( ch_transcriptome_fasta, ch_annotation_gtf, ch_bam )
+            ch_bambu_supported_gtf = BAMBU.out.bambu_supported_gtf
+            ch_versions = ch_versions.mix(BAMBU.out.versions.first())
+            GFFREAD_GETFASTA_BAMBU( ch_bambu_supported_gtf, ch_transcriptome_fasta_with_index, 'bambu' )
+            ch_bambu_transcripts = GFFREAD_GETFASTA_BAMBU.out.transcripts_fa
+            ch_versions = ch_versions.mix(GFFREAD_GETFASTA_BAMBU.out.versions.first())
         }
+    }
 
     // ISOQUANT
     if (!params.skip_isoquant) {
         GTF2DB( ch_annotation_gtf )
         ch_isoquant_database = GTF2DB.out.isoquant_database
-        ISOQUANT( ch_mixed_bam, ch_isoquant_database, ch_genome_fasta)
-        ch_isoquant_gtf = ISOQUANT.out.isoquant_transcript_gtf
-        ch_versions = ch_versions.mix(ISOQUANT.out.versions.first())
-        GFFREAD_GETFASTA_ISOQUANT( ch_isoquant_gtf, ch_genome_fasta_with_index, 'isoquant' )
-        ch_isoquant_transcripts = GFFREAD_GETFASTA_ISOQUANT.out.transcripts_fa
-        ch_versions = ch_versions.mix(GFFREAD_GETFASTA_ISOQUANT.out.versions.first())
+        if (!params.transcriptome_mapping) {
+            ISOQUANT( ch_mixed_bam, ch_isoquant_database, ch_genome_fasta)
+            ch_isoquant_gtf = ISOQUANT.out.isoquant_transcript_gtf
+            ch_versions = ch_versions.mix(ISOQUANT.out.versions.first())
+            GFFREAD_GETFASTA_ISOQUANT( ch_isoquant_gtf, ch_genome_fasta_with_index, 'isoquant' )
+            ch_isoquant_transcripts = GFFREAD_GETFASTA_ISOQUANT.out.transcripts_fa
+            ch_versions = ch_versions.mix(GFFREAD_GETFASTA_ISOQUANT.out.versions.first())
+        } else {
+            ISOQUANT( ch_mixed_bam, ch_isoquant_database, ch_transcriptome_fasta)
+            ch_isoquant_gtf = ISOQUANT.out.isoquant_transcript_gtf
+            ch_versions = ch_versions.mix(ISOQUANT.out.versions.first())
+            GFFREAD_GETFASTA_ISOQUANT( ch_isoquant_gtf, ch_transcriptome_fasta_with_index, 'isoquant' )
+            ch_isoquant_transcripts = GFFREAD_GETFASTA_ISOQUANT.out.transcripts_fa
+            ch_versions = ch_versions.mix(GFFREAD_GETFASTA_ISOQUANT.out.versions.first())
+        }
     }
 
     // STRINGTIE
@@ -384,9 +430,15 @@ workflow DIRECTRNA{
         STRINGTIE( ch_bam, ch_annotation_gtf )
         ch_stringtie_gtf = STRINGTIE.out.stringtie_gtf
         ch_versions = ch_versions.mix(STRINGTIE.out.versions.first())
-        GFFREAD_GETFASTA_STRINGTIE( ch_stringtie_gtf, ch_genome_fasta_with_index, 'stringtie' )
-        ch_stringtie_transcripts = GFFREAD_GETFASTA_STRINGTIE.out.transcripts_fa
-        ch_versions = ch_versions.mix(GFFREAD_GETFASTA_STRINGTIE.out.versions.first())
+        if (!params.transcriptome_mapping) {
+            GFFREAD_GETFASTA_STRINGTIE( ch_stringtie_gtf, ch_genome_fasta_with_index, 'stringtie' )
+            ch_stringtie_transcripts = GFFREAD_GETFASTA_STRINGTIE.out.transcripts_fa
+            ch_versions = ch_versions.mix(GFFREAD_GETFASTA_STRINGTIE.out.versions.first())
+        } else {
+            GFFREAD_GETFASTA_STRINGTIE( ch_stringtie_gtf, ch_transcriptome_fasta_with_index, 'stringtie' )
+            ch_stringtie_transcripts = GFFREAD_GETFASTA_STRINGTIE.out.transcripts_fa
+            ch_versions = ch_versions.mix(GFFREAD_GETFASTA_STRINGTIE.out.versions.first())
+        }
     }
 
     // Fusion gene detection
@@ -410,19 +462,37 @@ workflow DIRECTRNA{
             }
         }
         if (!params.skip_bambu) {
-            GFFCOMPARE_BAMBU( ch_genome_fasta_with_index, ch_bambu_supported_gtf, ch_annotation_gtf, 'bambu' )
-            ch_bambu_gffcompare_stats = GFFCOMPARE_BAMBU.out.gffcompare_stats.collect{it[1]}.flatten()
-            ch_multiqc_files = ch_multiqc_files.mix(ch_bambu_gffcompare_stats.ifEmpty([]))
+            if (!params.transcriptome_mapping) {
+                GFFCOMPARE_BAMBU( ch_genome_fasta_with_index, ch_bambu_supported_gtf, ch_annotation_gtf, 'bambu' )
+                ch_bambu_gffcompare_stats = GFFCOMPARE_BAMBU.out.gffcompare_stats.collect{it[1]}.flatten()
+                ch_multiqc_files = ch_multiqc_files.mix(ch_bambu_gffcompare_stats.ifEmpty([]))
+            } else {
+                GFFCOMPARE_BAMBU( ch_transcriptome_fasta_with_index, ch_bambu_supported_gtf, ch_annotation_gtf, 'bambu' )
+                ch_bambu_gffcompare_stats = GFFCOMPARE_BAMBU.out.gffcompare_stats.collect{it[1]}.flatten()
+                ch_multiqc_files = ch_multiqc_files.mix(ch_bambu_gffcompare_stats.ifEmpty([]))
+            }
         }
         if (!params.skip_isoquant) {
-            GFFCOMPARE_ISOQUANT(ch_genome_fasta_with_index, ch_isoquant_gtf, ch_annotation_gtf, 'isoquant' )
-            ch_isoquant_gffcompare_stats = GFFCOMPARE_ISOQUANT.out.gffcompare_stats.collect{it[1]}.flatten()
-            ch_multiqc_files = ch_multiqc_files.mix(ch_isoquant_gffcompare_stats.ifEmpty([]))
+            if (!params.transcriptome_mapping) {
+                GFFCOMPARE_ISOQUANT(ch_genome_fasta_with_index, ch_isoquant_gtf, ch_annotation_gtf, 'isoquant' )
+                ch_isoquant_gffcompare_stats = GFFCOMPARE_ISOQUANT.out.gffcompare_stats.collect{it[1]}.flatten()
+                ch_multiqc_files = ch_multiqc_files.mix(ch_isoquant_gffcompare_stats.ifEmpty([]))
+            } else {
+                GFFCOMPARE_ISOQUANT(ch_transcriptome_fasta_with_index, ch_isoquant_gtf, ch_annotation_gtf, 'isoquant' )
+                ch_isoquant_gffcompare_stats = GFFCOMPARE_ISOQUANT.out.gffcompare_stats.collect{it[1]}.flatten()
+                ch_multiqc_files = ch_multiqc_files.mix(ch_isoquant_gffcompare_stats.ifEmpty([]))
+            }
         }
         if (!params.skip_stringtie) {
-            GFFCOMPARE_STRINGTIE( ch_genome_fasta_with_index, ch_stringtie_gtf, ch_annotation_gtf, 'stringtie' )
-            ch_stringtie_gffcompare_stats = GFFCOMPARE_STRINGTIE.out.gffcompare_stats.collect{it[1]}.flatten()
-            ch_multiqc_files = ch_multiqc_files.mix(ch_stringtie_gffcompare_stats.ifEmpty([]))
+            if (!params.transcriptome_mapping) {
+                GFFCOMPARE_STRINGTIE( ch_genome_fasta_with_index, ch_stringtie_gtf, ch_annotation_gtf, 'stringtie' )
+                ch_stringtie_gffcompare_stats = GFFCOMPARE_STRINGTIE.out.gffcompare_stats.collect{it[1]}.flatten()
+                ch_multiqc_files = ch_multiqc_files.mix(ch_stringtie_gffcompare_stats.ifEmpty([]))
+            } else {
+                GFFCOMPARE_STRINGTIE( ch_transcriptome_fasta_with_index, ch_stringtie_gtf, ch_annotation_gtf, 'stringtie' )
+                ch_stringtie_gffcompare_stats = GFFCOMPARE_STRINGTIE.out.gffcompare_stats.collect{it[1]}.flatten()
+                ch_multiqc_files = ch_multiqc_files.mix(ch_stringtie_gffcompare_stats.ifEmpty([]))
+            }
         }
     }
 
@@ -471,7 +541,7 @@ workflow DIRECTRNA{
     // PROFILE UNMAPPED READS
     if (!params.skip_sylph) {
         ch_sylph_database_name = channel.value(params.sylph_database_name)
-        PROFILE_UNMAPPED_READS( ch_sylph_database, ch_unmapped_bam, ch_sylph_database_name )
+        PROFILE_UNMAPPED_READS( ch_sylph_database, ch_unmapped_reads, ch_sylph_database_name )
         ch_sylph_tax = PROFILE_UNMAPPED_READS.out.sylph_tax
         ch_multiqc_files = ch_multiqc_files.mix(ch_sylph_tax.ifEmpty([]))
     }

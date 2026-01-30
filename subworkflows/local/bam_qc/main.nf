@@ -23,6 +23,7 @@ workflow BAM_QC {
     bam // channel: [ val(meta), [ bam ] ]
     mixed_bam // bam channel with bam.bai index included
     genome_fasta
+    transcriptome_fasta
     cramino_min_length
 
     main:
@@ -40,12 +41,21 @@ workflow BAM_QC {
 
     // alfred
     if (skip_alfred != true) {
-        ALFRED( bam, genome_fasta )
-        ch_alfred_stats              = ALFRED.out.alfred_stats
-        TRANSPOSE( ch_alfred_stats )
-        ch_alfred_stats_transposed      = TRANSPOSE.out.alfred_stats_transposed
-        ch_versions                     = ch_versions.mix(ALFRED.out.versions.first())
-        ch_versions                     = ch_versions.mix(TRANSPOSE.out.versions)
+        if (!params.transcriptome_mapping) {
+            ALFRED( bam, genome_fasta )
+            ch_alfred_stats              = ALFRED.out.alfred_stats
+            TRANSPOSE( ch_alfred_stats )
+            ch_alfred_stats_transposed      = TRANSPOSE.out.alfred_stats_transposed
+            ch_versions                     = ch_versions.mix(ALFRED.out.versions.first())
+            ch_versions                     = ch_versions.mix(TRANSPOSE.out.versions)
+        } else {
+            ALFRED( bam, transcriptome_fasta )
+            ch_alfred_stats              = ALFRED.out.alfred_stats
+            TRANSPOSE( ch_alfred_stats )
+            ch_alfred_stats_transposed      = TRANSPOSE.out.alfred_stats_transposed
+            ch_versions                     = ch_versions.mix(ALFRED.out.versions.first())
+            ch_versions                     = ch_versions.mix(TRANSPOSE.out.versions)
+        }
     } else {
         ch_alfred_stats            = null
         ch_alfred_stats_transposed = null
@@ -61,17 +71,18 @@ workflow BAM_QC {
     }
 
     if (skip_ngs_bits != true) {
-        NGS_BITS(
-        mixed_bam,
-        genome_fasta,
-        ngs_bits_build,
-        ngs_bits_skip_contamination
-        )
-        ch_ngs_bits = NGS_BITS.out.qcML
-        ch_versions = ch_versions.mix(NGS_BITS.out.versions.first())
-
-    } else {
-        ch_ngs_bits = null
+        if (!params.transcriptome_mapping) {
+            NGS_BITS(
+            mixed_bam,
+            genome_fasta,
+            ngs_bits_build,
+            ngs_bits_skip_contamination
+            )
+            ch_ngs_bits = NGS_BITS.out.qcML
+            ch_versions = ch_versions.mix(NGS_BITS.out.versions.first())
+        } else {
+            ch_ngs_bits = null
+        }
     }
 
     emit:

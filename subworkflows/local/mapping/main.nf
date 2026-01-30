@@ -7,7 +7,8 @@
 include { MINIMAP2_ALIGN                            } from '../../../modules/local/minimap2/align'
 include { SAMTOOLS_SORT                             } from '../../../modules/local/samtools/sort'
 include { SAMTOOLS_INDEX                            } from '../../../modules/local/samtools/index'
-include { SAMTOOLS_VIEW as SAMTOOLS_VIEW_UNMAPPED   } from '../../../modules/local/samtools/view'
+include { SAMTOOLS_FASTA                            } from '../../../modules/local/samtools/fasta'
+//include { SAMTOOLS_VIEW as SAMTOOLS_VIEW_UNMAPPED   } from '../../../modules/local/samtools/view'
 
 workflow MAPPING {
 
@@ -37,12 +38,15 @@ workflow MAPPING {
         ch_sample_bam_idx   = SAMTOOLS_INDEX.out.bai
         ch_versions         = ch_versions.mix(SAMTOOLS_INDEX.out.versions.first())
 
-    SAMTOOLS_VIEW_UNMAPPED ( ch_sample_bam )
-        ch_sample_unmapped_bam  = SAMTOOLS_VIEW_UNMAPPED.out.unmapped_bam
+    SAMTOOLS_FASTA( ch_sample_bam )
+        ch_sample_unmapped_reads = SAMTOOLS_FASTA.out.fasta
+
+    //SAMTOOLS_VIEW_UNMAPPED ( ch_sample_bam )
+    //    ch_sample_unmapped_bam  = SAMTOOLS_VIEW_UNMAPPED.out.unmapped_bam
 
     emit:
     bam             = ch_sample_bam           // channel: [ val(meta), [ bam ] ]
     bai             = ch_sample_bam_idx
-    unmapped_bam    = ch_sample_unmapped_bam // channel: [ val(meta), [ bai ] ]
+    unmapped_reads  = ch_sample_unmapped_reads // channel: [ val(meta), [ bai ] ]
     versions = ch_versions                     // channel: [ versions.yml ]
 }

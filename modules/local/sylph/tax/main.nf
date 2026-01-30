@@ -21,6 +21,8 @@ process SYLPH_TAX {
     def prefix = task.ext.prefix ?: "${meta.id}_${meta.replicate}"
 
     """
+    sylph-tax download --download-to .
+
     sylph-tax taxprof \\
         $sylph_profile \\
         -t $database_name \\

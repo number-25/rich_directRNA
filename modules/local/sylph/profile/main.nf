@@ -23,13 +23,12 @@ process SYLPH_PROFILE {
     """
     sylph profile \\
         $sylph_database \\
-        $sample \\
-        $task.cpus \\
+        -r $sample \\
         -o ${prefix}_sylph.tsv
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
-        sylph_profile: \$(sylph --version | cut -d" " -f2')
+        sylph_profile: \$(sylph --version | cut -d" " -f2)
     END_VERSIONS
     """
 
@@ -40,7 +39,7 @@ process SYLPH_PROFILE {
     touch ${prefix}_sylph.tsv
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
-        sylph_profile: \$(sylph --version | cut -d" " -f2')
+        sylph_profile: \$(sylph --version | cut -d" " -f2)
     END_VERSIONS
     """
 }

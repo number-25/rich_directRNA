@@ -3,10 +3,12 @@
 //
 
 include { GUNZIP as GUNZIP_FASTA                    } from '../../../modules/nf-core/gunzip'
-include { CUSTOM_GETCHROMSIZES                      } from '../../../modules/nf-core/custom/getchromsizes'
+include { CUSTOM_GETCHROMSIZES as INDEX_GENOME      } from '../../../modules/nf-core/custom/getchromsizes'
+include { CUSTOM_GETCHROMSIZES as INDEX_TRANSCRIPTOME   } from '../../../modules/nf-core/custom/getchromsizes'
 include { MINIMAP2_INDEX as MINIMAP2_GENOME_INDEX   } from '../../../modules/local/minimap2/index'
 include { MINIMAP2_INDEX as MINIMAP2_TXOME_INDEX    } from '../../../modules/local/minimap2/index'
 include { GUNZIP as GUNZIP_TRANSCRIPTOME            } from '../../../modules/nf-core/gunzip'
+//include { SAMTOOLS_FAIDX                            } from '../../../modules/local/samtools/faidx'
 include { GUNZIP as GUNZIP_ANNOTATION_GTF           } from '../../../modules/nf-core/gunzip'
 include { SQANTI_PREPARE_REFERENCE                  } from '../../local/sqanti/sqanti_prepare_reference'
 include { JAFFAL_PREPARE_REFERENCE                  } from '../../local/jaffal_prepare_reference'
@@ -26,6 +28,7 @@ workflow PREPARE_REFERENCE{
     genome_minimap2_index           // file: /path/to/minimap2_genome_index.fa.mmi
     bam_input                       // boolean: false [default: false]
     transcriptome_fasta             // file: /path/to/genome_fasta.sizes
+    transcriptome_fasta_index       // file: /path/to/genome_fasta.sizes
     transcriptome_minimap2_index    // file: /path/to/minimap2_transcriptome_index.fa.mmi
     annotation_gtf                  // file: /path/to/annotation.gtf
     //appris_bed?
@@ -65,18 +68,18 @@ workflow PREPARE_REFERENCE{
 
     // Genome fasta index
     if (!genome_fasta_index) {
-        CUSTOM_GETCHROMSIZES( ch_genome_fasta )
-        ch_genome_fasta_index = CUSTOM_GETCHROMSIZES.out.fai
-        ch_versions = ch_versions.mix(CUSTOM_GETCHROMSIZES.out.versions.first())
+        INDEX_GENOME( ch_genome_fasta )
+        ch_genome_fasta_index = INDEX_GENOME.out.fai
+        ch_versions = ch_versions.mix(INDEX_GENOME.out.versions.first())
     } else {
         ch_genome_fasta_index = Channel.value(file(genome_fasta_index, checkIfExists: true))
     }
 
     // Genome fasta sizes
     if (!genome_fasta_sizes) {
-        CUSTOM_GETCHROMSIZES( ch_genome_fasta )
-        ch_genome_fasta_sizes = CUSTOM_GETCHROMSIZES.out.sizes
-        ch_versions = ch_versions.mix(CUSTOM_GETCHROMSIZES.out.versions.first())
+        INDEX_GENOME( ch_genome_fasta )
+        ch_genome_fasta_sizes = INDEX_GENOME.out.sizes
+        ch_versions = ch_versions.mix(INDEX_GENOME.out.versions.first())
     } else {
         ch_genome_fasta_sizes = Channel.value(file(genome_fasta_sizes, checkIfExists: true))
     }
@@ -90,6 +93,14 @@ workflow PREPARE_REFERENCE{
 } else {
             ch_transcriptome_fasta = Channel.fromPath(params.transcriptome_fasta, checkIfExists: true)
         }
+    }
+
+    if (!transcriptome_fasta_index) {
+        INDEX_TRANSCRIPTOME( ch_transcriptome_fasta )
+        ch_transcriptome_fasta_index = INDEX_TRANSCRIPTOME.out.fai
+        ch_versions = ch_versions.mix(INDEX_TRANSCRIPTOME.out.versions.first())
+    } else {
+        ch_transcriptome_fasta_index = Channel.fromPath(params.transcriptome_fasta_index, checkIfExists: true)
     }
 
     // Uncompress GTF annotation file
@@ -186,6 +197,7 @@ workflow PREPARE_REFERENCE{
     genome_fasta_sizes              = ch_genome_fasta_sizes
     genome_minimap2_index           = ch_genome_minimap2_index
     transcriptome_fasta             = ch_transcriptome_fasta
+    transcriptome_fasta_index       = ch_transcriptome_fasta_index
     transcriptome_minimap2_index    = ch_transcriptome_minimap2_index
     annotation_gtf                  = ch_annotation_gtf
     sylph_database                  = ch_sylph_database

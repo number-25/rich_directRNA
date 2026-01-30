@@ -35,6 +35,10 @@
                     "type": "string",
                     "description": "Path to transcriptome fasta sequence."
                 },
+                "transcriptome_fasta_index": {
+                    "type": "string",
+                    "description": "Path to transcriptome fasta index."
+                },
                 "transcriptome_minimap2_index": {
                     "type": "string",
                     "description": "Path to transcriptome minimap2 index."
