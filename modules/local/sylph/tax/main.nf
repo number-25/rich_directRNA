@@ -25,6 +25,7 @@ process SYLPH_TAX {
 
     sylph-tax taxprof \\
         $sylph_profile \\
+        --taxonomy-dir !PWD \\
         -t $database_name \\
         -o ${prefix}_sylph_tax.sylphmpa
 
