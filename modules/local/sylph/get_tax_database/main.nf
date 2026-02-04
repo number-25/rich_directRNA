@@ -1,4 +1,4 @@
-process SYLPH_TAX {
+process GET_SYLPH_TAX_DB {
     tag "SYLPH_TAX"
     label 'process_low'
     conda "${moduleDir}/environment.yml"
@@ -6,30 +6,22 @@ process SYLPH_TAX {
         'https://depot.galaxyproject.org/singularity/sylph-tax:1.8.0--pyhdfd78af_0' :
         'biocontainers/sylph-tax:1.8.0--pyhdfd78af_0' }"
 
-    input:
-    tuple val(meta), path(sylph_profile)
-    path database
-    val database_name
+    //input:
+    //val outpath
 
     output:
-    tuple val(meta), path("*.sylphmpa") , optional: true , emit: sylph_tax
-    path "versions.yml"                 , emit: versions
+    path "tax_db"       , emit: sylph_tax_db
+    path "versions.yml" , emit: versions
 
     when:
     task.ext.when == null || task.ext.when
 
     script:
-    def prefix = task.ext.prefix ?: "${meta.id}_${meta.replicate}"
-
+    //def prefix = task.ext.prefix ?: "${meta.id}_${meta.replicate}"
 
     """
-    sylph-tax \\
-        --no-config \\
-        --taxonomy-dir $database \\
-        taxprof \\
-        $sylph_profile \\
-        -t $database_name \\
-        -o ${prefix}_sylph_tax.sylphmpa
+    mkdir tax_db
+    sylph-tax download --download-to tax_db
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
@@ -37,14 +29,16 @@ process SYLPH_TAX {
     END_VERSIONS
     """
 
-    stub:
-    def prefix = task.ext.prefix ?: "${meta.id}_${meta.replicate}"
+/*    stub:
+    //def prefix = task.ext.prefix ?: "${meta.id}_${meta.replicate}"
 
     """
-    touch ${prefix}_sylph_tax.sylphmpa
+    touch *.tsv.gz
+
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
         sylph_tax: \$(sylph-tax --version | cut -d" " -f2)
     END_VERSIONS
     """
+*/
 }
