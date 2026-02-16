@@ -327,7 +327,6 @@ workflow DIRECTRNA{
         ch_versions = ch_versions.mix(BAM_QC.out.versions)
     }
 
-
     // Stand alone read correction tools? Which ones....
 
     // TRANSCRIPT RECONSTRUCTION
@@ -390,13 +389,6 @@ workflow DIRECTRNA{
             GFFREAD_GETFASTA_ISOQUANT( ch_isoquant_gtf, ch_genome_fasta_with_index, 'isoquant' )
             ch_isoquant_transcripts = GFFREAD_GETFASTA_ISOQUANT.out.transcripts_fa
             ch_versions = ch_versions.mix(GFFREAD_GETFASTA_ISOQUANT.out.versions.first())
-        } else {
-            ISOQUANT( ch_mixed_bam, ch_isoquant_database, ch_transcriptome_fasta)
-            ch_isoquant_gtf = ISOQUANT.out.isoquant_transcript_gtf
-            ch_versions = ch_versions.mix(ISOQUANT.out.versions.first())
-            GFFREAD_GETFASTA_ISOQUANT( ch_isoquant_gtf, ch_transcriptome_fasta_with_index, 'isoquant' )
-            ch_isoquant_transcripts = GFFREAD_GETFASTA_ISOQUANT.out.transcripts_fa
-            ch_versions = ch_versions.mix(GFFREAD_GETFASTA_ISOQUANT.out.versions.first())
         }
     }
 
@@ -431,9 +423,9 @@ workflow DIRECTRNA{
     if (!params.skip_gffcompare) {
         if (!params.skip_flair) {
             if (!params.transcriptome_mapping) {
-            GFFCOMPARE_FLAIR( ch_genome_fasta_with_index, ch_flair_collapsed_gtf, ch_annotation_gtf, 'flair' )
-            ch_flair_gffcompare_stats = GFFCOMPARE_FLAIR.out.gffcompare_stats.collect{it[1]}.flatten()
-            ch_multiqc_files = ch_multiqc_files.mix(ch_flair_gffcompare_stats.ifEmpty([]))
+                GFFCOMPARE_FLAIR( ch_genome_fasta_with_index, ch_flair_collapsed_gtf, ch_annotation_gtf, 'flair' )
+                ch_flair_gffcompare_stats = GFFCOMPARE_FLAIR.out.gffcompare_stats.collect{it[1]}.flatten()
+                ch_multiqc_files = ch_multiqc_files.mix(ch_flair_gffcompare_stats.ifEmpty([]))
             }
         }
         if (!params.skip_bambu) {
@@ -450,10 +442,6 @@ workflow DIRECTRNA{
         if (!params.skip_isoquant) {
             if (!params.transcriptome_mapping) {
                 GFFCOMPARE_ISOQUANT(ch_genome_fasta_with_index, ch_isoquant_gtf, ch_annotation_gtf, 'isoquant' )
-                ch_isoquant_gffcompare_stats = GFFCOMPARE_ISOQUANT.out.gffcompare_stats.collect{it[1]}.flatten()
-                ch_multiqc_files = ch_multiqc_files.mix(ch_isoquant_gffcompare_stats.ifEmpty([]))
-            } else {
-                GFFCOMPARE_ISOQUANT(ch_transcriptome_fasta_with_index, ch_isoquant_gtf, ch_annotation_gtf, 'isoquant' )
                 ch_isoquant_gffcompare_stats = GFFCOMPARE_ISOQUANT.out.gffcompare_stats.collect{it[1]}.flatten()
                 ch_multiqc_files = ch_multiqc_files.mix(ch_isoquant_gffcompare_stats.ifEmpty([]))
             }
@@ -505,7 +493,9 @@ workflow DIRECTRNA{
                 OARFISH_BAMBU( ch_bambu_transcripts, ch_transcriptome_minimap2_index, ch_sequencing_type, 'bambu' )
             }
             if (!params.skip_isoquant) {
-                OARFISH_ISOQUANT( ch_isoquant_transcripts, ch_transcriptome_minimap2_index, ch_sequencing_type, 'isoquant' )
+                if (!params.transcriptome_mapping) {
+                    OARFISH_ISOQUANT( ch_isoquant_transcripts, ch_transcriptome_minimap2_index, ch_sequencing_type, 'isoquant' )
+                }
             }
             if (!params.skip_stringtie) {
                 OARFISH_STRINGTIE( ch_stringtie_transcripts, ch_transcriptome_minimap2_index, ch_sequencing_type, 'stringtie' )
