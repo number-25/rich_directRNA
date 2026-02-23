@@ -261,7 +261,7 @@ workflow DIRECTRNA{
         ch_transcriptome_minimap2_index )
         ch_bam = MAPPING.out.bam.view()
         ch_bam_index = MAPPING.out.bai
-        ch_bam_index_path = MAPPING.out.bai.flatten().last().view()
+        ch_bam_index_path = MAPPING.out.bai.flatten().last()
         ch_mixed_bam = ch_bam.combine(ch_bam_index_path)
         SAMTOOLS_FASTA( ch_bam )
         ch_unmapped_reads = SAMTOOLS_FASTA.out.fasta
@@ -270,10 +270,11 @@ workflow DIRECTRNA{
         ch_bam = ch_sample
         ch_bam.view()
         SAMTOOLS_INDEX( ch_sample )
-        ch_bam_index = SAMTOOLS_INDEX.out.bai.flatten().last()
+        ch_bam_index_path = SAMTOOLS_INDEX.out.bai.flatten().last().view()
+        //ch_bam_index_path = ch_bam_index
         SAMTOOLS_FASTA( ch_sample )
         ch_unmapped_reads = SAMTOOLS_FASTA.out.fasta
-        ch_mixed_bam = ch_bam.combine(ch_bam_index).view()
+        ch_mixed_bam = ch_bam.combine(ch_bam_index_path).view()
     }
 
     // BAM TO BIGWIG for visualisation
