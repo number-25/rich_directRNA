@@ -5508,6 +5508,7 @@
                       (l + a + 1 > t && (a = Math.max(1, t - l)),
                       u.push(n.substring((i -= a), i + a)),
                       !((l += a + 1) > t));
+
                     )
                       a = r[(o = (o + 1) % r.length)];
                     return u.reverse().join(e);
@@ -7389,6 +7390,7 @@
           for (
             var t, e, r, i, u, o, a, l, c, f, s = n[0][0], h = n[1][0], p = n[0][1], g = n[1][1], v = ul, d = v.length;
             d--;
+
           )
             if (((u = v[d]), u && u.prepare()))
               for (a = u.edges, l = a.length, o = 0; l > o; )
@@ -8925,6 +8927,7 @@
                       }
                     : En(u);
               ++m < M;
+
             )
               o.call(this, (h = t[m]), m)
                 ? (d.push([(p = +x.call(this, h, m)), (g = +b.call(this, h, m))]),
@@ -11833,6 +11836,7 @@
                           f = a[c - 1].edge,
                           s = f.l === o ? f.r : f.l;
                         ++l < c;
+
                       )
                         ((i = f),
                           (u = s),
@@ -12107,6 +12111,7 @@
                   c = 0,
                   h = -1;
                 ++h < u;
+
               ) {
                 for (s = c, p = -1; ++p < u; ) {
                   var m = d[h],
@@ -12637,6 +12642,7 @@
                 p = s.length - 1,
                 g = t ? 1 : 1 / h;
               ++u < p;
+
             )
               ((o = l[u] = []), (o.dx = s[u + 1] - (o.x = s[u])), (o.y = 0));
             if (p > 0)
@@ -12784,6 +12790,7 @@
                 for (
                   var r, i = n, u = n, o = t, l = i.parent.children[0], c = i.m, f = u.m, s = o.m, h = l.m;
                   (o = Ti(o)), (i = qi(i)), o && i;
+
                 )
                   ((l = qi(l)),
                     (u = Ti(u)),
@@ -13527,6 +13534,7 @@
               a = -1,
               l = this.length;
             ++a < l;
+
           ) {
             u.push((t = []));
             for (var c = this[a], f = -1, s = c.length; ++f < s; ) ((e = c[f]) && Qu(e, f, i, r, o), t.push(e));

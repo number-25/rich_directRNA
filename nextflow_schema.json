@@ -78,7 +78,8 @@
                     "type": "string",
                     "format": "directory-path",
                     "description": "The output directory where the results will be saved. You have to use absolute paths to storage on Cloud infrastructure.",
-                    "fa_icon": "fas fa-folder-open"
+                    "fa_icon": "fas fa-folder-open",
+                    "default": "outputs"
                 },
                 "help": {
                     "type": "boolean",
@@ -257,7 +258,8 @@
                 },
                 "skip_flair_correct": {
                     "type": "boolean",
-                    "description": "Skip FLAIR correct module."
+                    "description": "Skip FLAIR correct module.",
+                    "default": true
                 },
                 "extra_flair_correct_options": {
                     "type": "string",
@@ -273,7 +275,6 @@
                 },
                 "skip_bambu": {
                     "type": "boolean",
-                    "default": true,
                     "description": "Skip bambu transcript reconstruction."
                 },
                 "extra_bambu_options": {
@@ -290,7 +291,6 @@
                 },
                 "skip_isoquant": {
                     "type": "boolean",
-                    "default": true,
                     "description": "Skip IsoQuant transcript reconstruction."
                 },
                 "skip_isoquant_correction": {

@@ -41,7 +41,7 @@ lint:
   #    - manifest.name
   #    - manifest.homePage
   nf_test_content: False
-nf_core_version: 3.3.2
+nf_core_version: 3.5.2
 repository_type: pipeline
 template:
   prefix: number-25
