@@ -35,6 +35,8 @@ The pipeline is built using [Nextflow](https://www.nextflow.io/) and processes d
   - [gffcompare](#gffcompare)
 - [Transcript quantification](#Transcript-quantification)
   - [oarfish](#oarfish)
+- [Profile unmapped reads](#Profile-unmapped-reads)
+  - [sylph](#sylph)
 - [MultiQC](#multiqc) - Aggregate report describing results and QC from the whole pipeline
 - [Pipeline information](#pipeline-information) - Report metrics generated during the workflow execution
 
@@ -428,6 +430,19 @@ direct RNA and PacBio) sequencing technologies. oarfish requires a sample of
 sequencing reads aligned to the transcriptome (currently not to the genome). It
 handles multi-mapping reads through the use of probabilistic allocation via an
 expectation-maximization (EM) algorithm.
+
+## Profile unmapped reads
+
+### Sylph
+
+<details markdown="1">
+<summary>Output files</summary>
+
+- `profile_unmapped_reads/sylph`
+  - `*.tsv`: Sylph outputs a TSV (tab-separated values) file. Each row is one genome detected in the metagenome sample.
+  - `*.sylph_tax.sylphmpa`: sylph-tax can turn sylph's TSV output into a taxonomic profile like Kraken or MetaPhlAn. sylph-tax does this by using custom taxonomy files to annotate sylph's output.
+
+</details>
 
 ## MultiQC
 

@@ -45,6 +45,7 @@ The general flow of the pipeline is as follows;
 8. Transcript quantification ( [`oarfish`](https://github.com/COMBINE-lab/oarfish) )
      <!-- ( [`TranSigner`](https://github.com/haydenji0731/TranSigner),
    Small test datasets for the pipeline are included in the [assets directory](https://github.com/number-25/LongTranscriptomics/assets/test_data). -->
+9. Profile unmapped reads ( [`sylph`](https://github.com/bluenote-1577/sylph) )
 
 ## Usage
 
