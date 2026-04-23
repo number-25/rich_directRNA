@@ -47,6 +47,9 @@ The general flow of the pipeline is as follows;
    Small test datasets for the pipeline are included in the [assets directory](https://github.com/number-25/LongTranscriptomics/assets/test_data). -->
 9. Profile unmapped reads ( [`sylph`](https://github.com/bluenote-1577/sylph) )
 
+> [!NOTE]
+> When mapping the fastq files to a reference **transcriptome**, some modules will be skipped due to incompatibility: *BAM_TO_BEDGRAPH*, *BEDGRAPH_BEDCLIP_BEDGRAPHTOBIGWIG*, *NGS_BITS* from *BAM_QC*, *FLAIR*, *ISOQUANT*. Similarly, when using aligned bam files as the basic input files in place of fastq files, some modules will also be skipped: *NANOQ*, *SEQUALI*, *MAPPING*, *FLAIR*.
+
 ## Usage
 
 > [!NOTE]
