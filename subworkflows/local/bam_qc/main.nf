@@ -83,6 +83,8 @@ workflow BAM_QC {
         } else {
             ch_ngs_bits = null
         }
+    } else {
+        ch_ngs_bits = null
     }
 
     emit:
