@@ -48,7 +48,7 @@ The general flow of the pipeline is as follows;
 9. Profile unmapped reads ( [`sylph`](https://github.com/bluenote-1577/sylph) )
 
 > [!NOTE]
-> When mapping the fastq files to a reference **transcriptome**, some modules will be skipped due to incompatibility: *BAM_TO_BEDGRAPH*, *BEDGRAPH_BEDCLIP_BEDGRAPHTOBIGWIG*, *NGS_BITS* from *BAM_QC*, *FLAIR*, *ISOQUANT*. Similarly, when using aligned bam files as the basic input files in place of fastq files, some modules will also be skipped: *NANOQ*, *SEQUALI*, *MAPPING*, *FLAIR*.
+> When mapping the fastq files to a reference **transcriptome**, some modules will be skipped due to incompatibility: _BAM_TO_BEDGRAPH_, _BEDGRAPH_BEDCLIP_BEDGRAPHTOBIGWIG_, _NGS_BITS_ from _BAM_QC_, _FLAIR_, _ISOQUANT_. Similarly, when using aligned bam files as the basic input files in place of fastq files, some modules will also be skipped: _NANOQ_, _SEQUALI_, _MAPPING_, _FLAIR_.
 
 ## Usage
 
