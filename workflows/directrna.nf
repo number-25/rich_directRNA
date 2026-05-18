@@ -79,7 +79,7 @@ include { PREPARE_REFERENCE         } from '../subworkflows/local/prepare_refere
 // fastq QC
 include { NANOQ                     } from '../modules/local/nanoq/nanoq'
 include { SEQUALI                   } from '../modules/local/sequali/sequali'
-include { MULTIQC                   } from '../modules/nf-core/multiqc/main'
+include { MULTIQC                   } from '../modules/nf-core/multiqc'
 
 // fastq mapping
 include { MAPPING                   } from '../subworkflows/local/mapping'

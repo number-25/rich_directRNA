@@ -258,8 +258,7 @@
                 },
                 "skip_flair_correct": {
                     "type": "boolean",
-                    "description": "Skip FLAIR correct module.",
-                    "default": true
+                    "description": "Skip FLAIR correct module."
                 },
                 "extra_flair_correct_options": {
                     "type": "string",
@@ -422,5 +421,11 @@
         {
             "$ref": "#/$defs/module_specific_options"
         }
-    ]
+    ],
+    "properties": {
+        "trace_timestamp": {
+            "type": "string",
+            "default": "2026-05-18_15-12-52"
+        }
+    }
 }
