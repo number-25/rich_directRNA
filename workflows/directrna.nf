@@ -231,8 +231,11 @@ workflow DIRECTRNA{
         // Combine genome fasta with genome fasta index into single channel -
         // some software expect both files in a single path/channel
         ch_genome_fasta_with_index          = ch_genome_fasta.combine(ch_genome_fasta_index)
-        ch_transcriptome_fasta_with_index   = ch_transcriptome_fasta.combine(ch_transcriptome_fasta_index)
-
+        if (params.transcriptome_mapping) {
+            ch_transcriptome_fasta_with_index   = ch_transcriptome_fasta.combine(ch_transcriptome_fasta_index)
+        } else {
+            ch_transcriptome_fasta_with_index = null
+        }
 
         // initialize sqanti qc references
         if (!params.skip_sqanti_qc) {
