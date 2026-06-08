@@ -21,29 +21,29 @@ if (params.input) {
 
 // genome fasta
 if (params.genome_fasta) {
-    ch_genome_fasta = Channel.fromPath(params.genome_fasta, checkIfExists: true)
+    ch_genome_fasta = channel.fromPath(params.genome_fasta, checkIfExists: true)
 } else {
     exit 1, 'Reference genome fasta file is not specified! please modify nextflow.config or use --genome_fasta parameter'
 }
 
 // transcriptome
 if (params.annotation_gtf) {
-    ch_annotation_gtf = Channel.fromPath(params.annotation_gtf, checkIfExists: true) // check if exists
+    ch_annotation_gtf = channel.fromPath(params.annotation_gtf, checkIfExists: true) // check if exists
 } else {
     exit 1, 'Reference transcriptome annotation file is not specified! please modify nextflow.config or use --annotation_gtf parameter'
 }
 
 if (params.transcriptome_fasta) {
-    ch_transcriptome_fasta = Channel.fromPath(params.transcriptome_fasta, checkIfExists: true) // check if exists
+    ch_transcriptome_fasta = channel.fromPath(params.transcriptome_fasta, checkIfExists: true) // check if exists
 } else {
     exit 1, 'Reference transcriptome fasta file is not specified! please modify nextflow.config or use --transcriptome_fasta parameter'
 }
 
 if (params.skip_prepare_reference){
-    ch_genome_minimap2_index        = Channel.fromPath(params.genome_minimap2_index, checkIfExists: true)
-    ch_transcriptome_minimap2_index = Channel.fromPath(params.transcriptome_minimap2_index, checkIfExists: true)
-    ch_genome_fasta_index           = Channel.fromPath(params.genome_fasta_index, checkIfExists: true)
-    ch_genome_sizes                 = Channel.fromPath(params.genome_fasta_sizes, checkIfExists: true)
+    ch_genome_minimap2_index        = channel.fromPath(params.genome_minimap2_index, checkIfExists: true)
+    ch_transcriptome_minimap2_index = channel.fromPath(params.transcriptome_minimap2_index, checkIfExists: true)
+    ch_genome_fasta_index           = channel.fromPath(params.genome_fasta_index, checkIfExists: true)
+    ch_genome_sizes                 = channel.fromPath(params.genome_fasta_sizes, checkIfExists: true)
 }
 
 // Function to check if running offline
@@ -152,10 +152,11 @@ include { SAMTOOLS_FASTA                        } from '../modules/local/samtool
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
-workflow DIRECTRNA{
+workflow DIRECTRNA {
 
     //take:
-    //main:
+    //    ch_input
+    main:
 
     ch_versions = Channel.empty()
     ch_versions.view()
@@ -272,7 +273,7 @@ workflow DIRECTRNA{
         ch_bam = ch_sample
         SAMTOOLS_INDEX( ch_bam )
         ch_bam_index_path = SAMTOOLS_INDEX.out.bai.flatten().last()
-        ch_mixed_bam = ch_bam.combine(ch_bam_index_path).view()
+        ch_mixed_bam = ch_bam.combine(ch_bam_index_path)
         //ch_bam_index_path = ch_bam_index
         SAMTOOLS_FASTA( ch_bam )
         ch_unmapped_reads = SAMTOOLS_FASTA.out.fasta
@@ -338,7 +339,7 @@ workflow DIRECTRNA{
         if (!params.skip_flair) {
             if (!params.skip_flair_correct) {
                 BAM_TO_BED12( ch_bam, ch_bam_index_path )
-                ch_mapped_bed = BAM_TO_BED12.out.bed.view()
+                ch_mapped_bed = BAM_TO_BED12.out.bed
                 FLAIR_CORRECT( ch_mapped_bed, ch_genome_fasta, ch_annotation_gtf )
                 ch_flair_corrected_bed = FLAIR_CORRECT.out.flair_corrected_bed
                 BEDTOOLS_JACCARD_FLAIR( ch_flair_corrected_bed, ch_mapped_bed, 'flair' )
@@ -533,13 +534,13 @@ workflow DIRECTRNA{
     // MODULE: MultiQC
     //
 
-    ch_multiqc_config        = Channel.fromPath(
+    ch_multiqc_config        = channel.fromPath(
         "$projectDir/assets/multiqc_config.yml", checkIfExists: true)
     ch_multiqc_custom_config = params.multiqc_config ?
-        Channel.fromPath(params.multiqc_config, checkIfExists: true) :
+        channel.fromPath(params.multiqc_config, checkIfExists: true) :
         Channel.empty()
     ch_multiqc_logo          = params.multiqc_logo ?
-        Channel.fromPath(params.multiqc_logo, checkIfExists: true) :
+        channel.fromPath(params.multiqc_logo, checkIfExists: true) :
         Channel.empty()
 
     /* summary_params      = paramsSummaryMap(

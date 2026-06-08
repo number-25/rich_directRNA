@@ -23,6 +23,8 @@ include { paramsHelp            } from 'plugin/nf-schema'
 
 workflow{
 
+    main:
+
     //
     // nf-scheme validations
     //
@@ -40,7 +42,7 @@ workflow{
         exit 0
     }
 
-    DIRECTRNA ()
+    DIRECTRNA()
 }
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
