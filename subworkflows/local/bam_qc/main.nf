@@ -28,7 +28,7 @@ workflow BAM_QC {
 
     main:
 
-    ch_versions = Channel.empty()
+    ch_versions = channel.empty()
 
     // cramino
     if (skip_cramino != true) {

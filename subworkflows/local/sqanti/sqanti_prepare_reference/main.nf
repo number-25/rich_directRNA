@@ -26,7 +26,7 @@ workflow SQANTI_PREPARE_REFERENCE {
 
     main:
 
-    ch_versions = Channel.empty()
+    ch_versions = channel.empty()
 
     if (sqanti_qc_reference == 'human') {
         // cage data
@@ -43,7 +43,7 @@ workflow SQANTI_PREPARE_REFERENCE {
                 ch_sqanti_qc_cage_bed = GUNZIP_CAGE( [ [:], sqanti_qc_cage_path ] ).gunzip.map { it[1] }
                 ch_versions = ch_versions.mix(GUNZIP_CAGE.out.versions)
                 } else {
-                ch_sqanti_qc_cage_bed = Channel.value(file(sqanti_qc_cage_path), checkIfExists:true)
+                ch_sqanti_qc_cage_bed = channel.value(file(sqanti_qc_cage_path), checkIfExists:true)
                 }
             }
         }
@@ -60,7 +60,7 @@ workflow SQANTI_PREPARE_REFERENCE {
                 ch_sqanti_qc_polyA_sites_bed = GUNZIP_POLYA_SITES( [ [:], sqanti_qc_polyA_sites_path ] ).gunzip.map { it[1] }
                 ch_versions = ch_versions.mix(GUNZIP_POLYA_SITES.out.versions)
                 } else {
-                ch_sqanti_qc_polyA_sites_bed = Channel.value(file(sqanti_qc_polyA_sites_path), checkIfExists:true)
+                ch_sqanti_qc_polyA_sites_bed = channel.value(file(sqanti_qc_polyA_sites_path), checkIfExists:true)
                 }
             }
         }
@@ -72,7 +72,7 @@ workflow SQANTI_PREPARE_REFERENCE {
                 ch_versions = ch_versions.mix(CURL_POLYA_MOTIF.out.versions)
                 ch_sqanti_qc_polyA_motif = CURL_POLYA_MOTIF.out.curl
             } else {
-                ch_sqanti_qc_polyA_motif = Channel.value(file(sqanti_qc_polyA_motif_path), checkIfExists:true)
+                ch_sqanti_qc_polyA_motif = channel.value(file(sqanti_qc_polyA_motif_path), checkIfExists:true)
             }
         }
 
@@ -88,7 +88,7 @@ workflow SQANTI_PREPARE_REFERENCE {
                 ch_sqanti_qc_intron_junctions_bed = GUNZIP_INTROPOLIS( [ [:], sqanti_qc_intron_path ] ).gunzip.map { it[1] }
                 ch_versions = ch_versions.mix(GUNZIP_INTROPOLIS.out.versions)
                 } else {
-                ch_sqanti_qc_intron_junctions_bed = Channel.value(file(sqanti_qc_intron_path), checkIfExists:true)
+                ch_sqanti_qc_intron_junctions_bed = channel.value(file(sqanti_qc_intron_path), checkIfExists:true)
                 }
             }
         }

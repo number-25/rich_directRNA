@@ -12,7 +12,7 @@ workflow PROFILE_UNMAPPED_READS {
 
     main:
 
-    ch_versions = Channel.empty()
+    ch_versions = channel.empty()
 
     SYLPH_PROFILE( unmapped_reads, sylph_database )
     ch_sylph_profile = SYLPH_PROFILE.out.sylph_profile

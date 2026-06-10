@@ -12,7 +12,7 @@ workflow JAFFAL_PREPARE_REFERENCE {
 
     main:
 
-    ch_versions = Channel.empty()
+    ch_versions = channel.empty()
 
     CURL_JAFFAL( 'jaffal_reference', 'zip', 'https://figshare.com/ndownloader/articles/27673314/versions/1' )
     ch_jaffal_reference_zip = CURL_JAFFAL.out.curl

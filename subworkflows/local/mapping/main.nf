@@ -19,7 +19,7 @@ workflow MAPPING {
 
     main:
 
-    ch_versions = Channel.empty()
+    ch_versions = channel.empty()
 
     if (!params.transcriptome_mapping) {
         MINIMAP2_ALIGN ( ch_sample, ch_genome_minimap2_idx )

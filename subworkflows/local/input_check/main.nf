@@ -5,7 +5,7 @@ workflow INPUT_CHECK {
     samplesheet // file: /path/to/samplesheet
 
     main:
-    ch_samplesheet = Channel.fromPath(samplesheet, checkIfExists: true)
+    ch_samplesheet = channel.fromPath(samplesheet, checkIfExists: true)
     ch_samplesheet
         .splitCsv ( header:true, sep:',' )
         .map { get_sample_info(it) }

@@ -36,9 +36,9 @@ workflow PREPARE_REFERENCE{
     //mane_clinical_bed?
     skip_jaffal                     // boolean: skip jaffal fusion gene detection [default: false]
     skip_jaffal_download            // boolean: skip jaffal fusion gene detection [default: false]
-    jaffal_reference                // file: /path/to/jaffal_reference
+    _jaffal_reference                // file: /path/to/jaffal_reference
     skip_transcript_quantification  // boolean: skip all transcript quantification [default: false]
-    skip_sylph                      // boolean: false [default: false]
+    _skip_sylph                      // boolean: false [default: false]
     skip_sqanti_all                 // boolean: skip all of sqanti [default: false]
     skip_sqanti_qc                  // boolean: skip sqanti qc [default: false]
     sqanti_qc_reference             // boolean: three values options [mouse, human, custom]
@@ -53,16 +53,16 @@ workflow PREPARE_REFERENCE{
 
     main:
 
-    ch_versions = Channel.empty()
+    ch_versions = channel.empty()
 
     // Uncompress genome fasta file
     // Mandatory input
     if (genome_fasta) {
         if (genome_fasta.endsWith('.gz')) {
-            ch_genome_fasta = GUNZIP_FASTA( [ [:], file(genome_fasta, checkIfExists: true) ]).gunzip.map { it[1] }
+            ch_genome_fasta = GUNZIP_FASTA( [ [:], file(genome_fasta, checkIfExists: true) ]).gunzip.map { it -> it[1] }
             ch_versions = ch_versions.mix(GUNZIP_FASTA.out.versions)
         } else {
-            ch_genome_fasta = Channel.fromPath(genome_fasta, checkIfExists: true)
+            ch_genome_fasta = channel.fromPath(genome_fasta, checkIfExists: true)
         }
     }
 
@@ -72,7 +72,7 @@ workflow PREPARE_REFERENCE{
         ch_genome_fasta_index = INDEX_GENOME.out.fai
         ch_versions = ch_versions.mix(INDEX_GENOME.out.versions.first())
     } else {
-        ch_genome_fasta_index = Channel.value(file(genome_fasta_index, checkIfExists: true))
+        ch_genome_fasta_index = channel.value(file(genome_fasta_index, checkIfExists: true))
     }
 
     // Genome fasta sizes
@@ -81,17 +81,17 @@ workflow PREPARE_REFERENCE{
         ch_genome_fasta_sizes = INDEX_GENOME.out.sizes
         ch_versions = ch_versions.mix(INDEX_GENOME.out.versions.first())
     } else {
-        ch_genome_fasta_sizes = Channel.value(file(genome_fasta_sizes, checkIfExists: true))
+        ch_genome_fasta_sizes = channel.value(file(genome_fasta_sizes, checkIfExists: true))
     }
 
     // Uncompress transcriptome fasta file
     // Mandatory input
     if (transcriptome_fasta) {
         if (transcriptome_fasta.endsWith('.gz')) {
-            ch_transcriptome_fasta = GUNZIP_TRANSCRIPTOME( [ [:], file(transcriptome_fasta, checkIfExists: true) ] ).gunzip.map { it[1] }
+            ch_transcriptome_fasta = GUNZIP_TRANSCRIPTOME( [ [:], file(transcriptome_fasta, checkIfExists: true) ] ).gunzip.map { it -> it[1] }
             ch_versions = ch_versions.mix(GUNZIP_TRANSCRIPTOME.out.versions)
 } else {
-            ch_transcriptome_fasta = Channel.fromPath(params.transcriptome_fasta, checkIfExists: true)
+            ch_transcriptome_fasta = channel.fromPath(params.transcriptome_fasta, checkIfExists: true)
         }
     }
 
@@ -100,17 +100,17 @@ workflow PREPARE_REFERENCE{
         ch_transcriptome_fasta_index = INDEX_TRANSCRIPTOME.out.fai
         ch_versions = ch_versions.mix(INDEX_TRANSCRIPTOME.out.versions.first())
     } else {
-        ch_transcriptome_fasta_index = Channel.fromPath(params.transcriptome_fasta_index, checkIfExists: true)
+        ch_transcriptome_fasta_index = channel.fromPath(params.transcriptome_fasta_index, checkIfExists: true)
     }
 
     // Uncompress GTF annotation file
     // Mandatory input
     if (annotation_gtf) {
         if (annotation_gtf.endsWith('.gz')) {
-            ch_annotation_gtf = GUNZIP_ANNOTATION_GTF( [ [:], file(annotation_gtf, checkIfExists: true) ] ).gunzip.map { it[1] }
+            ch_annotation_gtf = GUNZIP_ANNOTATION_GTF( [ [:], file(annotation_gtf, checkIfExists: true) ] ).gunzip.map { it -> it[1] }
             ch_versions = ch_versions.mix(GUNZIP_ANNOTATION_GTF.out.versions)
         } else {
-            ch_annotation_gtf = Channel.fromPath(params.annotation_gtf, checkIfExists: true)
+            ch_annotation_gtf = channel.fromPath(params.annotation_gtf, checkIfExists: true)
         }
     }
 
@@ -122,7 +122,7 @@ workflow PREPARE_REFERENCE{
             ch_genome_minimap2_index = MINIMAP2_GENOME_INDEX.out.index
             ch_versions = ch_versions.mix(MINIMAP2_GENOME_INDEX.out.versions)
         } else {
-            ch_genome_minimap2_index = Channel.fromPath(params.genome_minimap2_index, checkIfExists: true)
+            ch_genome_minimap2_index = channel.fromPath(params.genome_minimap2_index, checkIfExists: true)
         }
     } else {
         ch_genome_minimap2_index = null
@@ -136,7 +136,7 @@ workflow PREPARE_REFERENCE{
             ch_transcriptome_minimap2_index = MINIMAP2_TXOME_INDEX.out.index
             ch_versions = ch_versions.mix(MINIMAP2_TXOME_INDEX.out.versions)
         } else {
-            ch_transcriptome_minimap2_index = Channel.fromPath(params.transcriptome_minimap2_index, checkIfExists: true)
+            ch_transcriptome_minimap2_index = channel.fromPath(params.transcriptome_minimap2_index, checkIfExists: true)
         }
     } else {
         ch_transcriptome_minimap2_index = null
@@ -144,7 +144,7 @@ workflow PREPARE_REFERENCE{
 
     // Prepare reference database for sylph
     if (!params.skip_sylph) {
-        ch_sylph_database = Channel.fromPath(params.sylph_database, checkIfExists: true)
+        ch_sylph_database = channel.fromPath(params.sylph_database, checkIfExists: true)
     }
 
     // Prepare references for SQANTI QC
@@ -181,7 +181,7 @@ workflow PREPARE_REFERENCE{
         //} else {
         // reference directory needs to be gzipped for this function to work
             ch_jaffal_reference = file(params.jaffal_reference, checkIfExists: true)
-            UNZIP( ch_jaffal_ref_dir, "jaffal_reference" )
+            UNZIP( ch_jaffal_reference, "jaffal_reference" )
             ch_jaffal_reference_dir = UNZIP.out.unzipped_archive
             ch_versions = ch_versions.mix(UNZIP.out.versions)
         } else {

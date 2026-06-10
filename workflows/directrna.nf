@@ -13,48 +13,9 @@
 
 // Check mandatory parameters (missing protocol or profile will exit the run.)
 // inputs samplesheet.csv
-if (params.input) {
-    ch_input = file(params.input) // defined in nextflow.config
-} else {
-    exit 1, 'Input samplesheet not specified!'
-}
 
-// genome fasta
-if (params.genome_fasta) {
-    ch_genome_fasta = channel.fromPath(params.genome_fasta, checkIfExists: true)
-} else {
-    exit 1, 'Reference genome fasta file is not specified! please modify nextflow.config or use --genome_fasta parameter'
-}
+//mandatoryParams()
 
-// transcriptome
-if (params.annotation_gtf) {
-    ch_annotation_gtf = channel.fromPath(params.annotation_gtf, checkIfExists: true) // check if exists
-} else {
-    exit 1, 'Reference transcriptome annotation file is not specified! please modify nextflow.config or use --annotation_gtf parameter'
-}
-
-if (params.transcriptome_fasta) {
-    ch_transcriptome_fasta = channel.fromPath(params.transcriptome_fasta, checkIfExists: true) // check if exists
-} else {
-    exit 1, 'Reference transcriptome fasta file is not specified! please modify nextflow.config or use --transcriptome_fasta parameter'
-}
-
-if (params.skip_prepare_reference){
-    ch_genome_minimap2_index        = channel.fromPath(params.genome_minimap2_index, checkIfExists: true)
-    ch_transcriptome_minimap2_index = channel.fromPath(params.transcriptome_minimap2_index, checkIfExists: true)
-    ch_genome_fasta_index           = channel.fromPath(params.genome_fasta_index, checkIfExists: true)
-    ch_genome_sizes                 = channel.fromPath(params.genome_fasta_sizes, checkIfExists: true)
-}
-
-// Function to check if running offline
-def isOffline() {
-    try {
-        return NXF_OFFLINE as Boolean
-    }
-    catch( Exception e ) {
-        return false
-    }
-}
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -154,13 +115,49 @@ include { SAMTOOLS_FASTA                        } from '../modules/local/samtool
 
 workflow DIRECTRNA {
 
-    //take:
-    //    ch_input
+//def mandatoryParams() {
+  //  if (params.input) {
+        ch_input = file(params.input) // defined in nextflow.config
+    //} else {
+    //    exit 1, 'Input samplesheet not specified!'
+    //}
+
+    // genome fasta
+    //if (params.genome_fasta) {
+        ch_genome_fasta = channel.fromPath(params.genome_fasta, checkIfExists: true)
+    //} else {
+    //    exit 1, 'Reference genome fasta file is not specified! please modify nextflow.config or use --genome_fasta parameter'
+    //}
+
+    // transcriptome
+    //if (params.annotation_gtf) {
+        ch_annotation_gtf = channel.fromPath(params.annotation_gtf, checkIfExists: true) // check if exists
+    //} else {
+    //    exit 1, 'Reference transcriptome annotation file is not specified! please modify nextflow.config or use --annotation_gtf parameter'
+    //}
+
+    //if (params.transcriptome_fasta) {
+        ch_transcriptome_fasta = channel.fromPath(params.transcriptome_fasta, checkIfExists: true) // check if exists
+    //} else {
+    //    exit 1, 'Reference transcriptome fasta file is not specified! please modify nextflow.config or use --transcriptome_fasta parameter'
+    //}
+
+    //if (params.skip_prepare_reference){
+        ch_genome_minimap2_index        = channel.fromPath(params.genome_minimap2_index, checkIfExists: true)
+        ch_transcriptome_minimap2_index = channel.fromPath(params.transcriptome_minimap2_index, checkIfExists: true)
+        ch_genome_fasta_index           = channel.fromPath(params.genome_fasta_index, checkIfExists: true)
+        ch_genome_sizes                 = channel.fromPath(params.genome_fasta_sizes, checkIfExists: true)
+    //}
+//}
+
+
+    take:
+    ch_input
     main:
 
-    ch_versions = Channel.empty()
+    ch_versions = channel.empty()
     ch_versions.view()
-    ch_multiqc_files = Channel.empty()
+    ch_multiqc_files = channel.empty()
     //def multiqc_report      = []
 
     // INPUT_CHECK
@@ -175,13 +172,13 @@ workflow DIRECTRNA {
         if (!params.bam_input) {
             if (!params.skip_nanoq) {
                 NANOQ( ch_sample )
-                ch_nanoq_stats = NANOQ.out.stats.collect{it[1]}.flatten()
+                ch_nanoq_stats = NANOQ.out.stats.collect{it -> it[1]}.flatten()
                 ch_multiqc_files = ch_multiqc_files.mix(ch_nanoq_stats.ifEmpty([]))
                 ch_versions = ch_versions.mix(NANOQ.out.versions.first())
             }
             if (!params.skip_sequali) {
                 SEQUALI( ch_sample )
-                ch_sequali_stats = SEQUALI.out.sequali_json.collect{it[1]}.flatten()
+                ch_sequali_stats = SEQUALI.out.sequali_json.collect{it -> it[1]}.flatten()
                 ch_multiqc_files = ch_multiqc_files.mix(ch_sequali_stats.ifEmpty([]))
                 ch_versions = ch_versions.mix(SEQUALI.out.versions.first())
             }
@@ -319,12 +316,12 @@ workflow DIRECTRNA {
             )
         if (!params.skip_ngs_bits){
             if (!params.transcriptome_mapping) {
-            ch_ngs_bits_stats = BAM_QC.out.ngs_bits_stats.collect{it[1]}.flatten()
+            ch_ngs_bits_stats = BAM_QC.out.ngs_bits_stats.collect{it -> it[1]}.flatten()
             ch_multiqc_files = ch_multiqc_files.mix(ch_ngs_bits_stats.ifEmpty([]))
             }
         }
         if (!params.skip_samtools_flagstat){
-            ch_samtools_flagstat_stats = BAM_QC.out.flagstat.collect{it[1]}.flatten()
+            ch_samtools_flagstat_stats = BAM_QC.out.flagstat.collect{it -> it[1]}.flatten()
             ch_multiqc_files = ch_multiqc_files.mix(ch_samtools_flagstat_stats.ifEmpty([]))
         }
         ch_versions = ch_versions.mix(BAM_QC.out.versions)
@@ -427,36 +424,36 @@ workflow DIRECTRNA {
         if (!params.skip_flair) {
             if (!params.transcriptome_mapping && !params.bam_input) {
                 GFFCOMPARE_FLAIR( ch_genome_fasta_with_index, ch_flair_collapsed_gtf, ch_annotation_gtf, 'flair' )
-                ch_flair_gffcompare_stats = GFFCOMPARE_FLAIR.out.gffcompare_stats.collect{it[1]}.flatten()
+                ch_flair_gffcompare_stats = GFFCOMPARE_FLAIR.out.gffcompare_stats.collect{it -> it[1]}.flatten()
                 ch_multiqc_files = ch_multiqc_files.mix(ch_flair_gffcompare_stats.ifEmpty([]))
             }
         }
         if (!params.skip_bambu) {
             if (!params.transcriptome_mapping) {
                 GFFCOMPARE_BAMBU( ch_genome_fasta_with_index, ch_bambu_supported_gtf, ch_annotation_gtf, 'bambu' )
-                ch_bambu_gffcompare_stats = GFFCOMPARE_BAMBU.out.gffcompare_stats.collect{it[1]}.flatten()
+                ch_bambu_gffcompare_stats = GFFCOMPARE_BAMBU.out.gffcompare_stats.collect{t -> it[1]}.flatten()
                 ch_multiqc_files = ch_multiqc_files.mix(ch_bambu_gffcompare_stats.ifEmpty([]))
             } else {
                 GFFCOMPARE_BAMBU( ch_transcriptome_fasta_with_index, ch_bambu_supported_gtf, ch_annotation_gtf, 'bambu' )
-                ch_bambu_gffcompare_stats = GFFCOMPARE_BAMBU.out.gffcompare_stats.collect{it[1]}.flatten()
+                ch_bambu_gffcompare_stats = GFFCOMPARE_BAMBU.out.gffcompare_stats.collect{it -> it[1]}.flatten()
                 ch_multiqc_files = ch_multiqc_files.mix(ch_bambu_gffcompare_stats.ifEmpty([]))
             }
         }
         if (!params.skip_isoquant) {
             if (!params.transcriptome_mapping) {
                 GFFCOMPARE_ISOQUANT(ch_genome_fasta_with_index, ch_isoquant_gtf, ch_annotation_gtf, 'isoquant' )
-                ch_isoquant_gffcompare_stats = GFFCOMPARE_ISOQUANT.out.gffcompare_stats.collect{it[1]}.flatten()
+                ch_isoquant_gffcompare_stats = GFFCOMPARE_ISOQUANT.out.gffcompare_stats.collect{it -> it[1]}.flatten()
                 ch_multiqc_files = ch_multiqc_files.mix(ch_isoquant_gffcompare_stats.ifEmpty([]))
             }
         }
         if (!params.skip_stringtie) {
             if (!params.transcriptome_mapping) {
                 GFFCOMPARE_STRINGTIE( ch_genome_fasta_with_index, ch_stringtie_gtf, ch_annotation_gtf, 'stringtie' )
-                ch_stringtie_gffcompare_stats = GFFCOMPARE_STRINGTIE.out.gffcompare_stats.collect{it[1]}.flatten()
+                ch_stringtie_gffcompare_stats = GFFCOMPARE_STRINGTIE.out.gffcompare_stats.collect{it -> it[1]}.flatten()
                 ch_multiqc_files = ch_multiqc_files.mix(ch_stringtie_gffcompare_stats.ifEmpty([]))
             } else {
                 GFFCOMPARE_STRINGTIE( ch_transcriptome_fasta_with_index, ch_stringtie_gtf, ch_annotation_gtf, 'stringtie' )
-                ch_stringtie_gffcompare_stats = GFFCOMPARE_STRINGTIE.out.gffcompare_stats.collect{it[1]}.flatten()
+                ch_stringtie_gffcompare_stats = GFFCOMPARE_STRINGTIE.out.gffcompare_stats.collect{it -> it[1]}.flatten()
                 ch_multiqc_files = ch_multiqc_files.mix(ch_stringtie_gffcompare_stats.ifEmpty([]))
             }
         }
@@ -513,9 +510,6 @@ workflow DIRECTRNA {
         ch_sylph_tax = PROFILE_UNMAPPED_READS.out.sylph_tax
         ch_multiqc_files = ch_multiqc_files.mix(ch_sylph_tax.ifEmpty([]))
     }
-    //
-    // Collate statistics
-    //
 
     //
     // Collate and save software versions
@@ -529,7 +523,6 @@ workflow DIRECTRNA {
             newLine: true
         ).set { ch_collated_versions }
 
-
     //
     // MODULE: MultiQC
     //
@@ -538,19 +531,19 @@ workflow DIRECTRNA {
         "$projectDir/assets/multiqc_config.yml", checkIfExists: true)
     ch_multiqc_custom_config = params.multiqc_config ?
         channel.fromPath(params.multiqc_config, checkIfExists: true) :
-        Channel.empty()
+        channel.empty()
     ch_multiqc_logo          = params.multiqc_logo ?
         channel.fromPath(params.multiqc_logo, checkIfExists: true) :
-        Channel.empty()
+        channel.empty()
 
     /* summary_params      = paramsSummaryMap(
     //    workflow, parameters_schema: "nextflow_schema.json")
-    ///ch_workflow_summary = Channel.value(paramsSummaryMultiqc(summary_params))
+    ///ch_workflow_summary = channel.value(paramsSummaryMultiqc(summary_params))
 
     //ch_multiqc_custom_methods_description = params.multiqc_methods_description ?
     //    file(params.multiqc_methods_description, checkIfExists: true) :
     //    file("$projectDir/assets/methods_description_template.yml", checkIfExists: true)
-    //ch_methods_description                = Channel.value(
+    //ch_methods_description                = channel.value(
     //    methodsDescriptionText(ch_multiqc_custom_methods_description))
 
     ch_multiqc_files = ch_multiqc_files.mix(
