@@ -61,7 +61,7 @@ process ISOQUANT {
     def args       = task.ext.args ?: ''
     def prefix     = task.ext.prefix ?: "${meta.id}_${meta.replicate}_isoquant"
     def input_bam  = task.ext.input_bam ?: "--bam $bam"
-    def ref_genome = task.ext.ref_genome ?: "--reference $genome_fasta"
+    def ref_genome = task.ext.ref_genome ?: "--reference $genome_fasta_index"
     def ref_gtf    = task.ext.ref_gtf ?: "--genedb $annotation_gtf"
     //def output   = task.ext.output ?: "--output isoquant_${meta.id}_${meta.replicate}"
     //touch ${prefix}.bam

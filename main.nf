@@ -16,12 +16,19 @@ nextflow.enable.dsl = 2
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
-include { DIRECTRNA             } from './workflows/directrna'
 include { validateParameters    } from 'plugin/nf-schema'
 include { paramsSummaryLog      } from 'plugin/nf-schema'
+//include { samplesheetToList     } from 'plugin/nf-scheme'
 include { paramsHelp            } from 'plugin/nf-schema'
+include { LONGTX                } from './workflows/longtranscriptomics'
 
-workflow{
+/*
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    RUN MAIN WORKFLOW
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+*/
+
+workflow {
 
     main:
 
@@ -42,19 +49,10 @@ workflow{
         exit 0
     }
 
-    DIRECTRNA()
+    LONGTX()
 }
-/*
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    RUN MAIN WORKFLOW
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-*/
-/*
-workflow {
 
-    main:
-
-    PIPELINE_COMPLETION (
+/*    PIPELINE_COMPLETION (
         params.email,
         params.email_on_fail,
         params.plaintext_email,
@@ -63,8 +61,6 @@ workflow {
         params.hook_url,
         //MEDGEN_DIRECTRNA.out.multiqc_report
     )
-
-}
 */
 
 /*

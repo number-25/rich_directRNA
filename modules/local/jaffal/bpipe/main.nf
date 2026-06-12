@@ -1,5 +1,5 @@
 process JAFFAL {
-    echo true
+    debug true
     label 'process_high'
     conda "bioconda::jaffa=2.3.0"
     container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?

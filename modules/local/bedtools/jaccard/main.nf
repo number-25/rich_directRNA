@@ -5,7 +5,6 @@ process BEDTOOLS_JACCARD {
     container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
         'https://depot.galaxyproject.org/singularity/bedtools:2.31.1--hf5e1c6e_2':
         'biocontainers/bedtools:2.31.1--hf5e1c6e_2' }"
-    //publishDir "
 
     input:
     tuple val(meta), path(corrected_bed)
@@ -20,7 +19,7 @@ process BEDTOOLS_JACCARD {
     task.ext.when == null || task.ext.when
 
     script:
-    def args = task.ext.args ?: ''
+    //def args = task.ext.args ?: ''
     def prefix = task.ext.prefix ?: "${meta.id}_${meta.replicate}_${program}"
     """
     bedtools \\
@@ -36,7 +35,7 @@ process BEDTOOLS_JACCARD {
     """
 
     stub:
-    def args = task.ext.args ?: ''
+    //def args = task.ext.args ?: ''
     def prefix = task.ext.prefix ?: "${meta.id}_${meta.replicate}_${program}"
     """
     touch ${prefix}.jaccard

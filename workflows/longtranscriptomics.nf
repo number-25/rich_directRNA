@@ -7,24 +7,15 @@
 // nextflow magik
 
     //def summary_params = NfcoreSchema.paramsSummaryMap(workflow, params)
-    // Create a new channel of metadata from a sample sheet passed to the pipeline through the --input parameter
-    //ch_input = Channel.fromList(samplesheetToList(params.input, "assets/schema_input.json"))
-
-
-// Check mandatory parameters (missing protocol or profile will exit the run.)
-// inputs samplesheet.csv
-
-//mandatoryParams()
-
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    IMPORT NF-CORE MODULES / SUBWORKFLOWS / FUNCTIONS
+    IMPORT NF-CORE MODULES / SUBWORKFLOWS / FUNCTIONS / PLUGINS
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
 include { softwareVersionsToYAML    } from '../subworkflows/nf-core/utils_nfcore_pipeline'
-//include { samplesheetToList } from 'plugin/nf-schema'
+include { samplesheetToList         } from 'plugin/nf-schema'
 //include { paramsSummaryMultiqc   } from '../subworkflows/nf-core/utils_nfcore_pipeline'
 //include { methodsDescriptionText } from '../subworkflows/local/utils_nfcore_directrna_pipeline'
 
@@ -34,7 +25,7 @@ include { softwareVersionsToYAML    } from '../subworkflows/nf-core/utils_nfcore
 ----------------------------------------------------------------------------------------
 */
 // Check samplesheet
-include { INPUT_CHECK               } from '../subworkflows/local/input_check'
+//include { INPUT_CHECK               } from '../subworkflows/local/input_check'
 // Prepare reference files
 include { PREPARE_REFERENCE         } from '../subworkflows/local/prepare_reference'
 // fastq QC
@@ -113,11 +104,17 @@ include { SAMTOOLS_FASTA                        } from '../modules/local/samtool
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
-workflow DIRECTRNA {
+workflow LONGTX {
 
 //def mandatoryParams() {
-  //  if (params.input) {
-        ch_input = file(params.input) // defined in nextflow.config
+
+    // Create a new channel of metadata from a sample sheet passed to the pipeline through the --input parameter
+    ch_sample = channel.fromList(samplesheetToList(params.input, "assets/schema_input.json"))
+            .view()
+
+//  if (params.input) {
+       // ch_input = file(params.input)
+                // defined in nextflow.config
     //} else {
     //    exit 1, 'Input samplesheet not specified!'
     //}
@@ -142,17 +139,17 @@ workflow DIRECTRNA {
     //    exit 1, 'Reference transcriptome fasta file is not specified! please modify nextflow.config or use --transcriptome_fasta parameter'
     //}
 
-    //if (params.skip_prepare_reference){
+    if (params.skip_prepare_reference){
         ch_genome_minimap2_index        = channel.fromPath(params.genome_minimap2_index, checkIfExists: true)
         ch_transcriptome_minimap2_index = channel.fromPath(params.transcriptome_minimap2_index, checkIfExists: true)
         ch_genome_fasta_index           = channel.fromPath(params.genome_fasta_index, checkIfExists: true)
         ch_genome_sizes                 = channel.fromPath(params.genome_fasta_sizes, checkIfExists: true)
-    //}
+    }
 //}
 
 
-    take:
-    ch_input
+    //take:
+    //ch_input
     main:
 
     ch_versions = channel.empty()
@@ -161,8 +158,10 @@ workflow DIRECTRNA {
     //def multiqc_report      = []
 
     // INPUT_CHECK
-    INPUT_CHECK ( ch_input )
-        .set { ch_sample }
+    //INPUT_CHECK ( ch_input )
+    //    .set { ch_sample }
+
+    //ch_sample = ch_sample.view()
 
     ch_sequencing_type = channel.value(params.sequencing_type)
 
@@ -431,7 +430,7 @@ workflow DIRECTRNA {
         if (!params.skip_bambu) {
             if (!params.transcriptome_mapping) {
                 GFFCOMPARE_BAMBU( ch_genome_fasta_with_index, ch_bambu_supported_gtf, ch_annotation_gtf, 'bambu' )
-                ch_bambu_gffcompare_stats = GFFCOMPARE_BAMBU.out.gffcompare_stats.collect{t -> it[1]}.flatten()
+                ch_bambu_gffcompare_stats = GFFCOMPARE_BAMBU.out.gffcompare_stats.collect{it -> it[1]}.flatten()
                 ch_multiqc_files = ch_multiqc_files.mix(ch_bambu_gffcompare_stats.ifEmpty([]))
             } else {
                 GFFCOMPARE_BAMBU( ch_transcriptome_fasta_with_index, ch_bambu_supported_gtf, ch_annotation_gtf, 'bambu' )

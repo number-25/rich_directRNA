@@ -19,13 +19,13 @@ process CRAMINO {
 
     script:
     def args        = task.ext.args ?: '--spliced'
-    def read_length = task.ext.read_length ?: "--min-read-len ${read_length}"
+    def read_len = task.ext.read_length ?: "--min-read-len ${read_length}"
     def prefix      = task.ext.prefix ?: "${meta.id}_${meta.replicate}_cramino"
     """
     cramino \\
         -t $task.cpus \\
         $args \\
-        $read_length \\
+        $read_len \\
         $bam \\
         > ${prefix}.stats
 
@@ -36,7 +36,7 @@ process CRAMINO {
     """
 
     stub:
-    def args   = task.ext.args ?: '--spliced'
+    //def args   = task.ext.args ?: '--spliced'
     def prefix = task.ext.prefix ?: "${meta.id}"
     """
     touch ${prefix}.bam

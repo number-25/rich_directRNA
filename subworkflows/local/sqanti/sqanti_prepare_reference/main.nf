@@ -56,7 +56,7 @@ workflow SQANTI_PREPARE_REFERENCE {
                 ch_sqanti_qc_polyA_sites_bed = GUNZIP_POLYA_SITES( [ [:], sqanti_polyA_sites_bed_gzip ] ).gunzip.map { it[1] }
                 ch_versions = ch_versions.mix(GUNZIP_POLYA_SITES.out.versions)
             } else {
-                if (sqanti_polyA_sites_path.endsWith('.gz')) {
+                if (sqanti_qc_polyA_sites_path.endsWith('.gz')) {
                 ch_sqanti_qc_polyA_sites_bed = GUNZIP_POLYA_SITES( [ [:], sqanti_qc_polyA_sites_path ] ).gunzip.map { it[1] }
                 ch_versions = ch_versions.mix(GUNZIP_POLYA_SITES.out.versions)
                 } else {

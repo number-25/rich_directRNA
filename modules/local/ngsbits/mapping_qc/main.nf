@@ -20,10 +20,10 @@ process NGS_BITS {
     task.ext.when == null || task.ext.when
 
     script:
-    def args            = task.ext.args ?: ''
-    def contamination   = task.ext.contamination ?: "-no_cont"
-    def genome_build    = task.ext.build ?: "$build"
-    def prefix          = task.ext.prefix ?: "${meta.id}_${meta.replicate}_ngsbits"
+    //def args            = task.ext.args ?: ''
+    def contamination_type      = task.ext.contamination ?: "-no_cont"
+    //def genome_build            = task.ext.genome_build ?: "$build"
+    def prefix              = task.ext.prefix ?: "${meta.id}_${meta.replicate}_ngsbits"
 
     // -build $genome_build
     """
@@ -33,7 +33,7 @@ process NGS_BITS {
         -rna \\
         -ref $genome_fasta \\
         -long_read \\
-        $contamination
+        $contamination_type
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
@@ -42,9 +42,9 @@ process NGS_BITS {
     """
 
     stub:
-    def args          = task.ext.args ?: ''
-    def contamination = task.ext.contamination ? "-no_cont" : ""
-    def build         = task.ext.build ?: "$build"
+    //def args          = task.ext.args ?: ''
+    //def contamination = task.ext.contamination ? "-no_cont" : ""
+    //def build         = task.ext.build ?: "$build"
     def prefix        = task.ext.prefix ?: "${meta.id}_${meta.replicate}_ngsbits"
 
     """

@@ -40,7 +40,7 @@ process SAMTOOLS_INDEX {
     //def extension = file(input).getExtension() == 'cram' ?
     //                "crai" : args.contains("-c") ?  "csi" : "bai"
     """
-    touch ${input}.bai
+    touch ${meta.id}.bai
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
